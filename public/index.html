@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tangga Mas | Scaffolding & Formwork</title>
+
+<!-- Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<!-- Icons -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+<!-- Tailwind -->
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          'brand-green': '#1BBC9A',
+          'brand-green-dark': '#0C5646',
+          'brand-gray-bg': '#f9fafb',
+          'brand-price': '#16a34a'
+        },
+        fontFamily: {
+          'sans': ['"Inter"', 'sans-serif'],
+        }
+      }
+    }
+  }
+</script>
+
+<link rel="stylesheet" href="styles.css">
+</head>
+<body class="font-sans text-gray-800 bg-white antialiased">
+
+<!-- ========== NAVBAR ========== -->
+<header class="sticky top-0 z-50 bg-white border-b border-gray-100">
+  <div class="container mx-auto px-4">
+    <div class="flex items-center justify-between h-16 md:h-20">
+
+      <!-- Logo -->
+      <a href="index.html" class="flex items-center gap-2 shrink-0">
+        <span class="flex items-center justify-center w-6 h-6 rounded-sm bg-brand-green text-white text-xs font-bold">H</span>
+        <span class="font-bold text-lg tracking-tight text-brand-green">TANGGA MAS</span>
+      </a>
+
+      <!-- Desktop Nav -->
+      <nav class="hidden md:flex items-center gap-8 text-sm text-gray-600 font-medium">
+        <a href="index.html" class="hover:text-brand-green-dark transition-colors">Home</a>
+        <a href="products.html" class="hover:text-brand-green-dark transition-colors">Products</a>
+        <a href="about.html" class="hover:text-brand-green-dark transition-colors">About Us</a>
+        <!-- <a href="#footer" class="hover:text-brand-green-dark transition-colors">Contact</a> -->
+      </nav>
+
+      <!-- Right icons -->
+      <div class="flex items-center gap-5 text-gray-600">
+        <button aria-label="Search" class="hover:text-brand-green-dark transition-colors">
+          <i class="fa-solid fa-magnifying-glass text-lg"></i>
+        </button>
+        <button aria-label="Wishlist" class="relative hover:text-brand-green-dark transition-colors">
+          <i class="fa-regular fa-heart text-lg"></i>
+          <span class="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-brand-green"></span>
+        </button>
+        <button aria-label="Cart" class="relative hover:text-brand-green-dark transition-colors">
+          <i class="fa-solid fa-cart-shopping text-lg"></i>
+          <span class="absolute -top-2 -right-2 flex items-center justify-center w-4 h-4 rounded-full bg-brand-green text-white text-[10px] font-semibold">0</span>
+        </button>
+
+        <!-- Mobile hamburger -->
+        <button id="menuBtn" aria-label="Menu" class="md:hidden text-xl">
+          <i class="fa-solid fa-bars"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Mobile Nav Panel -->
+    <nav id="mobileNav" class="hidden md:hidden pb-4 flex flex-col gap-3 text-sm text-gray-600 font-medium">
+      <a href="index.html" class="py-1">Home</a>
+      <a href="products.html" class="py-1">Products</a>
+      <a href="about.html" class="py-1">About Us</a>
+      <!-- <a href="#footer" class="py-1">Contact</a> -->
+    </nav>
+  </div>
+</header>
+
+<main>
+
+  <!-- ========== HERO SECTION (CAROUSEL) ========== -->
+  <section class="container mx-auto px-4 pt-8 md:pt-10">
+    <div class="carousel relative rounded-xl overflow-hidden h-56 md:h-80 group" data-carousel data-autoplay="5000">
+
+      <!-- Track -->
+      <div class="carousel-track flex h-full transition-transform duration-700 ease-out">
+        <!-- Slide 1 -->
+        <div class="carousel-slide relative min-w-full h-full bg-gradient-to-br from-brand-green-dark to-brand-green flex items-center justify-center">
+          <!-- Ganti div ini dengan <img src="foto1.jpg" class="absolute inset-0 w-full h-full object-cover"> -->
+          <i class="fa-regular fa-image text-white/70 text-6xl md:text-7xl"></i>
+        </div>
+        <!-- Slide 2 -->
+        <div class="carousel-slide relative min-w-full h-full bg-gradient-to-br from-brand-green to-brand-green-dark flex items-center justify-center">
+          <i class="fa-regular fa-image text-white/70 text-6xl md:text-7xl"></i>
+        </div>
+        <!-- Slide 3 -->
+        <div class="carousel-slide relative min-w-full h-full bg-gradient-to-br from-brand-green-dark to-brand-green flex items-center justify-center">
+          <i class="fa-regular fa-image text-white/70 text-6xl md:text-7xl"></i>
+        </div>
+        <!-- Slide 4 -->
+        <div class="carousel-slide relative min-w-full h-full bg-gradient-to-br from-brand-green to-brand-green-dark flex items-center justify-center">
+          <i class="fa-regular fa-image text-white/70 text-6xl md:text-7xl"></i>
+        </div>
+      </div>
+
+      <!-- Prev / Next buttons -->
+      <button type="button" class="carousel-prev absolute left-3 top-1/2 -translate-y-1/2 flex items-center justify-center w-9 h-9 md:w-10 md:h-10 rounded-full bg-white/20 text-white backdrop-blur-sm hover:bg-white/40 transition-colors opacity-0 group-hover:opacity-100 focus-visible:opacity-100" aria-label="Slide sebelumnya">
+        <i class="fa-solid fa-chevron-left text-sm md:text-base"></i>
+      </button>
+      <button type="button" class="carousel-next absolute right-3 top-1/2 -translate-y-1/2 flex items-center justify-center w-9 h-9 md:w-10 md:h-10 rounded-full bg-white/20 text-white backdrop-blur-sm hover:bg-white/40 transition-colors opacity-0 group-hover:opacity-100 focus-visible:opacity-100" aria-label="Slide berikutnya">
+        <i class="fa-solid fa-chevron-right text-sm md:text-base"></i>
+      </button>
+
+      <!-- Dots -->
+      <div class="carousel-dots absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 z-10">
+        <button type="button" class="carousel-dot w-2 h-2 rounded-full bg-white/50 transition-all" data-index="0" aria-label="Ke slide 1"></button>
+        <button type="button" class="carousel-dot w-2 h-2 rounded-full bg-white/50 transition-all" data-index="1" aria-label="Ke slide 2"></button>
+        <button type="button" class="carousel-dot w-2 h-2 rounded-full bg-white/50 transition-all" data-index="2" aria-label="Ke slide 3"></button>
+        <button type="button" class="carousel-dot w-2 h-2 rounded-full bg-white/50 transition-all" data-index="3" aria-label="Ke slide 4"></button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== KATEGORI SISTEM SCAFFOLDING ========== -->
+  <section class="container mx-auto px-4 mt-8 md:mt-10">
+    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 md:gap-4">
+
+      <div class="flex items-center gap-3 bg-white border border-gray-200 rounded-lg px-4 py-3 hover:border-brand-green hover:shadow-sm transition-all cursor-pointer">
+        <span class="flex items-center justify-center w-9 h-9 rounded-md bg-brand-gray-bg shrink-0">
+          <i class="fa-regular fa-image text-gray-400"></i>
+        </span>
+        <span class="text-sm font-medium text-gray-700">Frame System</span>
+      </div>
+
+      <div class="flex items-center gap-3 bg-white border border-gray-200 rounded-lg px-4 py-3 hover:border-brand-green hover:shadow-sm transition-all cursor-pointer">
+        <span class="flex items-center justify-center w-9 h-9 rounded-md bg-brand-gray-bg shrink-0">
+          <i class="fa-regular fa-image text-gray-400"></i>
+        </span>
+        <span class="text-sm font-medium text-gray-700">Ringlock System</span>
+      </div>
+
+      <div class="flex items-center gap-3 bg-white border border-gray-200 rounded-lg px-4 py-3 hover:border-brand-green hover:shadow-sm transition-all cursor-pointer">
+        <span class="flex items-center justify-center w-9 h-9 rounded-md bg-brand-gray-bg shrink-0">
+          <i class="fa-regular fa-image text-gray-400"></i>
+        </span>
+        <span class="text-sm font-medium text-gray-700">Tubular System</span>
+      </div>
+
+      <div class="flex items-center gap-3 bg-white border border-gray-200 rounded-lg px-4 py-3 hover:border-brand-green hover:shadow-sm transition-all cursor-pointer">
+        <span class="flex items-center justify-center w-9 h-9 rounded-md bg-brand-gray-bg shrink-0">
+          <i class="fa-regular fa-image text-gray-400"></i>
+        </span>
+        <span class="text-sm font-medium text-gray-700">Kwikstage System</span>
+      </div>
+
+      <div class="flex items-center gap-3 bg-white border border-gray-200 rounded-lg px-4 py-3 hover:border-brand-green hover:shadow-sm transition-all cursor-pointer">
+        <span class="flex items-center justify-center w-9 h-9 rounded-md bg-brand-gray-bg shrink-0">
+          <i class="fa-regular fa-image text-gray-400"></i>
+        </span>
+        <span class="text-sm font-medium text-gray-700">Bekisting System</span>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ========== SECONDARY BANNER (CAROUSEL) ========== -->
+  <section class="container mx-auto px-4 mt-8 md:mt-10">
+    <div class="carousel relative rounded-xl overflow-hidden h-44 md:h-56 group" data-carousel data-autoplay="4000">
+
+      <!-- Track -->
+      <div class="carousel-track flex h-full transition-transform duration-700 ease-out">
+        <!-- Slide 1 -->
+        <div class="carousel-slide relative min-w-full h-full bg-brand-green-dark flex items-center justify-center">
+          <!-- Ganti div ini dengan <img src="foto.jpg" class="absolute inset-0 w-full h-full object-cover"> -->
+          <i class="fa-regular fa-image text-white/60 text-5xl"></i>
+          <span class="hidden md:flex absolute right-8 top-1/2 -translate-y-1/2 items-center gap-2 text-white font-medium text-sm z-10">
+          </span>
+        </div>
+        <!-- Slide 2 -->
+        <div class="carousel-slide relative min-w-full h-full bg-brand-green flex items-center justify-center">
+          <i class="fa-regular fa-image text-white/60 text-5xl"></i>
+        </div>
+        <!-- Slide 3 -->
+        <div class="carousel-slide relative min-w-full h-full bg-brand-green-dark flex items-center justify-center">
+          <i class="fa-regular fa-image text-white/60 text-5xl"></i>
+        </div>
+      </div>
+
+      <!-- Prev / Next buttons -->
+      <button type="button" class="carousel-prev absolute left-3 top-1/2 -translate-y-1/2 flex items-center justify-center w-8 h-8 md:w-9 md:h-9 rounded-full bg-white/20 text-white backdrop-blur-sm hover:bg-white/40 transition-colors opacity-0 group-hover:opacity-100 focus-visible:opacity-100" aria-label="Slide sebelumnya">
+        <i class="fa-solid fa-chevron-left text-sm"></i>
+      </button>
+      <button type="button" class="carousel-next absolute right-3 top-1/2 -translate-y-1/2 flex items-center justify-center w-8 h-8 md:w-9 md:h-9 rounded-full bg-white/20 text-white backdrop-blur-sm hover:bg-white/40 transition-colors opacity-0 group-hover:opacity-100 focus-visible:opacity-100" aria-label="Slide berikutnya">
+        <i class="fa-solid fa-chevron-right text-sm"></i>
+      </button>
+
+      <!-- Dots -->
+      <div class="carousel-dots absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-2 z-10">
+        <button type="button" class="carousel-dot w-2 h-2 rounded-full bg-white/50 transition-all" data-index="0" aria-label="Ke slide 1"></button>
+        <button type="button" class="carousel-dot w-2 h-2 rounded-full bg-white/50 transition-all" data-index="1" aria-label="Ke slide 2"></button>
+        <button type="button" class="carousel-dot w-2 h-2 rounded-full bg-white/50 transition-all" data-index="2" aria-label="Ke slide 3"></button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== PRODUK TERLARIS ========== -->
+  <section id="produk" class="bg-brand-gray-bg mt-10 md:mt-14 py-10 md:py-14">
+    <div class="container mx-auto px-4">
+      <h2 class="text-xl md:text-2xl font-bold text-gray-900 mb-6">Produk Terlaris</h2>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+        <!-- Product Card (repeat x4) -->
+        <article class="bg-white rounded-lg p-4 hover:shadow-md transition-shadow">
+          <div class="bg-brand-gray-bg rounded-md aspect-square flex items-center justify-center mb-4">
+            <i class="fa-regular fa-image text-gray-300 text-4xl"></i>
+          </div>
+          <p class="text-xs text-gray-500 mb-1">Scaffolding galvanis T170</p>
+          <h3 class="font-semibold text-gray-900 mb-1">Produk 1</h3>
+          <div class="flex items-center gap-2">
+            <span class="text-brand-price font-bold">Rp. 21.000</span>
+            <span class="text-xs text-red-300 line-through">42.000</span>
+          </div>
+        </article>
+
+        <article class="bg-white rounded-lg p-4 hover:shadow-md transition-shadow">
+          <div class="bg-brand-gray-bg rounded-md aspect-square flex items-center justify-center mb-4">
+            <i class="fa-regular fa-image text-gray-300 text-4xl"></i>
+          </div>
+          <p class="text-xs text-gray-500 mb-1">Scaffolding galvanis T170</p>
+          <h3 class="font-semibold text-gray-900 mb-1">Produk 1</h3>
+          <div class="flex items-center gap-2">
+            <span class="text-brand-price font-bold">Rp. 21.000</span>
+            <span class="text-xs text-red-300 line-through">42.000</span>
+          </div>
+        </article>
+
+        <article class="bg-white rounded-lg p-4 hover:shadow-md transition-shadow">
+          <div class="bg-brand-gray-bg rounded-md aspect-square flex items-center justify-center mb-4">
+            <i class="fa-regular fa-image text-gray-300 text-4xl"></i>
+          </div>
+          <p class="text-xs text-gray-500 mb-1">Scaffolding galvanis T170</p>
+          <h3 class="font-semibold text-gray-900 mb-1">Produk 1</h3>
+          <div class="flex items-center gap-2">
+            <span class="text-brand-price font-bold">Rp. 21.000</span>
+            <span class="text-xs text-red-300 line-through">42.000</span>
+          </div>
+        </article>
+
+        <article class="bg-white rounded-lg p-4 hover:shadow-md transition-shadow">
+          <div class="bg-brand-gray-bg rounded-md aspect-square flex items-center justify-center mb-4">
+            <i class="fa-regular fa-image text-gray-300 text-4xl"></i>
+          </div>
+          <p class="text-xs text-gray-500 mb-1">Scaffolding galvanis T170</p>
+          <h3 class="font-semibold text-gray-900 mb-1">Produk 1</h3>
+          <div class="flex items-center gap-2">
+            <span class="text-brand-price font-bold">Rp. 21.000</span>
+            <span class="text-xs text-red-300 line-through">42.000</span>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== TRUST BADGES / USP ========== -->
+  <section class="container mx-auto px-4 py-10 md:py-14">
+    <div class="flex flex-wrap items-center justify-center gap-4">
+      <div class="flex items-center gap-2 bg-white border border-gray-200 rounded-full px-5 py-2.5">
+        <i class="fa-regular fa-image text-gray-400 text-sm"></i>
+        <span class="text-sm font-medium text-gray-700">Produsen Terbesar</span>
+      </div>
+      <div class="flex items-center gap-2 bg-white border border-gray-200 rounded-full px-5 py-2.5">
+        <i class="fa-regular fa-image text-gray-400 text-sm"></i>
+        <span class="text-sm font-medium text-gray-700">Berkualitas</span>
+      </div>
+      <div class="flex items-center gap-2 bg-white border border-gray-200 rounded-full px-5 py-2.5">
+        <i class="fa-regular fa-image text-gray-400 text-sm"></i>
+        <span class="text-sm font-medium text-gray-700">Produk Lengkap</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== REKOMENDASI ========== -->
+  <section class="container mx-auto px-4 pb-10 md:pb-14">
+    <h2 class="text-xl md:text-2xl font-bold text-gray-900 mb-6">Rekomendasi</h2>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+      <article class="bg-brand-gray-bg rounded-lg p-4 hover:shadow-md transition-shadow">
+        <div class="bg-white rounded-md aspect-square flex items-center justify-center mb-4">
+          <i class="fa-regular fa-image text-gray-300 text-4xl"></i>
+        </div>
+        <p class="text-xs text-gray-500 mb-1">Scaffolding galvanis T170</p>
+        <h3 class="font-semibold text-gray-900 mb-1">Produk 1</h3>
+        <div class="flex items-center gap-2">
+          <span class="text-brand-price font-bold">Rp. 21.000</span>
+          <span class="text-xs text-red-300 line-through">42.000</span>
+        </div>
+      </article>
+
+      <article class="bg-brand-gray-bg rounded-lg p-4 hover:shadow-md transition-shadow">
+        <div class="bg-white rounded-md aspect-square flex items-center justify-center mb-4">
+          <i class="fa-regular fa-image text-gray-300 text-4xl"></i>
+        </div>
+        <p class="text-xs text-gray-500 mb-1">Scaffolding galvanis T170</p>
+        <h3 class="font-semibold text-gray-900 mb-1">Produk 1</h3>
+        <div class="flex items-center gap-2">
+          <span class="text-brand-price font-bold">Rp. 21.000</span>
+          <span class="text-xs text-red-300 line-through">42.000</span>
+        </div>
+      </article>
+
+      <article class="bg-brand-gray-bg rounded-lg p-4 hover:shadow-md transition-shadow">
+        <div class="bg-white rounded-md aspect-square flex items-center justify-center mb-4">
+          <i class="fa-regular fa-image text-gray-300 text-4xl"></i>
+        </div>
+        <p class="text-xs text-gray-500 mb-1">Scaffolding galvanis T170</p>
+        <h3 class="font-semibold text-gray-900 mb-1">Produk 1</h3>
+        <div class="flex items-center gap-2">
+          <span class="text-brand-price font-bold">Rp. 21.000</span>
+          <span class="text-xs text-red-300 line-through">42.000</span>
+        </div>
+      </article>
+
+      <article class="bg-brand-gray-bg rounded-lg p-4 hover:shadow-md transition-shadow">
+        <div class="bg-white rounded-md aspect-square flex items-center justify-center mb-4">
+          <i class="fa-regular fa-image text-gray-300 text-4xl"></i>
+        </div>
+        <p class="text-xs text-gray-500 mb-1">Scaffolding galvanis T170</p>
+        <h3 class="font-semibold text-gray-900 mb-1">Produk 1</h3>
+        <div class="flex items-center gap-2">
+          <span class="text-brand-price font-bold">Rp. 21.000</span>
+          <span class="text-xs text-red-300 line-through">42.000</span>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <!-- ========== TERTIARY BANNER ========== -->
+  <section class="container mx-auto px-4 pb-10 md:pb-14">
+    <div class="rounded-xl bg-gradient-to-br from-brand-green to-brand-green-dark h-64 md:h-80 flex items-center justify-center">
+      <i class="fa-regular fa-image text-white/60 text-6xl"></i>
+    </div>
+  </section>
+
+  <!-- ========== KENAPA PILIH ========== -->
+  <section id="kenapa" class="container mx-auto px-4 pb-16 md:pb-20 text-center max-w-3xl">
+    <h2 class="text-2xl md:text-3xl font-bold text-gray-900 mb-4">Kenapa Pilih Scaffolding Tangga Mas</h2>
+    <p class="text-gray-500 leading-relaxed">
+      Sebagai produsen perancah terbesar nomor satu di Jawa Timur, PT Tangga Mas Jaya Makmur
+      memproduksi produk berkualitas standar proyek konstruksi besar dengan sertifikasi resmi
+      dan harga yang sangat bersaing.
+    </p>
+  </section>
+
+</main>
+
+<!-- ========== FOOTER ========== -->
+<footer id="footer" class="bg-brand-green-dark text-gray-200">
+  <div class="container mx-auto px-4 py-12 md:py-16">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-10">
+
+      <!-- Kiri: Company info -->
+      <div>
+        <h3 class="text-white font-bold text-lg mb-4">Tangga Mas Jaya Makmur</h3>
+        <ul class="space-y-3 text-sm text-gray-300">
+          <li class="flex items-start gap-3">
+            <i class="fa-solid fa-location-dot mt-1 text-brand-green"></i>
+            <span>Jl Raya Sengkaling No 16, Driyorejo, Kabupaten Gresik, Jawa Timur</span>
+          </li>
+          <li class="flex items-center gap-3">
+            <i class="fa-solid fa-phone text-brand-green"></i>
+            <span>08123851717</span>
+          </li>
+          <li class="flex items-center gap-3">
+            <i class="fa-solid fa-envelope text-brand-green"></i>
+            <span>kontak@scaffoldingtm.id</span>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Tengah: Menu Cepat -->
+      <div>
+        <h3 class="text-white font-bold text-lg mb-4">Menu Cepat</h3>
+        <ul class="space-y-2 text-sm text-gray-300">
+          <li><a href="#" class="hover:text-white transition-colors">Beranda</a></li>
+          <li><a href="about.html" class="hover:text-white transition-colors">Tentang Kami</a></li>
+          <li><a href="products.html" class="hover:text-white transition-colors">Produk Scaffolding</a></li>
+          <li><a href="#footer" class="hover:text-white transition-colors">Kontak</a></li>
+        </ul>
+      </div>
+
+      <!-- Kanan: Social -->
+      <div>
+        <h3 class="text-white font-bold text-lg mb-4">Social</h3>
+        <div class="flex items-center gap-3">
+          <a href="#" aria-label="Website" class="flex items-center justify-center w-9 h-9 rounded-full bg-white/10 hover:bg-brand-green transition-colors">
+            <i class="fa-solid fa-globe text-sm"></i>
+          </a>
+          <a href="#" aria-label="Share" class="flex items-center justify-center w-9 h-9 rounded-full bg-white/10 hover:bg-brand-green transition-colors">
+            <i class="fa-solid fa-share-nodes text-sm"></i>
+          </a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Bottom bar -->
+  <div class="border-t border-white/10">
+    <p class="text-center text-xs text-gray-400 py-4">© 2024 Tangga Mas Scaffolding & Formwork. All rights reserved.</p>
+  </div>
+</footer>
+
+<script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,70 @@
+/* Tangga Mas — supplementary styles beyond Tailwind utilities */
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Focus visibility for accessibility */
+a:focus-visible,
+button:focus-visible {
+  outline: 2px solid #1BBC9A;
+  outline-offset: 2px;
+}
+
+/* Mobile nav slide-down */
+#mobileNav {
+  animation: slideDown 0.2s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Subtle card lift on hover */
+article {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+article:hover {
+  transform: translateY(-2px);
+}
+
+/* ===== Carousel ===== */
+.carousel {
+  touch-action: pan-y;
+  cursor: grab;
+}
+
+.carousel:active {
+  cursor: grabbing;
+}
+
+.carousel-dot.is-active {
+  background-color: #ffffff;
+  width: 1.5rem; /* pill shape for active dot */
+  border-radius: 9999px;
+}
+
+.carousel-prev,
+.carousel-next {
+  z-index: 10;
+}
+
+/* Always show arrows on touch devices (no hover) */
+@media (hover: none) {
+  .carousel-prev,
+  .carousel-next {
+    opacity: 1;
+  }
+}

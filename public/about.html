@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>About Us | Tangga Mas Scaffolding</title>
+
+<!-- Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<!-- Icons -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+<!-- Tailwind -->
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: {
+      extend: {
+        colors: {
+          'brand-green': '#1BBC9A',
+          'brand-green-dark': '#0C5646',
+          'brand-gray-bg': '#f9fafb',
+          'brand-price': '#16a34a'
+        },
+        fontFamily: {
+          'sans': ['"Inter"', 'sans-serif'],
+        }
+      }
+    }
+  }
+</script>
+
+<link rel="stylesheet" href="styles.css">
+</head>
+<body class="font-sans text-gray-800 bg-white antialiased">
+
+<!-- ========== NAVBAR ========== -->
+<header class="sticky top-0 z-50 bg-white border-b border-gray-100">
+  <div class="container mx-auto px-4">
+    <div class="flex items-center justify-between h-16 md:h-20">
+
+      <!-- Logo -->
+      <a href="index.html" class="flex items-center gap-2 shrink-0">
+        <span class="flex items-center justify-center w-6 h-6 rounded-sm bg-brand-green text-white text-xs font-bold">H</span>
+        <span class="font-bold text-lg tracking-tight text-brand-green">TANGGA MAS</span>
+      </a>
+
+      <!-- Desktop Nav -->
+      <nav class="hidden md:flex items-center gap-8 text-sm text-gray-600 font-medium">
+        <a href="index.html" class="hover:text-brand-green-dark transition-colors">Home</a>
+        <a href="products.html" class="hover:text-brand-green-dark transition-colors">Products</a>
+        <a href="about.html" class="text-brand-green-dark font-semibold">About Us</a>
+        <!-- <a href="index.html#footer" class="hover:text-brand-green-dark transition-colors">Contact</a> -->
+      </nav>
+
+      <!-- Right icons -->
+      <div class="flex items-center gap-5 text-gray-600">
+        <button aria-label="Search" class="hover:text-brand-green-dark transition-colors">
+          <i class="fa-solid fa-magnifying-glass text-lg"></i>
+        </button>
+        <button aria-label="Wishlist" class="relative hover:text-brand-green-dark transition-colors">
+          <i class="fa-regular fa-heart text-lg"></i>
+          <span class="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-brand-green"></span>
+        </button>
+        <button aria-label="Cart" class="relative hover:text-brand-green-dark transition-colors">
+          <i class="fa-solid fa-cart-shopping text-lg"></i>
+          <span class="absolute -top-2 -right-2 flex items-center justify-center w-4 h-4 rounded-full bg-brand-green text-white text-[10px] font-semibold">0</span>
+        </button>
+
+        <!-- Mobile hamburger -->
+        <button id="menuBtn" aria-label="Menu" class="md:hidden text-xl">
+          <i class="fa-solid fa-bars"></i>
+        </button>
+      </div>
+    </div>
+
+    <!-- Mobile Nav Panel -->
+    <nav id="mobileNav" class="hidden md:hidden pb-4 flex flex-col gap-3 text-sm text-gray-600 font-medium">
+      <a href="index.html" class="py-1">Home</a>
+      <a href="products.html" class="py-1">Products</a>
+      <a href="about.html" class="py-1 text-brand-green-dark font-semibold">About Us</a>
+      <!-- <a href="index.html#footer" class="py-1">Contact</a> -->
+    </nav>
+  </div>
+</header>
+
+<main>
+
+  <!-- ========== PAGE HEADER / BREADCRUMB BANNER ========== -->
+  <section class="container mx-auto px-4 pt-8 md:pt-10">
+    <div class="rounded-xl bg-gradient-to-br from-brand-green-dark to-brand-green h-40 md:h-56 flex flex-col items-center justify-center text-center px-4">
+      <h1 class="text-2xl md:text-4xl font-bold text-white mb-2">Tentang Kami</h1>
+    </div>
+  </section>
+
+  <!-- ========== COMPANY INTRO ========== -->
+  <section class="container mx-auto px-4 py-12 md:py-16">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 items-center">
+
+      <!-- Image placeholder -->
+      <div class="rounded-xl bg-brand-gray-bg border border-gray-200 aspect-[4/3] flex items-center justify-center order-1 md:order-none">
+        <!-- Ganti div ini dengan <img src="pabrik.jpg" class="w-full h-full object-cover rounded-xl"> -->
+        <i class="fa-regular fa-image text-gray-300 text-6xl"></i>
+      </div>
+
+      <!-- Text -->
+      <div>
+        <span class="inline-block text-xs font-semibold tracking-wide uppercase text-brand-green bg-brand-green/10 px-3 py-1 rounded-full mb-4">Profil Perusahaan</span>
+        <h2 class="text-2xl md:text-3xl font-bold text-gray-900 mb-4">PT Tangga Mas Jaya Makmur</h2>
+        <p class="text-gray-500 leading-relaxed mb-4">
+          Tangga Mas Jaya Makmur adalah produsen perancah (scaffolding) dan bekisting formwork terbesar
+          di Jawa Timur, melayani kebutuhan konstruksi berskala besar di seluruh Indonesia. Sejak awal
+          berdiri, kami berkomitmen menghadirkan produk baja berkualitas tinggi dengan standar keamanan
+          proyek konstruksi nasional.
+        </p>
+        <p class="text-gray-500 leading-relaxed">
+          Dengan fasilitas produksi sendiri, tim teknis berpengalaman, dan jaringan distribusi yang luas,
+          kami memastikan setiap produk yang sampai ke tangan pelanggan telah melalui proses quality
+          control ketat dan siap digunakan untuk proyek skala kecil hingga besar.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== STATISTIK / ANGKA PENCAPAIAN ========== -->
+  <section class="bg-brand-gray-bg py-12 md:py-16">
+    <div class="container mx-auto px-4">
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-5 text-center">
+
+        <div class="bg-white rounded-lg p-6">
+          <p class="text-3xl md:text-4xl font-bold text-brand-green-dark mb-1">10+</p>
+          <p class="text-sm text-gray-500">Tahun Pengalaman</p>
+        </div>
+        <div class="bg-white rounded-lg p-6">
+          <p class="text-3xl md:text-4xl font-bold text-brand-green-dark mb-1">500+</p>
+          <p class="text-sm text-gray-500">Proyek Terselesaikan</p>
+        </div>
+        <div class="bg-white rounded-lg p-6">
+          <p class="text-3xl md:text-4xl font-bold text-brand-green-dark mb-1">50+</p>
+          <p class="text-sm text-gray-500">Varian Produk</p>
+        </div>
+        <div class="bg-white rounded-lg p-6">
+          <p class="text-3xl md:text-4xl font-bold text-brand-green-dark mb-1">1000+</p>
+          <p class="text-sm text-gray-500">Klien Terpercaya</p>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== VISI & MISI ========== -->
+  <section class="container mx-auto px-4 py-12 md:py-16">
+    <div class="text-center max-w-2xl mx-auto mb-10">
+      <span class="inline-block text-xs font-semibold tracking-wide uppercase text-brand-green bg-brand-green/10 px-3 py-1 rounded-full mb-4">Arah Perusahaan</span>
+      <h2 class="text-2xl md:text-3xl font-bold text-gray-900">Visi & Misi</h2>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+
+      <!-- Visi -->
+      <div class="bg-white border border-gray-200 rounded-lg p-6 md:p-8">
+        <span class="flex items-center justify-center w-11 h-11 rounded-lg bg-brand-green/10 text-brand-green-dark mb-4">
+          <i class="fa-solid fa-eye text-lg"></i>
+        </span>
+        <h3 class="font-bold text-lg text-gray-900 mb-2">Visi</h3>
+        <p class="text-gray-500 leading-relaxed text-sm">
+          Menjadi produsen scaffolding dan formwork nomor satu di Indonesia yang dipercaya
+          atas kualitas, keamanan, dan pelayanan terbaik bagi seluruh mitra konstruksi.
+        </p>
+      </div>
+
+      <!-- Misi -->
+      <div class="bg-white border border-gray-200 rounded-lg p-6 md:p-8">
+        <span class="flex items-center justify-center w-11 h-11 rounded-lg bg-brand-green/10 text-brand-green-dark mb-4">
+          <i class="fa-solid fa-bullseye text-lg"></i>
+        </span>
+        <h3 class="font-bold text-lg text-gray-900 mb-2">Misi</h3>
+        <ul class="text-gray-500 leading-relaxed text-sm space-y-2">
+          <li class="flex gap-2"><i class="fa-solid fa-check text-brand-green mt-1 text-xs"></i> Memproduksi scaffolding berkualitas dengan sertifikasi resmi</li>
+          <li class="flex gap-2"><i class="fa-solid fa-check text-brand-green mt-1 text-xs"></i> Memberikan harga yang kompetitif tanpa mengurangi kualitas</li>
+          <li class="flex gap-2"><i class="fa-solid fa-check text-brand-green mt-1 text-xs"></i> Menjaga kepuasan dan kepercayaan pelanggan jangka panjang</li>
+        </ul>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ========== KENAPA PILIH KAMI ========== -->
+  <section class="bg-brand-gray-bg py-12 md:py-16">
+    <div class="container mx-auto px-4">
+      <div class="text-center max-w-2xl mx-auto mb-10">
+        <span class="inline-block text-xs font-semibold tracking-wide uppercase text-brand-green bg-brand-green/10 px-3 py-1 rounded-full mb-4">Keunggulan</span>
+        <h2 class="text-2xl md:text-3xl font-bold text-gray-900">Kenapa Pilih Tangga Mas</h2>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+
+        <div class="bg-white rounded-lg p-6 text-center">
+          <span class="flex items-center justify-center w-12 h-12 rounded-full bg-brand-green/10 text-brand-green-dark mx-auto mb-4">
+            <i class="fa-solid fa-industry text-lg"></i>
+          </span>
+          <h3 class="font-semibold text-gray-900 mb-1 text-sm">Produsen Langsung</h3>
+          <p class="text-gray-500 text-xs leading-relaxed">Diproduksi sendiri tanpa perantara, harga lebih bersaing</p>
+        </div>
+
+        <div class="bg-white rounded-lg p-6 text-center">
+          <span class="flex items-center justify-center w-12 h-12 rounded-full bg-brand-green/10 text-brand-green-dark mx-auto mb-4">
+            <i class="fa-solid fa-shield-halved text-lg"></i>
+          </span>
+          <h3 class="font-semibold text-gray-900 mb-1 text-sm">Bersertifikat</h3>
+          <p class="text-gray-500 text-xs leading-relaxed">Sesuai standar keamanan proyek konstruksi nasional</p>
+        </div>
+
+        <div class="bg-white rounded-lg p-6 text-center">
+          <span class="flex items-center justify-center w-12 h-12 rounded-full bg-brand-green/10 text-brand-green-dark mx-auto mb-4">
+            <i class="fa-solid fa-truck-fast text-lg"></i>
+          </span>
+          <h3 class="font-semibold text-gray-900 mb-1 text-sm">Pengiriman Luas</h3>
+          <p class="text-gray-500 text-xs leading-relaxed">Distribusi ke seluruh wilayah Jabodetabek & Indonesia</p>
+        </div>
+
+        <div class="bg-white rounded-lg p-6 text-center">
+          <span class="flex items-center justify-center w-12 h-12 rounded-full bg-brand-green/10 text-brand-green-dark mx-auto mb-4">
+            <i class="fa-solid fa-headset text-lg"></i>
+          </span>
+          <h3 class="font-semibold text-gray-900 mb-1 text-sm">Dukungan Teknis</h3>
+          <p class="text-gray-500 text-xs leading-relaxed">Tim berpengalaman siap membantu kebutuhan proyek Anda</p>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== CTA BANNER ========== -->
+  <section class="container mx-auto px-4 py-12 md:py-16">
+    <div class="rounded-xl bg-gradient-to-br from-brand-green to-brand-green-dark px-6 py-12 md:py-16 text-center">
+      <h2 class="text-xl md:text-2xl font-bold text-white mb-3">Siap Memulai Proyek Anda?</h2>
+      <p class="text-white/80 text-sm md:text-base mb-6 max-w-xl mx-auto">
+        Konsultasikan kebutuhan scaffolding dan formwork proyek Anda bersama tim kami sekarang juga.
+      </p>
+      <a href="index.html#footer" class="inline-flex items-center gap-2 bg-white text-brand-green-dark font-semibold text-sm px-6 py-3 rounded-full hover:bg-gray-100 transition-colors">
+        Hubungi Kami <i class="fa-solid fa-arrow-right text-xs"></i>
+      </a>
+    </div>
+  </section>
+
+</main>
+
+<!-- ========== FOOTER ========== -->
+<footer id="footer" class="bg-brand-green-dark text-gray-200">
+  <div class="container mx-auto px-4 py-12 md:py-16">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-10">
+
+      <!-- Kiri: Company info -->
+      <div>
+        <h3 class="text-white font-bold text-lg mb-4">Tangga Mas Jaya Makmur</h3>
+        <ul class="space-y-3 text-sm text-gray-300">
+          <li class="flex items-start gap-3">
+            <i class="fa-solid fa-location-dot mt-1 text-brand-green"></i>
+            <span>Jl Raya Sengkaling No 16, Driyorejo, Kabupaten Gresik, Jawa Timur</span>
+          </li>
+          <li class="flex items-center gap-3">
+            <i class="fa-solid fa-phone text-brand-green"></i>
+            <span>08123851717</span>
+          </li>
+          <li class="flex items-center gap-3">
+            <i class="fa-solid fa-envelope text-brand-green"></i>
+            <span>kontak@scaffoldingtm.id</span>
+          </li>
+        </ul>
+      </div>
+
+      <!-- Tengah: Menu Cepat -->
+      <div>
+        <h3 class="text-white font-bold text-lg mb-4">Menu Cepat</h3>
+        <ul class="space-y-2 text-sm text-gray-300">
+          <li><a href="index.html" class="hover:text-white transition-colors">Beranda</a></li>
+          <li><a href="about.html" class="hover:text-white transition-colors">Tentang Kami</a></li>
+          <li><a href="index.html#produk" class="hover:text-white transition-colors">Produk Scaffolding</a></li>
+          <li><a href="index.html#footer" class="hover:text-white transition-colors">Kontak</a></li>
+        </ul>
+      </div>
+
+      <!-- Kanan: Social -->
+      <div>
+        <h3 class="text-white font-bold text-lg mb-4">Social</h3>
+        <div class="flex items-center gap-3">
+          <a href="#" aria-label="Website" class="flex items-center justify-center w-9 h-9 rounded-full bg-white/10 hover:bg-brand-green transition-colors">
+            <i class="fa-solid fa-globe text-sm"></i>
+          </a>
+          <a href="#" aria-label="Share" class="flex items-center justify-center w-9 h-9 rounded-full bg-white/10 hover:bg-brand-green transition-colors">
+            <i class="fa-solid fa-share-nodes text-sm"></i>
+          </a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Bottom bar -->
+  <div class="border-t border-white/10">
+    <p class="text-center text-xs text-gray-400 py-4">© 2024 Tangga Mas Scaffolding & Formwork. All rights reserved.</p>
+  </div>
+</footer>
+
+<script src="script.js"></script>
+</body>
+</html>
