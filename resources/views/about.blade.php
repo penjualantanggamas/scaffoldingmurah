@@ -1,12 +1,16 @@
-@extends('layouts.app')
+@extends('layouts.frontend')
 
 @section('title', 'About Us | Tangga Mas Scaffolding')
 
 @section('content')
   <!-- ========== PAGE HEADER / BREADCRUMB BANNER ========== -->
-  <section class="container mx-auto px-4 pt-8 md:pt-10">
-    <div class="rounded-xl bg-gradient-to-br from-brand-green-dark to-brand-green h-40 md:h-56 flex flex-col items-center justify-center text-center px-4">
-      <h1 class="text-2xl md:text-4xl font-bold text-white mb-2">Tentang Kami</h1>
+  <section class="container mx-auto px-4 pt-6 md:pt-10">
+    <div class="relative rounded-xl overflow-hidden aspect-[2.4/1] md:aspect-[4/1] w-full flex flex-col items-center justify-center text-center px-4 shadow-sm bg-gray-100">
+      <img src="{{ asset('images/banners/webp/bannerbawahblur.webp') }}" class="absolute inset-0 w-full h-full object-cover" alt="Banner Semua Produk Tangga Mas">
+      <div class="absolute inset-0 bg-black/35"></div>
+      <div class="relative z-10 px-2">
+        <h1 class="text-xl md:text-4xl font-bold text-white tracking-wide drop-shadow-sm">Tentang Kami</h1>
+      </div>
     </div>
   </section>
 
@@ -16,8 +20,8 @@
 
       <!-- Image placeholder -->
       <div class="rounded-xl bg-brand-gray-bg border border-gray-200 aspect-[4/3] flex items-center justify-center order-1 md:order-none">
-        <!-- Ganti div ini dengan <img src="{{ asset('images/pabrik.jpg') }}" class="w-full h-full object-cover rounded-xl"> jika ada aset gambar -->
-        <i class="fa-regular fa-image text-gray-300 text-6xl"></i>
+        <!-- Ganti div ini dengan jika ada aset gambar -->
+        <img src="{{ asset('images/banners/webp/mianbannerabout.webp') }}" class="w-full h-full object-cover rounded-xl"> 
       </div>
 
       <!-- Text -->
@@ -65,85 +69,35 @@
     </div>
   </section>
 
-  <!-- ========== VISI & MISI ========== -->
+    <!-- ========== SCAFFOLDING BERSERTIFIKASI ========== -->
   <section class="container mx-auto px-4 py-12 md:py-16">
-    <div class="text-center max-w-2xl mx-auto mb-10">
-      <span class="inline-block text-xs font-semibold tracking-wide uppercase text-brand-green bg-brand-green/10 px-3 py-1 rounded-full mb-4">Arah Perusahaan</span>
-      <h2 class="text-2xl md:text-3xl font-bold text-gray-900">Visi & Misi</h2>
-    </div>
-
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-
-      <!-- Visi -->
-      <div class="bg-white border border-gray-200 rounded-lg p-6 md:p-8">
-        <span class="flex items-center justify-center w-11 h-11 rounded-lg bg-brand-green/10 text-brand-green-dark mb-4">
-          <i class="fa-solid fa-eye text-lg"></i>
-        </span>
-        <h3 class="font-bold text-lg text-gray-900 mb-2">Visi</h3>
-        <p class="text-gray-500 leading-relaxed text-sm">
-          Menjadi produsen scaffolding dan formwork nomor satu di Indonesia yang dipercaya
-          atas kualitas, keamanan, dan pelayanan terbaik bagi seluruh mitra konstruksi.
-        </p>
-      </div>
-
-      <!-- Misi -->
-      <div class="bg-white border border-gray-200 rounded-lg p-6 md:p-8">
-        <span class="flex items-center justify-center w-11 h-11 rounded-lg bg-brand-green/10 text-brand-green-dark mb-4">
-          <i class="fa-solid fa-bullseye text-lg"></i>
-        </span>
-        <h3 class="font-bold text-lg text-gray-900 mb-2">Misi</h3>
-        <ul class="text-gray-500 leading-relaxed text-sm space-y-2">
-          <li class="flex gap-2"><i class="fa-solid fa-check text-brand-green mt-1 text-xs"></i> Memproduksi scaffolding berkualitas dengan sertifikasi resmi</li>
-          <li class="flex gap-2"><i class="fa-solid fa-check text-brand-green mt-1 text-xs"></i> Memberikan harga yang kompetitif tanpa mengurangi kualitas</li>
-          <li class="flex gap-2"><i class="fa-solid fa-check text-brand-green mt-1 text-xs"></i> Menjaga kepuasan dan kepercayaan pelanggan jangka panjang</li>
-        </ul>
-      </div>
-
-    </div>
-  </section>
-
-  <!-- ========== KENAPA PILIH KAMI ========== -->
-  <section class="bg-brand-gray-bg py-12 md:py-16">
-    <div class="container mx-auto px-4">
-      <div class="text-center max-w-2xl mx-auto mb-10">
-        <span class="inline-block text-xs font-semibold tracking-wide uppercase text-brand-green bg-brand-green/10 px-3 py-1 rounded-full mb-4">Keunggulan</span>
-        <h2 class="text-2xl md:text-3xl font-bold text-gray-900">Kenapa Pilih Tangga Mas</h2>
-      </div>
-
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-
-        <div class="bg-white rounded-lg p-6 text-center">
-          <span class="flex items-center justify-center w-12 h-12 rounded-full bg-brand-green/10 text-brand-green-dark mx-auto mb-4">
-            <i class="fa-solid fa-industry text-lg"></i>
-          </span>
-          <h3 class="font-semibold text-gray-900 mb-1 text-sm">Produsen Langsung</h3>
-          <p class="text-gray-500 text-xs leading-relaxed">Diproduksi sendiri tanpa perantara, harga lebih bersaing</p>
+    <div class="max-w-3xl mx-auto text-center">
+      <!-- <span class="flex items-center justify-center w-14 h-14 rounded-full bg-brand-green/10 text-brand-green-dark mb-5 mx-auto">
+        <i class="fa-solid fa-certificate text-2xl"></i> -->
+      <!-- </span> --> 
+      <h2 class="text-2xl md:text-3xl font-bold text-gray-900 mb-4">Scaffolding Bersertifikasi & Teruji</h2>
+      <p class="text-gray-500 leading-relaxed text-sm md:text-base mb-6">
+        Sebagai produsen scaffolding, kami memastikan setiap produk memiliki standar kualitas yang tinggi sehingga mampu digunakan dalam berbagai kondisi proyek konstruksi.
+        Dengan sistem produksi yang terkontrol dan pengawasan kualitas yang ketat, scaffolding yang kami hasilkan memiliki daya tahan yang kuat serta umur penggunaan yang lebih lama.
+        Scaffolding dengan Standart yang sangat baik. Telah lolos Uji Beban, Tersertifikasi Japanese Industrial Standards (JIS), Tersertifikasi British Standards (BS)
+      </p>
+      <div class="flex flex-wrap justify-center gap-4 md:gap-6 text-sm text-gray-600">
+        <div class="flex items-center gap-2">
+          <i class="fa-solid fa-check-circle text-brand-green"></i>
+          <span>SNI Certified</span>
         </div>
-
-        <div class="bg-white rounded-lg p-6 text-center">
-          <span class="flex items-center justify-center w-12 h-12 rounded-full bg-brand-green/10 text-brand-green-dark mx-auto mb-4">
-            <i class="fa-solid fa-shield-halved text-lg"></i>
-          </span>
-          <h3 class="font-semibold text-gray-900 mb-1 text-sm">Bersertifikat</h3>
-          <p class="text-gray-500 text-xs leading-relaxed">Sesuai standar keamanan proyek konstruksi nasional</p>
+        <div class="flex items-center gap-2">
+          <i class="fa-solid fa-check-circle text-brand-green"></i>
+          <span>ISO 9001 Quality</span>
         </div>
-
-        <div class="bg-white rounded-lg p-6 text-center">
-          <span class="flex items-center justify-center w-12 h-12 rounded-full bg-brand-green/10 text-brand-green-dark mx-auto mb-4">
-            <i class="fa-solid fa-truck-fast text-lg"></i>
-          </span>
-          <h3 class="font-semibold text-gray-900 mb-1 text-sm">Pengiriman Luas</h3>
-          <p class="text-gray-500 text-xs leading-relaxed">Distribusi pengiriman ke seluruh wilayah Indonesia</p>
+        <div class="flex items-center gap-2">
+          <i class="fa-solid fa-check-circle text-brand-green"></i>
+          <span>Uji Load Test</span>
         </div>
-
-        <div class="bg-white rounded-lg p-6 text-center">
-          <span class="flex items-center justify-center w-12 h-12 rounded-full bg-brand-green/10 text-brand-green-dark mx-auto mb-4">
-            <i class="fa-solid fa-headset text-lg"></i>
-          </span>
-          <h3 class="font-semibold text-gray-900 mb-1 text-sm">Dukungan Teknis</h3>
-          <p class="text-gray-500 text-xs leading-relaxed">Tim berpengalaman siap membantu kebutuhan proyek Anda</p>
+        <div class="flex items-center gap-2">
+          <i class="fa-solid fa-check-circle text-brand-green"></i>
+          <span>Baja Grade Tinggi</span>
         </div>
-
       </div>
     </div>
   </section>
@@ -213,16 +167,90 @@
     </div>
   </section>
 
-  <!-- ========== CTA BANNER ========== -->
-  <section class="container mx-auto px-4 py-12 md:py-16">
-    <div class="rounded-xl bg-gradient-to-br from-brand-green to-brand-green-dark px-6 py-12 md:py-16 text-center">
-      <h2 class="text-xl md:text-2xl font-bold text-white mb-3">Siap Memulai Proyek Anda?</h2>
-      <p class="text-white/80 text-sm md:text-base mb-6 max-w-xl mx-auto">
-        Konsultasikan kebutuhan scaffolding dan formwork proyek Anda bersama tim kami sekarang juga.
-      </p>
-      <a href="{{ url('/#footer') }}" class="inline-flex items-center gap-2 bg-white text-brand-green-dark font-semibold text-sm px-6 py-3 rounded-full hover:bg-gray-100 transition-colors">
-        Hubungi Kami <i class="fa-solid fa-arrow-right text-xs"></i>
-      </a>
+  <!-- ========== KENAPA PILIH KAMI ========== -->
+  <section class="bg-brand-gray-bg py-12 md:py-16">
+    <div class="container mx-auto px-4">
+      <div class="text-center max-w-2xl mx-auto mb-10">
+        <span class="inline-block text-xs font-semibold tracking-wide uppercase text-brand-green bg-brand-green/10 px-3 py-1 rounded-full mb-4">Keunggulan</span>
+        <h2 class="text-2xl md:text-3xl font-bold text-gray-900">Kenapa Pilih Tangga Mas</h2>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+
+        <div class="bg-white rounded-lg p-6 text-center">
+          <span class="flex items-center justify-center w-12 h-12 rounded-full bg-brand-green/10 text-brand-green-dark mx-auto mb-4">
+            <i class="fa-solid fa-industry text-lg"></i>
+          </span>
+          <h3 class="font-semibold text-gray-900 mb-1 text-sm">Produsen Langsung</h3>
+          <p class="text-gray-500 text-xs leading-relaxed">Diproduksi sendiri tanpa perantara, harga lebih bersaing</p>
+        </div>
+
+        <div class="bg-white rounded-lg p-6 text-center">
+          <span class="flex items-center justify-center w-12 h-12 rounded-full bg-brand-green/10 text-brand-green-dark mx-auto mb-4">
+            <i class="fa-solid fa-shield-halved text-lg"></i>
+          </span>
+          <h3 class="font-semibold text-gray-900 mb-1 text-sm">Bersertifikat</h3>
+          <p class="text-gray-500 text-xs leading-relaxed">Sesuai standar keamanan proyek konstruksi nasional</p>
+        </div>
+
+        <div class="bg-white rounded-lg p-6 text-center">
+          <span class="flex items-center justify-center w-12 h-12 rounded-full bg-brand-green/10 text-brand-green-dark mx-auto mb-4">
+            <i class="fa-solid fa-truck-fast text-lg"></i>
+          </span>
+          <h3 class="font-semibold text-gray-900 mb-1 text-sm">Pengiriman Luas</h3>
+          <p class="text-gray-500 text-xs leading-relaxed">Distribusi pengiriman ke seluruh wilayah Indonesia</p>
+        </div>
+
+        <div class="bg-white rounded-lg p-6 text-center">
+          <span class="flex items-center justify-center w-12 h-12 rounded-full bg-brand-green/10 text-brand-green-dark mx-auto mb-4">
+            <i class="fa-solid fa-headset text-lg"></i>
+          </span>
+          <h3 class="font-semibold text-gray-900 mb-1 text-sm">Dukungan Teknis</h3>
+          <p class="text-gray-500 text-xs leading-relaxed">Tim berpengalaman siap membantu kebutuhan proyek Anda</p>
+        </div>
+
+      </div>
     </div>
   </section>
+
+  <!-- ========== CTA BANNER ========== -->
+  <section class="container mx-auto px-4 py-6 md:py-10">
+    <!-- Href diarahkan ke WhatsApp resmi Tangga Mas -->
+    <a href="https://wa.me/628123651717?text=Halo%20Tangga%20Mas,%20saya%20mau%20konsultasi%20terkait%20kebutuhan%20scaffolding" 
+       target="_blank" 
+       rel="noopener noreferrer" 
+       class="relative block rounded-xl overflow-hidden aspect-[1.8/1] md:aspect-[3.5/1] w-full bg-brand-green shadow-sm border border-gray-150 transition-transform duration-300 hover:scale-[1.003]" 
+       title="Hubungi Kami via WhatsApp">
+      
+      <!-- 1. Gambar Latar Belakang (Menggunakan object-cover agar memenuhi seluruh area) -->
+      <img 
+        src="{{ asset('images/banners/webp/bannerbawahblur1.webp') }}" 
+        alt="Background Proyek Tangga Mas Scaffolding" 
+        class="absolute inset-0 w-full h-full object-cover transition-transform duration-500 hover:scale-105"
+        onerror="this.src='{{ asset('images/logotm.png') }}'"
+      >
+      
+      <!-- 2. Overlay Gelap Ringan (Memastikan teks putih selalu kontras & tajam di HP/Desktop) -->
+      <div class="absolute inset-0 bg-black/40"></div>
+
+      <!-- 3. Lapisan Konten Teks (z-10 absolute center) -->
+      <div class="absolute inset-0 z-10 flex flex-col items-center justify-center text-center p-4 md:p-8">
+        <h2 class="text-white font-bold text-lg md:text-3xl tracking-wide leading-tight drop-shadow-md max-w-2xl">
+          Siap Memulai Proyek Anda? 
+          <br class="block md:hidden"> Hubungi Tangga Mas Scaffolding
+        </h2>
+        <p class="text-white/90 text-[11px] md:text-sm mt-1.5 md:mt-2 max-w-md drop-shadow-sm font-medium">
+          Konsultasikan kebutuhan scaffolding & bekisting sekarang.
+        </p>
+        
+        <!-- Tombol Aksi Kecil Interaktif -->
+        <span class="inline-flex items-center gap-1.5 bg-white text-gray-900 font-bold text-[10px] md:text-xs px-4 py-2 rounded-full shadow-md mt-3 md:mt-4 group-hover:bg-brand-green group-hover:text-white transition-colors">
+          <i class="fa-brands fa-whatsapp text-emerald-650 text-xs md:text-sm"></i>
+          Hubungi WhatsApp
+        </span>
+      </div>
+
+    </a>
+</section>
+  
 @endsection

@@ -55,6 +55,7 @@
                 </div>
             </div>
 
+            <!-- BLOK PRODUK TUNGGAL -->
             <div id="single-product-block" class="space-y-5">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                     <div>
@@ -78,17 +79,25 @@
                     </div>
                 </div>
 
+                <!-- TAMBAHAN: Kolom Stok Produk Tunggal -->
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-1">Jumlah Stok Fisik Gudang</label>
+                    <input type="number" name="stok" id="single_stok" min="0" value="0" class="w-full border border-gray-300 rounded-lg p-2.5 text-sm focus:outline-none focus:border-brand-green" placeholder="Contoh: 100" required>
+                    <p class="text-[11px] text-gray-400 mt-1">Jika stok diisi 0, produk otomatis tidak akan ditayangkan di halaman depan katalog.</p>
+                </div>
+
                 <div>
                     <label class="block text-sm font-semibold text-gray-700 mb-1">Upload Gambar Produk</label>
                     <input type="file" name="gambar" id="single_gambar" class="w-full border border-gray-300 rounded-lg p-2 bg-white text-sm focus:outline-none focus:border-brand-green" required>
                 </div>
             </div>
 
+            <!-- BLOK PRODUK VARIAN -->
             <div id="variant-product-block" class="bg-gray-50 p-5 rounded-xl border border-gray-200 hidden">
                 <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-2 mb-4">
                     <div>
                         <h3 class="text-sm font-bold text-gray-800">Daftar Varian Ukuran Dinamis</h3>
-                        <p class="text-xs text-gray-400 mt-0.5">Setiap baris ukuran wajib diisi spesifikasi dimensi, harga, dan fotonya.</p>
+                        <p class="text-xs text-gray-400 mt-0.5">Setiap baris ukuran wajib diisi spesifikasi dimensi, harga, stok, dan fotonya.</p>
                     </div>
                     <button type="button" id="add-variant-btn" class="bg-slate-800 hover:bg-slate-900 text-white text-xs font-semibold px-3 py-2 rounded-lg transition-colors flex items-center gap-1 cursor-pointer ml-auto sm:ml-0">
                         <i class="fa-solid fa-plus text-[10px]"></i> Tambah Ukuran
@@ -99,9 +108,10 @@
                     <table class="w-full text-left border-collapse text-xs whitespace-nowrap">
                         <thead>
                             <tr class="border-b border-gray-200 text-gray-500 font-bold uppercase">
-                                <th class="pb-2 pr-3 w-1/4">Ukuran / Seri</th>
-                                <th class="pb-2 pr-3 w-1/4">Harga (Rp)</th>
-                                <th class="pb-2 pr-3 w-1/4">Harga Coret (Rp)</th>
+                                <th class="pb-2 pr-3 w-1/5">Ukuran / Seri</th>
+                                <th class="pb-2 pr-3 w-1/5">Harga (Rp)</th>
+                                <th class="pb-2 pr-3 w-1/5">Harga Coret (Rp)</th>
+                                <th class="pb-2 pr-3 w-1/6">Stok Varian</th> <!-- Kolom Header Baru -->
                                 <th class="pb-2 pr-3 w-1/4">Gambar Varian</th>
                                 <th class="pb-2 text-center w-10"></th>
                             </tr>
@@ -111,6 +121,8 @@
                                 <td class="py-3 pr-3"><input type="text" name="varians[0][ukuran]" class="w-full border border-gray-300 rounded-lg p-2 text-xs variant-field focus:outline-none focus:border-brand-green" placeholder="Contoh: 1.7m"></td>
                                 <td class="py-3 pr-3"><input type="number" name="varians[0][harga]" class="w-full border border-gray-300 rounded-lg p-2 text-xs variant-field focus:outline-none focus:border-brand-green" placeholder="21000"></td>
                                 <td class="py-3 pr-3"><input type="number" name="varians[0][harga_coret]" class="w-full border border-gray-300 rounded-lg p-2 text-xs focus:outline-none focus:border-brand-green" placeholder="42000"></td>
+                                <!-- TAMBAHAN: Input Stok Baris Pertama Varian -->
+                                <td class="py-3 pr-3"><input type="number" name="varians[0][stok]" min="0" value="0" class="w-full border border-gray-300 rounded-lg p-2 text-xs variant-field focus:outline-none focus:border-brand-green" placeholder="10"></td>
                                 <td class="py-3 pr-3"><input type="file" name="varians[0][gambar]" class="w-full text-[10px] bg-white border border-gray-300 rounded-lg p-1 variant-field"></td>
                                 <td class="py-3 text-center"><button type="button" class="text-gray-300 cursor-not-allowed" disabled><i class="fa-solid fa-trash"></i></button></td>
                             </tr>
@@ -136,6 +148,7 @@
     const singleBlock = document.getElementById('single-product-block');
     const variantBlock = document.getElementById('variant-product-block');
     const singleHarga = document.getElementById('single_harga');
+    const singleStok = document.getElementById('single_stok');
     const singleGambar = document.getElementById('single_gambar');
 
     hasVariantCheckbox.addEventListener('change', function() {
@@ -143,12 +156,14 @@
             singleBlock.classList.add('hidden');
             variantBlock.classList.remove('hidden');
             singleHarga.removeAttribute('required');
+            singleStok.removeAttribute('required');
             singleGambar.removeAttribute('required');
             document.querySelectorAll('.variant-field').forEach(el => el.setAttribute('required', 'true'));
         } else {
             singleBlock.classList.remove('hidden');
             variantBlock.classList.add('hidden');
             singleHarga.setAttribute('required', 'true');
+            singleStok.setAttribute('required', 'true');
             singleGambar.setAttribute('required', 'true');
             document.querySelectorAll('.variant-field').forEach(el => el.removeAttribute('required'));
         }
@@ -163,6 +178,8 @@
             <td class="py-3 pr-3"><input type="text" name="varians[${variantIndex}][ukuran]" class="w-full border border-gray-300 rounded-lg p-2 text-xs focus:outline-none focus:border-brand-green" placeholder="Contoh: 1.9m" required></td>
             <td class="py-3 pr-3"><input type="number" name="varians[${variantIndex}][harga]" class="w-full border border-gray-300 rounded-lg p-2 text-xs focus:outline-none focus:border-brand-green" placeholder="25000" required></td>
             <td class="py-3 pr-3"><input type="number" name="varians[${variantIndex}][harga_coret]" class="w-full border border-gray-300 rounded-lg p-2 text-xs focus:outline-none focus:border-brand-green" placeholder="50000"></td>
+            <!-- TAMBAHAN: Input Stok pada Penambahan Baris Varian Baru -->
+            <td class="py-3 pr-3"><input type="number" name="varians[${variantIndex}][stok]" min="0" value="0" class="w-full border border-gray-300 rounded-lg p-2 text-xs focus:outline-none focus:border-brand-green" placeholder="10" required></td>
             <td class="py-3 pr-3"><input type="file" name="varians[${variantIndex}][gambar]" class="w-full text-[10px] bg-white border border-gray-300 rounded-lg p-1" required></td>
             <td class="py-3 text-center"><button type="button" class="text-red-500 hover:text-red-700 remove-variant-btn cursor-pointer"><i class="fa-solid fa-trash"></i></button></td>
         `;

@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.frontend')
 
 @section('title', $artikel->judul . ' | Tangga Mas Blog')
 

@@ -6,7 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class ProdukVarian extends Model
 {
-    protected $fillable = ['produk_id', 'ukuran', 'harga', 'harga_coret', 'gambar'];
+    // Tambahkan 'stok' di dalam array fillable
+    protected $fillable = ['produk_id', 'ukuran', 'harga', 'harga_coret', 'stok', 'gambar'];
 
     public function produk()
     {

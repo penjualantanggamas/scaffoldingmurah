@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.frontend')
 
 @section('title', 'Pusat Edukasi K3 & Berita | Tangga Mas Scaffolding')
 

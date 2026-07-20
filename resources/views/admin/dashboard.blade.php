@@ -9,7 +9,7 @@
         <div class="flex flex-col md:flex-row md:items-center md:justify-between mb-8 pb-4 border-b border-gray-200">
             <div>
                 <h1 class="text-2xl md:text-3xl font-bold text-gray-900 tracking-tight">Dashboard Admin</h1>
-                <p class="text-sm text-gray-500 mt-1">Selamat datang kembali! Berikut adalah ringkasan operasional katalog produk dan artikel Tangga Mas.</p>
+                <p class="text-sm text-gray-500 mt-1">Selamat datang kembali! Berikut adalah ringkasan operasional produk dan artikel Tangga Mas.</p>
             </div>
             <div class="mt-4 md:mt-0 flex flex-wrap gap-2">
                 <a href="{{ route('produk.create') }}" class="bg-brand-green hover:bg-brand-green-dark text-white text-xs font-semibold px-4 py-2.5 rounded-xl transition-colors shadow-sm flex items-center gap-1.5">
@@ -27,9 +27,6 @@
                     <p class="text-[10px] font-bold uppercase tracking-wider text-gray-400">Total Katalog</p>
                     <h3 class="text-2xl font-bold text-gray-900 mt-1">{{ $totalProduk }} <span class="text-xs font-normal text-gray-500">Item</span></h3>
                 </div>
-                <div class="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center text-md shadow-inner">
-                    <i class="fa-solid fa-box"></i>
-                </div>
             </div>
 
             <div class="bg-white p-5 rounded-xl border border-gray-100 shadow-sm flex items-center justify-between">
@@ -37,9 +34,9 @@
                     <p class="text-[10px] font-bold uppercase tracking-wider text-gray-400">Frame System</p>
                     <h3 class="text-2xl font-bold text-gray-900 mt-1">{{ $totalFrame }} <span class="text-xs font-normal text-gray-500">Item</span></h3>
                 </div>
-                <div class="w-10 h-10 rounded-xl bg-brand-green/10 text-brand-green flex items-center justify-center text-md shadow-inner">
+                <!-- <div class="w-10 h-10 rounded-xl bg-brand-green/10 text-brand-green flex items-center justify-center text-md shadow-inner">
                     <i class="fa-solid fa-cubes"></i>
-                </div>
+                </div> -->
             </div>
 
             <div class="bg-white p-5 rounded-xl border border-gray-100 shadow-sm flex items-center justify-between">
@@ -47,9 +44,9 @@
                     <p class="text-[10px] font-bold uppercase tracking-wider text-gray-400">Ringlock</p>
                     <h3 class="text-2xl font-bold text-gray-900 mt-1">{{ $totalRinglock }} <span class="text-xs font-normal text-gray-500">Item</span></h3>
                 </div>
-                <div class="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-md shadow-inner">
+                <!-- <div class="w-10 h-10 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-md shadow-inner">
                     <i class="fa-solid fa-circle-nodes"></i>
-                </div>
+                </div> -->
             </div>
 
             <div class="bg-white p-5 rounded-xl border border-gray-100 shadow-sm flex items-center justify-between">
@@ -57,9 +54,9 @@
                     <p class="text-[10px] font-bold uppercase tracking-wider text-gray-400">Tubular System</p>
                     <h3 class="text-2xl font-bold text-gray-900 mt-1">{{ $totalTubular }} <span class="text-xs font-normal text-gray-500">Item</span></h3>
                 </div>
-                <div class="w-10 h-10 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center text-md shadow-inner">
+                <!-- <div class="w-10 h-10 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center text-md shadow-inner">
                     <i class="fa-solid fa-grip-lines-vertical"></i>
-                </div>
+                </div> -->
             </div>
 
             <div class="bg-slate-900 p-5 rounded-xl shadow-sm flex items-center justify-between text-white">
@@ -67,9 +64,9 @@
                     <p class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Artikel K3</p>
                     <h3 class="text-2xl font-bold text-white mt-1">{{ $totalArtikel }} <span class="text-xs font-normal text-slate-400">Rilis</span></h3>
                 </div>
-                <div class="w-10 h-10 rounded-xl bg-white/10 text-brand-mint flex items-center justify-center text-md shadow-inner">
+                <!-- <div class="w-10 h-10 rounded-xl bg-white/10 text-brand-mint flex items-center justify-center text-md shadow-inner">
                     <i class="fa-solid fa-feather-pointed"></i>
-                </div>
+                </div> -->
             </div>
         </div>
 
@@ -159,14 +156,14 @@
                         <i class="fa-solid fa-helmet-safety"></i>
                     </div>
                     <h3 class="font-bold text-sm mb-1 flex items-center gap-1.5">
-                        <i class="fa-solid fa-shield-halved"></i> Pengingat Mutu K3
+                        <i class="fa-solid fa-shield-halved"></i> Reminder
                     </h3>
                     <p class="text-[11px] text-white/80 leading-relaxed mb-3">
                         Seluruh produk scaffolding besi & tubular Tangga Mas wajib melewati proses *Quality Control* beban statis sebelum dipublikasikan ke katalog frontend demi keselamatan pekerja proyek.
                     </p>
                     <div class="bg-white/10 backdrop-blur-sm rounded-lg p-2.5 border border-white/10">
-                        <span class="text-[10px] font-semibold block uppercase tracking-wide text-white/90">Slogan Kampanye Digital:</span>
-                        <span class="text-xs italic font-medium mt-0.5 block text-brand-mint">"Kokoh Terpercaya, Keselamatan Kerja Utama."</span>
+                        <span class="text-[10px] font-semibold block uppercase tracking-wide text-white/90">Slogan:</span>
+                        <span class="text-xs italic font-medium mt-0.5 block text-brand-mint">"Maju dan Berkualitas, Pasti Tangga Mas."</span>
                     </div>
                 </div>
 

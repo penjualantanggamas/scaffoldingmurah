@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.frontend')
 
 @section('title', 'Frame System | Tangga Mas Scaffolding')
 
@@ -9,24 +9,7 @@
     </div>
   </section>
 
-  <section class="container mx-auto px-4 py-8">
-    <div class="flex flex-wrap items-center justify-center gap-4">
-      <div class="flex items-center gap-2 bg-white border border-gray-200 rounded-full px-5 py-2">
-        <i class="fa-regular fa-image text-gray-400 text-sm"></i>
-        <span class="text-sm font-medium text-gray-700">Produsen Terbesar</span>
-      </div>
-      <div class="flex items-center gap-2 bg-white border border-gray-200 rounded-full px-5 py-2">
-        <i class="fa-regular fa-image text-gray-400 text-sm"></i>
-        <span class="text-sm font-medium text-gray-700">Berkualitas</span>
-      </div>
-      <div class="flex items-center gap-2 bg-white border border-gray-200 rounded-full px-5 py-2">
-        <i class="fa-regular fa-image text-gray-400 text-sm"></i>
-        <span class="text-sm font-medium text-gray-700">Produk Lengkap</span>
-      </div>
-    </div>
-  </section>
-
-  <section class="container mx-auto px-4 pb-16">
+  <section class="container mx-auto mt-5 px-4 pb-16">
     <h2 class="text-xl md:text-2xl font-bold text-gray-900 mb-8">Frame System</h2>
 
     <div class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-x-5 gap-y-10">
