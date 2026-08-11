@@ -3,139 +3,278 @@
 @section('title', 'Tambah Produk Baru | Tangga Mas Admin')
 
 @section('content')
-<div class="p-6 md:p-12">
-    <div class="max-w-4xl mx-auto mb-4">
-        <a href="{{ route('produk.index') }}" class="text-xs font-semibold text-gray-500 hover:text-brand-green flex items-center gap-1.5 transition-colors">
+<div class="bg-gray-50 min-h-screen pb-12">
+    <!-- Top Return Bar -->
+    <div class="max-w-5xl mx-auto pt-6 px-4">
+        <a href="{{ route('produk.index') }}" class="text-xs font-semibold text-gray-500 hover:text-[#1BBC9A] flex items-center gap-1.5 transition-colors">
             <i class="fa-solid fa-arrow-left"></i> Kembali ke Tabel Produk
         </a>
     </div>
 
-    <div class="max-w-4xl mx-auto bg-white rounded-xl p-6 md:p-8 shadow-sm border border-gray-100">
-        <div class="mb-6">
-            <h1 class="text-xl md:text-2xl font-bold text-gray-800">Form Tambah Produk Tangga Mas</h1>
-            <p class="text-xs text-gray-400 mt-1">Isi detail data inventaris perancah baja, tubular, atau bekisting.</p>
+    <!-- Sticky Navigation Tabs (Shopee Style) -->
+    <div class="sticky top-0 bg-white border-b border-gray-200 z-40 shadow-sm mt-4 mb-6">
+        <div class="max-w-5xl mx-auto px-4">
+            <nav class="flex gap-8 text-sm font-medium h-12 items-center" id="form-tabs">
+                <a href="#sec-info" class="text-[#1BBC9A] border-b-2 border-[#1BBC9A] py-3 px-1 transition-all">Informasi Produk</a>
+                <a href="#sec-deskripsi" class="text-gray-500 hover:text-gray-700 py-3 px-1 transition-all">Deskripsi</a>
+                <a href="#sec-penjualan" class="text-gray-500 hover:text-gray-700 py-3 px-1 transition-all">Informasi Penjualan</a>
+                <a href="#sec-pengiriman" class="text-gray-500 hover:text-gray-700 py-3 px-1 transition-all">Pengiriman</a>
+            </nav>
         </div>
-        
-        <form action="{{ route('produk.store') }}" method="POST" enctype="multipart/form-data" class="space-y-5">
+    </div>
+
+    <div class="max-w-5xl mx-auto px-4">
+        <form action="{{ route('produk.store') }}" method="POST" enctype="multipart/form-data" class="space-y-6">
             @csrf
-            
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-                <div>
-                    <label class="block text-sm font-semibold text-gray-700 mb-1">Pilih Kategori Halaman</label>
-                    <select name="kategori" class="w-full border border-gray-300 rounded-lg p-2.5 bg-white text-sm focus:outline-none focus:border-brand-green focus:ring-1 focus:ring-brand-green transition-all" required>
-                        <option value="frame">Frame System</option>
-                        <option value="ringlock">Ringlock System</option>
-                        <option value="tubular">Tubular System</option>
-                        <option value="kwikstage">Kwikstage System</option>
-                        <option value="bekisting">Bekisting System</option>
-                    </select>
-                </div>
 
-                <div>
-                    <label class="block text-sm font-semibold text-gray-700 mb-1">Nama Produk</label>
-                    <input type="text" name="nama_produk" class="w-full border border-gray-300 rounded-lg p-2.5 text-sm focus:outline-none focus:border-brand-green focus:ring-1 focus:ring-brand-green transition-all" placeholder="Contoh: Main Frame T190" required>
-                </div>
-            </div>
-
-            <div>
-                <label class="block text-sm font-semibold text-gray-700 mb-1">Spesifikasi Singkat</label>
-                <input type="text" name="spesifikasi" class="w-full border border-gray-300 rounded-lg p-2.5 text-sm focus:outline-none focus:border-brand-green focus:ring-1 focus:ring-brand-green transition-all" placeholder="Contoh: Scaffolding galvanis T170 untuk beban statis tinggi">
-            </div>
-
-            <div>
-                <label class="block text-sm font-semibold text-gray-700 mb-1">Deskripsi Lengkap Produk</label>
-                <textarea name="deskripsi" rows="4" class="w-full border border-gray-300 rounded-lg p-2.5 text-sm focus:outline-none focus:border-brand-green focus:ring-1 focus:ring-brand-green transition-all" placeholder="Tulis spesifikasi detail material baja SNI, keunggulan konstruksi, dan kapasitas beban keselamatan (K3) di sini..."></textarea>
-            </div>
-
-            <div class="bg-slate-50 p-4 rounded-xl border border-gray-200 flex items-center gap-3">
-                <input type="checkbox" id="has_variant" name="has_variant" value="1" class="w-4 h-4 text-brand-green border-gray-300 rounded focus:ring-brand-green cursor-pointer">
-                <div>
-                    <label for="has_variant" class="block text-sm font-semibold text-gray-800 cursor-pointer">Produk ini memiliki varian ukuran / seri</label>
-                    <span class="text-xs text-gray-400 block mt-0.5">Centang jika produk memiliki beberapa ukuran dengan harga atau gambar yang berbeda.</span>
-                </div>
-            </div>
-
-            <!-- BLOK PRODUK TUNGGAL -->
-            <div id="single-product-block" class="space-y-5">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <!-- SECTION 1: INFORMASI PRODUK -->
+            <div id="sec-info" class="bg-white rounded-xl p-6 shadow-sm border border-gray-100 scroll-mt-16">
+                <h2 class="text-base font-bold text-gray-800 mb-6 border-b border-gray-100 pb-2">Informasi Produk</h2>
+                <div class="space-y-5">
+                    <!-- Foto Produk (1:1 Ratio Slots) -->
                     <div>
-                        <label class="block text-sm font-semibold text-gray-700 mb-1">Harga Utama (Rupiah)</label>
-                        <input type="number" name="harga" id="single_harga" class="w-full border border-gray-300 rounded-lg p-2.5 text-sm focus:outline-none focus:border-brand-green" placeholder="21000" required>
-                    </div>
-                    <div>
-                        <label class="block text-sm font-semibold text-gray-700 mb-1">Harga Coret / Sebelum Diskon (Opsional)</label>
-                        <input type="number" name="harga_coret" class="w-full border border-gray-300 rounded-lg p-2.5 text-sm focus:outline-none focus:border-brand-green" placeholder="42000">
-                    </div>
-                </div>
+                        <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2"><span class="text-red-500">*</span> Foto Produk (Rasio 1:1)</label>
+                        <div class="grid grid-cols-2 sm:grid-cols-5 gap-3">
+                            <!-- Slot Cover Pertama (DENGAN PREVIEW) -->
+                            <div class="border-2 border-dashed border-gray-300 rounded-xl p-2 flex flex-col items-center justify-center relative aspect-square bg-gray-50 group" id="cover-slot">
+                                <!-- Preview Image (hidden by default) -->
+                                <img id="cover-preview" src="" class="w-full h-full object-cover rounded-lg absolute inset-0 p-1 hidden">
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-                    <div>
-                        <label class="block text-sm font-semibold text-gray-700 mb-1">Opsi Warna (Opsional)</label>
-                        <input type="text" name="warna" class="w-full border border-gray-300 rounded-lg p-2.5 text-sm focus:outline-none focus:border-brand-green" placeholder="Contoh: Hijau, Biru, Orange">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-semibold text-gray-700 mb-1">Opsi Ukuran Tunggal (Opsional)</label>
-                        <input type="text" name="ukuran" class="w-full border border-gray-300 rounded-lg p-2.5 text-sm focus:outline-none focus:border-brand-green" placeholder="Contoh: 1.2m, 1.7m, 1.9m">
-                    </div>
-                </div>
+                                <!-- Placeholder (tampil saat belum ada gambar) -->
+                                <div id="cover-placeholder" class="flex flex-col items-center">
+                                    <i class="fa-regular fa-image text-gray-400 text-xl mb-1"></i>
+                                    <span class="text-[10px] text-gray-450 text-center">Utama (Cover)</span>
+                                </div>
 
-                <!-- TAMBAHAN: Kolom Stok Produk Tunggal -->
-                <div>
-                    <label class="block text-sm font-semibold text-gray-700 mb-1">Jumlah Stok Fisik Gudang</label>
-                    <input type="number" name="stok" id="single_stok" min="0" value="0" class="w-full border border-gray-300 rounded-lg p-2.5 text-sm focus:outline-none focus:border-brand-green" placeholder="Contoh: 100" required>
-                    <p class="text-[11px] text-gray-400 mt-1">Jika stok diisi 0, produk otomatis tidak akan ditayangkan di halaman depan katalog.</p>
-                </div>
+                                <!-- Label Cover (hidden by default) -->
+                                <div id="cover-label" class="absolute bottom-0 inset-x-0 bg-red-500 text-white text-[10px] text-center py-0.5 rounded-b-xl font-bold hidden">* Cover</div>
 
-                <div>
-                    <label class="block text-sm font-semibold text-gray-700 mb-1">Upload Gambar Produk</label>
-                    <input type="file" name="gambar" id="single_gambar" class="w-full border border-gray-300 rounded-lg p-2 bg-white text-sm focus:outline-none focus:border-brand-green" required>
+                                <input type="file" name="gambar" id="single_gambar" accept="image/*" class="absolute inset-0 opacity-0 cursor-pointer" required>
+                            </div>
+
+                            <!-- Keterangan Tambahan Foto -->
+                            <div class="col-span-1 sm:col-span-4 flex items-center bg-gray-50 rounded-xl p-4 border border-gray-100">
+                                <p class="text-[14px] text-gray-400 leading-relaxed">
+                                    <strong class="text-gray-650 block mb-0.5">💡 Tips Gambar Scaffolding:</strong>
+                                    Gunakan file yang jelas ukuran 1:1 dan berformat WEBP untuk gambar display katalog produk Tangga Mas agar tidak berat dan profesional.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Nama Produk -->
+                    <div>
+                        <div class="flex justify-between items-center mb-1">
+                            <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider"><span class="text-red-500">*</span> Nama Produk</label>
+                            <span id="char-count" class="text-[10px] text-gray-400 font-mono">0/255</span>
+                        </div>
+                        <input type="text" id="nama_produk" name="nama_produk" class="w-full border border-gray-300 rounded-lg p-2.5 text-xs focus:outline-none focus:border-[#1BBC9A] transition-all" required placeholder="Contoh: MAIN FRAME SET T190 BESI HITAM SNI PIPE 1.2 INCH">
+                    </div>
+
+                    <!-- Kategori & Spesifikasi -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        <div>
+                            <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1"><span class="text-red-500">*</span> Kategori Halaman</label>
+                            <select name="kategori" class="w-full bg-white border border-gray-300 rounded-lg pl-3 pr-8 py-2.5 text-xs focus:outline-none focus:border-[#1BBC9A] text-gray-700 appearance-none bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%236B7280%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E')] bg-[length:0.6rem_auto] bg-[position:right_0.75rem_center] bg-no-repeat">
+                                <option value="frame">Frame System</option>
+                                <option value="ringlock">Ringlock System</option>
+                                <option value="tubular">Tubular System</option>
+                                <option value="kwikstage">Kwikstage System</option>
+                                <option value="bekisting">Bekisting System</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">Spesifikasi Singkat</label>
+                            <input type="text" name="spesifikasi" class="w-full border border-gray-300 rounded-lg p-2.5 text-xs focus:outline-none focus:border-[#1BBC9A]" placeholder="Contoh: Tinggi pipa 6 meter, ketebalan baja 3.2mm">
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            <!-- BLOK PRODUK VARIAN -->
-            <div id="variant-product-block" class="bg-gray-50 p-5 rounded-xl border border-gray-200 hidden">
-                <div class="flex flex-col sm:flex-row justify-between sm:items-center gap-2 mb-4">
+            <!-- SECTION 2: DESKRIPSI -->
+            <div id="sec-deskripsi" class="bg-white rounded-xl p-6 shadow-sm border border-gray-100 scroll-mt-16">
+                <h2 class="text-base font-bold text-gray-800 mb-4 border-b border-gray-100 pb-2"><span class="text-red-500">*</span> Deskripsi Lengkap Produk</h2>
+                <textarea name="deskripsi" rows="6" class="w-full border border-gray-300 rounded-lg p-3 text-xs focus:outline-none focus:border-[#1BBC9A] font-sans leading-relaxed" placeholder="Tuliskan spesifikasi teknis penunjang K3 keselamatan proyek, cara pemakaian, serta keunggulan fisik material besi baja SNI secara rinci..."></textarea>
+            </div>
+
+            <!-- SECTION 3: INFORMASI PENJUALAN -->
+            <div id="sec-penjualan" class="bg-white rounded-xl p-6 shadow-sm border border-gray-100 scroll-mt-16">
+                <h2 class="text-base font-bold text-gray-800 mb-4 border-b border-gray-100 pb-2">Informasi Penjualan</h2>
+
+                <!-- Toggle Variasi Shopee Style -->
+                <div class="bg-slate-50 p-4 rounded-xl border border-gray-155 mb-6 flex items-center justify-between">
                     <div>
-                        <h3 class="text-sm font-bold text-gray-800">Daftar Varian Ukuran Dinamis</h3>
-                        <p class="text-xs text-gray-400 mt-0.5">Setiap baris ukuran wajib diisi spesifikasi dimensi, harga, stok, dan fotonya.</p>
+                        <span class="block text-xs font-bold text-gray-800">Aktifkan Variasi Ukuran / Seri Produk</span>
+                        <span class="text-[11px] text-gray-400 block mt-0.5">Aktifkan jika item memiliki variasi ukuran tinggi (misal: T190 & T170) dengan dimensi kargo berbeda.</span>
                     </div>
-                    <button type="button" id="add-variant-btn" class="bg-slate-800 hover:bg-slate-900 text-white text-xs font-semibold px-3 py-2 rounded-lg transition-colors flex items-center gap-1 cursor-pointer ml-auto sm:ml-0">
-                        <i class="fa-solid fa-plus text-[10px]"></i> Tambah Ukuran
-                    </button>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" id="has_variant" name="has_variant" value="1" class="sr-only peer">
+                        <div class="w-11 h-6 bg-gray-200 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-[#1BBC9A]"></div>
+                    </label>
                 </div>
 
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left border-collapse text-xs whitespace-nowrap">
-                        <thead>
-                            <tr class="border-b border-gray-200 text-gray-500 font-bold uppercase">
-                                <th class="pb-2 pr-3 w-1/5">Ukuran / Seri</th>
-                                <th class="pb-2 pr-3 w-1/5">Harga (Rp)</th>
-                                <th class="pb-2 pr-3 w-1/5">Harga Coret (Rp)</th>
-                                <th class="pb-2 pr-3 w-1/6">Stok Varian</th> <!-- Kolom Header Baru -->
-                                <th class="pb-2 pr-3 w-1/4">Gambar Varian</th>
-                                <th class="pb-2 text-center w-10"></th>
-                            </tr>
-                        </thead>
-                        <tbody id="variant-container" class="divide-y divide-gray-100">
-                            <tr class="variant-row">
-                                <td class="py-3 pr-3"><input type="text" name="varians[0][ukuran]" class="w-full border border-gray-300 rounded-lg p-2 text-xs variant-field focus:outline-none focus:border-brand-green" placeholder="Contoh: 1.7m"></td>
-                                <td class="py-3 pr-3"><input type="number" name="varians[0][harga]" class="w-full border border-gray-300 rounded-lg p-2 text-xs variant-field focus:outline-none focus:border-brand-green" placeholder="21000"></td>
-                                <td class="py-3 pr-3"><input type="number" name="varians[0][harga_coret]" class="w-full border border-gray-300 rounded-lg p-2 text-xs focus:outline-none focus:border-brand-green" placeholder="42000"></td>
-                                <!-- TAMBAHAN: Input Stok Baris Pertama Varian -->
-                                <td class="py-3 pr-3"><input type="number" name="varians[0][stok]" min="0" value="0" class="w-full border border-gray-300 rounded-lg p-2 text-xs variant-field focus:outline-none focus:border-brand-green" placeholder="10"></td>
-                                <td class="py-3 pr-3"><input type="file" name="varians[0][gambar]" class="w-full text-[10px] bg-white border border-gray-300 rounded-lg p-1 variant-field"></td>
-                                <td class="py-3 text-center"><button type="button" class="text-gray-300 cursor-not-allowed" disabled><i class="fa-solid fa-trash"></i></button></td>
-                            </tr>
-                        </tbody>
-                    </table>
+                <!-- SUB-BLOCK A: SINGLE PRODUCT FORM -->
+                <div id="single-product-block" class="space-y-4">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1"><span class="text-red-500">*</span> Harga (Rp)</label>
+                            <input type="number" name="harga" id="single_harga" class="w-full border border-gray-300 rounded-lg p-2.5 text-xs focus:outline-none focus:border-[#1BBC9A]" placeholder="280000" required>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">Harga Coret / Diskon (Rp)</label>
+                            <input type="number" name="harga_coret" class="w-full border border-gray-300 rounded-lg p-2.5 text-xs focus:outline-none focus:border-[#1BBC9A]" placeholder="310000">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <div>
+                            <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1"><span class="text-red-500">*</span> Jumlah Stok Fisik</label>
+                            <input type="number" name="stok" id="single_stok" min="0" value="0" class="w-full border border-gray-300 rounded-lg p-2.5 text-xs focus:outline-none focus:border-[#1BBC9A]" required>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">Maks. Batas Pembelian</label>
+                            <input type="number" name="maks_pembelian" class="w-full border border-gray-300 rounded-lg p-2.5 text-xs focus:outline-none focus:border-[#1BBC9A]" placeholder="Per Transaksi (Batas Kargo)">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">Warna Material (Opsional)</label>
+                            <input type="text" name="warna" class="w-full border border-gray-300 rounded-lg p-2.5 text-xs focus:outline-none focus:border-[#1BBC9A]" placeholder="Contoh: Hitam / Silver / Orange">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- SUB-BLOCK B: MATRIKS VARIATION TABLE (Shopee Style) -->
+                <div id="variant-product-block" class="border border-gray-200 rounded-xl overflow-hidden bg-gray-50 p-4 hidden">
+                    <div class="flex justify-between items-center mb-4">
+                        <span class="text-xs font-bold text-gray-700 uppercase tracking-wider">Matriks Hubungan Seri Ukuran</span>
+                        <button type="button" id="add-variant-btn" class="bg-gray-800 hover:bg-gray-900 text-white text-[11px] font-bold px-3 py-1.5 rounded-lg flex items-center gap-1 cursor-pointer transition-colors">
+                            <i class="fa-solid fa-plus text-[10px]"></i> Tambah Baris Varian
+                        </button>
+                    </div>
+
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse text-xs whitespace-nowrap">
+                            <thead>
+                                <tr class="border-b border-gray-200 text-gray-500 font-bold uppercase text-[10px] bg-gray-100">
+                                    <th class="p-3 w-32">Ukuran / Seri</th>
+                                    <th class="p-3 w-28">Harga (Rp)</th>
+                                    <th class="p-3 w-28">Disc (Rp)</th>
+                                    <th class="p-3 w-20">Stok</th>
+                                    <th class="p-3 w-20">Berat (gr)</th>
+                                    <th class="p-3 w-40">Dimensi PxLxT (cm)</th>
+                                    <th class="p-3 w-24">Foto</th>
+                                    <th class="p-3 text-center w-8"></th>
+                                </tr>
+                            </thead>
+                            <tbody id="variant-container" class="divide-y divide-gray-200 bg-white">
+                                <!-- Baris Pertama Bawaan Varian -->
+                                <tr class="variant-row">
+                                    <td class="p-2"><input type="text" name="varians[0][ukuran]" class="w-full border border-gray-300 rounded-md p-1.5 text-xs variant-field focus:outline-none focus:border-[#1BBC9A]" placeholder="T190"></td>
+                                    <td class="p-2"><input type="number" name="varians[0][harga]" class="w-full border border-gray-300 rounded-md p-1.5 text-xs variant-field focus:outline-none focus:border-[#1BBC9A]" placeholder="240000"></td>
+                                    <td class="p-2"><input type="number" name="varians[0][harga_coret]" class="w-full border border-gray-300 rounded-md p-1.5 text-xs focus:outline-none focus:border-[#1BBC9A]" placeholder="Diskon"></td>
+                                    <td class="p-2"><input type="number" name="varians[0][stok]" value="0" min="0" class="w-full border border-gray-300 rounded-md p-1.5 text-xs variant-field focus:outline-none focus:border-[#1BBC9A]"></td>
+                                    <td class="p-2"><input type="number" name="varians[0][berat]" min="0" class="w-full border border-gray-300 rounded-md p-1.5 text-xs variant-field focus:outline-none focus:border-[#1BBC9A]" placeholder="Gram"></td>
+                                    <td class="p-2">
+                                        <div class="flex items-center gap-1 font-mono text-[10px] text-gray-400">
+                                            <input type="number" name="varians[0][panjang]" min="0" class="w-12 border border-gray-300 rounded-md p-1 text-center text-xs text-gray-700 variant-field focus:outline-none focus:border-[#1BBC9A]" placeholder="P"> x
+                                            <input type="number" name="varians[0][lebar]" min="0" class="w-12 border border-gray-300 rounded-md p-1 text-center text-xs text-gray-700 variant-field focus:outline-none focus:border-[#1BBC9A]" placeholder="L"> x
+                                            <input type="number" name="varians[0][tinggi]" min="0" class="w-12 border border-gray-300 rounded-md p-1 text-center text-xs text-gray-700 variant-field focus:outline-none focus:border-[#1BBC9A]" placeholder="T">
+                                        </div>
+                                    </td>
+                                    <td class="p-2">
+                                        <div class="flex items-center gap-1">
+                                            <img class="variant-preview w-7 h-7 object-cover rounded border shrink-0 hidden">
+                                            <input type="file" name="varians[0][gambar]" accept="image/*" class="w-full text-[9px] bg-white border border-gray-300 rounded-md p-0.5 variant-field">
+                                        </div>
+                                    </td>
+                                    <td class="p-2 text-center">
+                                        <button type="button" class="text-gray-300 cursor-not-allowed" disabled><i class="fa-solid fa-trash"></i></button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
 
-            <div class="flex gap-3 pt-4 border-t border-gray-100">
-                <button type="submit" class="bg-[#1BBC9A] text-white px-6 py-2.5 rounded-xl font-semibold hover:bg-[#0C5646] transition-colors text-sm shadow-sm flex items-center gap-2 cursor-pointer">
-                    <i class="fa-solid fa-floppy-disk text-xs"></i> Simpan Produk
+            <!-- SECTION 4: PENGIRIMAN & PRE-ORDER -->
+            <div id="sec-pengiriman" class="bg-white rounded-xl p-6 shadow-sm border border-gray-100 scroll-mt-16">
+                <h2 class="text-base font-bold text-gray-800 mb-5 border-b border-gray-100 pb-2">Pengiriman & Logistik</h2>
+
+                <!-- Berat & Volume untuk Produk Tunggal -->
+                <div id="logistic-single-fields" class="space-y-4 mb-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        <div>
+                            <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1"><span class="text-red-500">*</span> Berat Produk Asli</label>
+                            <div class="relative">
+                                <input type="number" name="berat" id="single_berat" min="0" class="w-full border border-gray-300 rounded-lg p-2.5 pr-10 text-xs focus:outline-none focus:border-[#1BBC9A]" placeholder="Contoh: 18500" required>
+                                <span class="absolute right-3 top-2.5 text-xs text-gray-400 font-bold">gr</span>
+                            </div>
+                            <span class="text-[10px] text-gray-400 block mt-1">Masukkan angka gram bulat (Contoh: 18.5 kg = tulis 18500).</span>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1"><span class="text-red-500">*</span> Dimensi Ukuran Kargo Paket</label>
+                            <div class="flex items-center gap-2 font-mono text-xs text-gray-400">
+                                <div class="relative flex-1">
+                                    <input type="number" name="panjang" id="single_panjang" min="0" class="w-full border border-gray-300 rounded-lg p-2.5 pr-8 text-xs text-gray-700 focus:outline-none focus:border-[#1BBC9A]" placeholder="Panjang" required>
+                                    <span class="absolute right-2 top-2.5 text-[10px]">cm</span>
+                                </div> x
+                                <div class="relative flex-1">
+                                    <input type="number" name="lebar" id="single_lebar" min="0" class="w-full border border-gray-300 rounded-lg p-2.5 pr-8 text-xs text-gray-700 focus:outline-none focus:border-[#1BBC9A]" placeholder="Lebar" required>
+                                    <span class="absolute right-2 top-2.5 text-[10px]">cm</span>
+                                </div> x
+                                <div class="relative flex-1">
+                                    <input type="number" name="tinggi" id="single_tinggi" min="0" class="w-full border border-gray-300 rounded-lg p-2.5 pr-8 text-xs text-gray-700 focus:outline-none focus:border-[#1BBC9A]" placeholder="Tinggi" required>
+                                    <span class="absolute right-2 top-2.5 text-[10px]">cm</span>
+                                </div>
+                            </div>
+                            <span class="text-[10px] text-gray-400 block mt-1">Penting untuk menghitung keakuratan rumus berat volumetrik kargo logistik.</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Notifikasi Info jika Varian Aktif -->
+                <div id="logistic-variant-note" class="bg-amber-50 rounded-xl p-4 border border-amber-200 text-amber-700 mb-6 flex gap-2 items-start hidden">
+                    <i class="fa-solid fa-circle-info mt-0.5 text-xs"></i>
+                    <p class="text-[11px] leading-relaxed font-medium">
+                        <strong>Logistik Berbasis Varian Aktif:</strong> Data berat asli serta dimensi panjang × lebar × tinggi saat ini diatur secara mandiri pada tiap baris di tabel <strong>Informasi Penjualan</strong> atas.
+                    </p>
+                </div>
+
+                <!-- Fitur Pre-Order (PO) -->
+                <div class="border-t border-gray-150 pt-4 mt-4 space-y-4">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2"><span class="text-red-500">*</span> Apakah Produk Ini Pre-Order?</label>
+                        <div class="flex gap-6 text-xs">
+                            <label class="flex items-center gap-1.5 font-semibold text-gray-700 cursor-pointer">
+                                <input type="radio" name="is_preorder" value="0" class="w-4 h-4 text-[#1BBC9A] focus:ring-[#1BBC9A]" checked id="po-no"> Tidak (Ready Stock)
+                            </label>
+                            <label class="flex items-center gap-1.5 font-semibold text-gray-700 cursor-pointer">
+                                <input type="radio" name="is_preorder" value="1" class="w-4 h-4 text-[#1BBC9A] focus:ring-[#1BBC9A]" id="po-yes"> Ya (Pre-Order Inden)
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Dropdown Waktu PO Dinamis -->
+                    <div id="po-duration-block" class="bg-gray-50 p-4 rounded-xl border border-gray-200 max-w-sm hidden">
+                        <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">Durasi Antrean Produksi</label>
+                        <select name="waktu_preorder" class="w-full bg-white border border-gray-300 rounded-lg pl-3 pr-8 py-2 text-xs focus:outline-none focus:border-[#1BBC9A] appearance-none bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%236B7280%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E')] bg-[length:0.55rem_auto] bg-[position:right_0.75rem_center] bg-no-repeat">
+                            <option value="3">3 Hari Kerja</option>
+                            <option value="5" selected>5 Hari Kerja</option>
+                            <option value="7">7 Hari Kerja</option>
+                            <option value="14">14 Hari Kerja</option>
+                        </select>
+                        <p class="text-[10px] text-gray-400 mt-1">Estimasi pengerjaan pabrikasi di atas belum termasuk durasi perjalanan logistik kendaraan.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ACTION FOOTER BUTTONS -->
+            <div class="flex gap-3 pt-4 border-t border-gray-200">
+                <button type="submit" class="bg-[#1BBC9A] text-white px-6 py-2.5 rounded-xl font-semibold hover:bg-[#0C5646] transition-colors text-xs shadow-sm flex items-center gap-2 cursor-pointer">
+                    <i class="fa-solid fa-floppy-disk text-xs"></i> Simpan & Daftarkan Produk
                 </button>
-                <a href="{{ route('produk.index') }}" class="bg-gray-100 text-gray-600 px-6 py-2.5 rounded-xl font-semibold hover:bg-gray-200 transition-colors text-sm text-center">
+                <a href="{{ route('produk.index') }}" class="bg-white border border-gray-300 text-gray-600 px-6 py-2.5 rounded-xl font-semibold hover:bg-gray-100 transition-colors text-xs text-center">
                     Batal
                 </a>
             </div>
@@ -143,53 +282,170 @@
     </div>
 </div>
 
+<!-- JAVASCRIPT LOGIC (SHOPEE FLOW CONTROLLER) -->
 <script>
+    // 1. Karakter Counter Nama Produk
+    const namaInput = document.getElementById('nama_produk');
+    const charCount = document.getElementById('char-count');
+    function updateCharCount() {
+        charCount.textContent = `${namaInput.value.length}/255`;
+    }
+    namaInput.addEventListener('input', updateCharCount);
+    updateCharCount();
+
+    // 2. Kontrol Tab Navigation Scroll Spy & Active State
+    const tabs = document.querySelectorAll('#form-tabs a');
+    tabs.forEach(tab => {
+        tab.addEventListener('click', function(e) {
+            e.preventDefault();
+            tabs.forEach(t => t.className = "text-gray-500 hover:text-gray-700 py-3 px-1 transition-all");
+            this.className = "text-[#1BBC9A] border-b-2 border-[#1BBC9A] py-3 px-1 transition-all";
+            const targetId = this.getAttribute('href');
+            document.querySelector(targetId).scrollIntoView({ behavior: 'smooth' });
+        });
+    });
+
+    // 3. Kontrol Dinamis Switcher Variasi (Single VS Variant Matriks)
     const hasVariantCheckbox = document.getElementById('has_variant');
     const singleBlock = document.getElementById('single-product-block');
     const variantBlock = document.getElementById('variant-product-block');
+    const logisticSingleFields = document.getElementById('logistic-single-fields');
+    const logisticVariantNote = document.getElementById('logistic-variant-note');
+
     const singleHarga = document.getElementById('single_harga');
     const singleStok = document.getElementById('single_stok');
     const singleGambar = document.getElementById('single_gambar');
+    const singleBerat = document.getElementById('single_berat');
+    const singlePanjang = document.getElementById('single_panjang');
+    const singleLebar = document.getElementById('single_lebar');
+    const singleTinggi = document.getElementById('single_tinggi');
 
     hasVariantCheckbox.addEventListener('change', function() {
         if (this.checked) {
             singleBlock.classList.add('hidden');
             variantBlock.classList.remove('hidden');
+            logisticSingleFields.classList.add('hidden');
+            logisticVariantNote.classList.remove('hidden');
+
             singleHarga.removeAttribute('required');
             singleStok.removeAttribute('required');
             singleGambar.removeAttribute('required');
+            singleBerat.removeAttribute('required');
+            singlePanjang.removeAttribute('required');
+            singleLebar.removeAttribute('required');
+            singleTinggi.removeAttribute('required');
+
             document.querySelectorAll('.variant-field').forEach(el => el.setAttribute('required', 'true'));
         } else {
             singleBlock.classList.remove('hidden');
             variantBlock.classList.add('hidden');
+            logisticSingleFields.classList.remove('hidden');
+            logisticVariantNote.classList.add('hidden');
+
             singleHarga.setAttribute('required', 'true');
             singleStok.setAttribute('required', 'true');
             singleGambar.setAttribute('required', 'true');
+            singleBerat.setAttribute('required', 'true');
+            singlePanjang.setAttribute('required', 'true');
+            singleLebar.setAttribute('required', 'true');
+            singleTinggi.setAttribute('required', 'true');
+
             document.querySelectorAll('.variant-field').forEach(el => el.removeAttribute('required'));
         }
     });
 
+    // 4. Logika Penambahan Baris Varian Baru (Matriks Kolom Lengkap)
     let variantIndex = 1;
     document.getElementById('add-variant-btn').addEventListener('click', function() {
         const container = document.getElementById('variant-container');
         const newRow = document.createElement('tr');
-        newRow.className = 'variant-row hover:bg-gray-50/50 transition-colors';
+        newRow.className = 'variant-row divide-x divide-gray-100';
         newRow.innerHTML = `
-            <td class="py-3 pr-3"><input type="text" name="varians[${variantIndex}][ukuran]" class="w-full border border-gray-300 rounded-lg p-2 text-xs focus:outline-none focus:border-brand-green" placeholder="Contoh: 1.9m" required></td>
-            <td class="py-3 pr-3"><input type="number" name="varians[${variantIndex}][harga]" class="w-full border border-gray-300 rounded-lg p-2 text-xs focus:outline-none focus:border-brand-green" placeholder="25000" required></td>
-            <td class="py-3 pr-3"><input type="number" name="varians[${variantIndex}][harga_coret]" class="w-full border border-gray-300 rounded-lg p-2 text-xs focus:outline-none focus:border-brand-green" placeholder="50000"></td>
-            <!-- TAMBAHAN: Input Stok pada Penambahan Baris Varian Baru -->
-            <td class="py-3 pr-3"><input type="number" name="varians[${variantIndex}][stok]" min="0" value="0" class="w-full border border-gray-300 rounded-lg p-2 text-xs focus:outline-none focus:border-brand-green" placeholder="10" required></td>
-            <td class="py-3 pr-3"><input type="file" name="varians[${variantIndex}][gambar]" class="w-full text-[10px] bg-white border border-gray-300 rounded-lg p-1" required></td>
-            <td class="py-3 text-center"><button type="button" class="text-red-500 hover:text-red-700 remove-variant-btn cursor-pointer"><i class="fa-solid fa-trash"></i></button></td>
+            <td class="p-2"><input type="text" name="varians[${variantIndex}][ukuran]" class="w-full border border-gray-300 rounded-md p-1.5 text-xs variant-field focus:outline-none focus:border-[#1BBC9A]" placeholder="T190" required></td>
+            <td class="p-2"><input type="number" name="varians[${variantIndex}][harga]" class="w-full border border-gray-300 rounded-md p-1.5 text-xs variant-field focus:outline-none focus:border-[#1BBC9A]" placeholder="240000" required></td>
+            <td class="p-2"><input type="number" name="varians[${variantIndex}][harga_coret]" class="w-full border border-gray-300 rounded-md p-1.5 text-xs focus:outline-none focus:border-[#1BBC9A]" placeholder="Diskon"></td>
+            <td class="p-2"><input type="number" name="varians[${variantIndex}][stok]" value="0" min="0" class="w-full border border-gray-300 rounded-md p-1.5 text-xs variant-field focus:outline-none focus:border-[#1BBC9A]" required></td>
+            <td class="p-2"><input type="number" name="varians[${variantIndex}][berat]" min="0" class="w-full border border-gray-300 rounded-md p-1.5 text-xs variant-field focus:outline-none focus:border-[#1BBC9A]" placeholder="Gram" required></td>
+            <td class="p-2">
+                <div class="flex items-center gap-1 font-mono text-[10px] text-gray-400">
+                    <input type="number" name="varians[${variantIndex}][panjang]" min="0" class="w-12 border border-gray-300 rounded-md p-1 text-center text-xs text-gray-700 variant-field focus:outline-none focus:border-[#1BBC9A]" placeholder="P" required> x
+                    <input type="number" name="varians[${variantIndex}][lebar]" min="0" class="w-12 border border-gray-300 rounded-md p-1 text-center text-xs text-gray-700 variant-field focus:outline-none focus:border-[#1BBC9A]" placeholder="L" required> x
+                    <input type="number" name="varians[${variantIndex}][tinggi]" min="0" class="w-12 border border-gray-300 rounded-md p-1 text-center text-xs text-gray-700 variant-field focus:outline-none focus:border-[#1BBC9A]" placeholder="T" required>
+                </div>
+            </td>
+            <td class="p-2">
+                <div class="flex items-center gap-1">
+                    <img class="variant-preview w-7 h-7 object-cover rounded border shrink-0 hidden">
+                    <input type="file" name="varians[${variantIndex}][gambar]" accept="image/*" class="w-full text-[9px] bg-white border border-gray-300 rounded-md p-0.5 variant-field" required>
+                </div>
+            </td>
+            <td class="p-2 text-center"><button type="button" class="text-red-500 hover:text-red-700 remove-variant-btn cursor-pointer transition-colors"><i class="fa-solid fa-trash"></i></button></td>
         `;
         container.appendChild(newRow);
         variantIndex++;
     });
 
+    // Event Delegation untuk Hapus Row Varian
     document.getElementById('variant-container').addEventListener('click', function(e) {
-        if (e.target.closest('.remove-variant-btn')) { 
-            e.target.closest('.variant-row').remove(); 
+        if (e.target.closest('.remove-variant-btn')) {
+            e.target.closest('.variant-row').remove();
+        }
+    });
+
+    // 5. Kontrol Input Tampilan Durasi Pre-Order (PO)
+    const poNo = document.getElementById('po-no');
+    const poYes = document.getElementById('po-yes');
+    const poDurationBlock = document.getElementById('po-duration-block');
+
+    poNo.addEventListener('change', function() {
+        if(this.checked) poDurationBlock.classList.add('hidden');
+    });
+    poYes.addEventListener('change', function() {
+        if(this.checked) poDurationBlock.classList.remove('hidden');
+    });
+
+    // 6. PREVIEW GAMBAR COVER PRODUK (REAL-TIME)
+    const coverInput = document.getElementById('single_gambar');
+    const coverPreview = document.getElementById('cover-preview');
+    const coverPlaceholder = document.getElementById('cover-placeholder');
+    const coverLabel = document.getElementById('cover-label');
+
+    coverInput.addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file && file.type.startsWith('image/')) {
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                coverPreview.src = event.target.result;
+                coverPreview.classList.remove('hidden');
+                coverLabel.classList.remove('hidden');
+                coverPlaceholder.classList.add('hidden');
+            };
+            reader.readAsDataURL(file);
+        } else {
+            coverPreview.src = '';
+            coverPreview.classList.add('hidden');
+            coverLabel.classList.add('hidden');
+            coverPlaceholder.classList.remove('hidden');
+        }
+    });
+
+    // 7. PREVIEW GAMBAR VARIAN (REAL-TIME) - Event Delegation
+    document.getElementById('variant-container').addEventListener('change', function(e) {
+        if (e.target.type === 'file' && e.target.name.includes('[gambar]')) {
+            const file = e.target.files[0];
+            const previewImg = e.target.closest('.flex').querySelector('.variant-preview');
+
+            if (file && file.type.startsWith('image/')) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    previewImg.src = event.target.result;
+                    previewImg.classList.remove('hidden');
+                };
+                reader.readAsDataURL(file);
+            } else {
+                previewImg.src = '';
+                previewImg.classList.add('hidden');
+            }
         }
     });
 </script>

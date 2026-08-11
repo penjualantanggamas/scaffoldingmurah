@@ -36,6 +36,29 @@ tailwind.config = {
 </head>
 <body class="font-sans text-gray-800 bg-white antialiased">
 
+@php
+    // LOGIKA HITUNG BADGE KERANJANG AMAN (Bebas Eror Null given & Sinkron DB/Session)
+    $cartCount = 0;
+
+    if (Auth::guard('customer')->check()) {
+        // Jika sudah login: Ambil total kuantitas dari Database MySQL
+        $cartCount = (int) \App\Models\Cart::where('customer_id', Auth::guard('customer')->id())->sum('jumlah');
+    } else {
+        // Jika guest/belum login: Ambil dari Session dan pastikan nilainya berupa array aman
+        $sessionCart = session('cart', []);
+        
+        if (is_array($sessionCart) && !empty($sessionCart)) {
+            foreach ($sessionCart as $item) {
+                if (is_array($item)) {
+                    $cartCount += (int) ($item['quantity'] ?? $item['jumlah'] ?? 1);
+                } else {
+                    $cartCount += 1;
+                }
+            }
+        }
+    }
+@endphp
+
 <!-- ========== NAVBAR ========== -->
 <header class="sticky top-0 z-50 bg-white border-b border-gray-100">
   <div class="container mx-auto px-4">
@@ -65,19 +88,59 @@ tailwind.config = {
         <div id="desktopSearchResults" class="hidden absolute top-full left-0 right-0 mt-2 bg-white border border-gray-100 rounded-xl shadow-xl z-50 overflow-hidden max-h-80 overflow-y-auto"></div>
       </div>
 
-      <!-- Right icons -->
-      <div class="flex items-center gap-4 text-gray-600 shrink-0">
+      <!-- Right icons (Search HP, Cart, & Profile) -->
+      <div class="flex items-center gap-3 md:gap-4 text-gray-600 shrink-0">
+        
         <!-- Tombol Search Khusus HP -->
-        <button onclick="toggleMobileSearch()" aria-label="Search" class="block sm:hidden hover:text-brand-green-dark transition-colors">
+        <button onclick="toggleMobileSearch()" aria-label="Search" class="block sm:hidden hover:text-brand-green transition-colors p-1">
           <i class="fa-solid fa-magnifying-glass text-lg"></i>
         </button>
-        <!-- CART (Desktop only, mobile cart ada di bottom nav) -->
-        <a href="{{ route('cart.index') }}" aria-label="Cart" class="relative hover:text-brand-green text-gray-700 transition-colors p-1 hidden md:block">
+
+        <!-- KERANJANG DI ATAS SEBELAH KANAN SEARCH BAR (Aktif untuk Mobile & Desktop) -->
+        <a href="{{ route('cart.index') }}" aria-label="Cart" class="relative hover:text-brand-green text-gray-700 transition-colors p-1">
           <i class="fa-solid fa-cart-shopping text-lg"></i>
-          <span id="cartBadgeCount" class="absolute -top-1 -right-1 flex items-center justify-center w-4 h-4 rounded-full bg-red-500 text-white text-[9px] font-bold">
-            {{ count(session('cart', [])) }}
-          </span>
+          @if($cartCount > 0)
+            <span id="cartBadgeCount" class="absolute -top-1 -right-1.5 flex items-center justify-center w-4 h-4 rounded-full bg-red-500 text-white text-[9px] font-bold shadow-sm">
+              {{ $cartCount }}
+            </span>
+          @endif
         </a>
+
+        <!-- HANYA TAMPIL DI DESKTOP: Fitur Autentikasi Customer -->
+        <div class="hidden md:block relative dropdown-profile-container">
+          @if(Auth::guard('customer')->check())
+            <!-- Kondisi Sudah Login Customer -->
+            <div class="relative inline-block text-left">
+              <button onclick="toggleProfileDropdown()" class="flex items-center gap-2 text-xs font-bold text-gray-700 bg-gray-50 hover:bg-gray-100 border border-gray-200 px-3 py-2 rounded-xl transition-all cursor-pointer">
+                <i class="fa-solid fa-user-tie text-brand-green text-sm"></i>
+                <span class="max-w-[120px] truncate">{{ Auth::guard('customer')->user()->nama_lengkap }}</span>
+                <i class="fa-solid fa-chevron-down text-[10px] text-gray-400"></i>
+              </button>
+              
+              <!-- Menu Dropdown Desktop -->
+              <div id="profileDropdown" class="hidden absolute right-0 mt-2 w-48 bg-white border border-gray-100 rounded-xl shadow-xl z-50 overflow-hidden">    
+                <a href="{{ route('customer.profile') }}" class="block px-4 py-2.5 text-xs font-medium text-gray-700 hover:bg-gray-50 hover:text-brand-green transition-colors">
+                  <i class="fa-solid fa-user-gear mr-2 text-gray-400"></i> Pengaturan Profil
+                </a>
+                <hr class="border-gray-50">
+                <form method="POST" action="{{ route('customer.logout') }}" class="block w-full">
+                  @csrf
+                  <button type="submit" class="block w-full text-left px-4 py-2.5 text-xs font-bold text-red-600 hover:bg-red-50 transition-colors cursor-pointer">
+                    <i class="fa-solid fa-right-from-bracket mr-2"></i> Keluar Akun
+                  </button>
+                </form>
+              </div>
+            </div>
+          @else
+            <!-- Kondisi Belum Login Customer -->
+            <div class="flex items-center gap-2 text-xs font-medium">
+              <a href="{{ route('customer.register') }}" class="hover:text-brand-green transition-colors">Daftar</a>
+              <span class="text-gray-300">|</span>
+              <a href="{{ route('customer.login') }}" class="font-bold text-brand-green hover:text-brand-green-dark transition-colors">Log In</a>
+            </div>
+          @endif
+        </div>
+
       </div>
     </div>
 
@@ -85,7 +148,8 @@ tailwind.config = {
     <div id="desktopBottomNav" class="hidden md:flex items-center justify-center border-t border-gray-50 transition-all duration-500 ease-in-out opacity-100 h-11 overflow-hidden shrink-0">
       <nav class="flex items-center gap-10 text-xs md:text-sm text-gray-600 font-semibold tracking-wide py-3">
         <a href="{{ url('/') }}" class="hover:text-brand-green transition-colors {{ Request::is('/') ? 'text-brand-green font-bold border-b-2 border-brand-green pb-1' : '' }}">Beranda</a>
-        <a href="{{ url('/products') }}" class="hover:text-brand-green transition-colors {{ Request::is('products') ? 'text-brand-green font-bold border-b-2 border-brand-green pb-1' : '' }}">Produk</a>
+        <a href="{{ url('/products') }}" class="hover:text-brand-green transition-colors {{ Request::is('products*') ? 'text-brand-green font-bold border-b-2 border-brand-green pb-1' : '' }}">Produk</a>
+        <a href="{{ route('customer.orders.index') }}" class="hover:text-brand-green transition-colors {{ Request::is('*orders*') ? 'text-brand-green font-bold border-b-2 border-brand-green pb-1' : '' }}">Pesanan</a>
         <a href="{{ url('/about') }}" class="hover:text-brand-green transition-colors {{ Request::is('about') ? 'text-brand-green font-bold border-b-2 border-brand-green pb-1' : '' }}">Tentang Kami</a>
       </nav>
     </div>
@@ -113,53 +177,54 @@ tailwind.config = {
 
 
 <!-- ========== MOBILE BOTTOM NAVIGATION BAR ========== -->
-<nav class="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-gray-200 shadow-[0_-2px_10px_rgba(0,0,0,0.06)]">
-  <div class="flex items-center justify-around h-14 px-2">
+<nav class="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-gray-200 shadow-[0_-2px_10px_rgba(0,0,0,0.06)]">
+  <div class="flex items-center justify-around h-14 px-1">
 
-    <!-- Beranda -->
-    <a href="{{ url('/') }}" class="flex flex-col items-center justify-center gap-0.5 w-16 py-1 {{ Request::is('/') ? 'text-brand-green' : 'text-gray-400' }}">
-      <i class="fa-solid fa-house text-lg"></i>
-      <span class="text-[10px] font-semibold leading-tight">Beranda</span>
+    <!-- 1. Beranda -->
+    <a href="{{ url('/') }}" class="flex flex-col items-center justify-center gap-0.5 w-16 py-1 {{ Request::is('/') ? 'text-brand-green font-bold' : 'text-gray-400' }}">
+      <i class="fa-solid fa-house text-base"></i>
+      <span class="text-[10px] leading-tight">Beranda</span>
     </a>
 
-    <!-- Produk -->
-    <a href="{{ url('/products') }}" class="flex flex-col items-center justify-center gap-0.5 w-16 py-1 {{ Request::is('products*') ? 'text-brand-green' : 'text-gray-400' }}">
-      <i class="fa-solid fa-box-open text-lg"></i>
-      <span class="text-[10px] font-semibold leading-tight">Produk</span>
+    <!-- 2. Produk -->
+    <a href="{{ url('/products') }}" class="flex flex-col items-center justify-center gap-0.5 w-16 py-1 {{ Request::is('products*') ? 'text-brand-green font-bold' : 'text-gray-400' }}">
+      <i class="fa-solid fa-box-open text-base"></i>
+      <span class="text-[10px] leading-tight">Produk</span>
     </a>
 
-    <!-- Keranjang -->
-    <a href="{{ route('cart.index') }}" class="flex flex-col items-center justify-center gap-0.5 w-16 py-1 relative {{ Request::is('cart*') ? 'text-brand-green' : 'text-gray-400' }}">
-      <div class="relative">
-        <i class="fa-solid fa-cart-shopping text-lg"></i>
-        @if(count(session('cart', [])) > 0)
-        <span id="cartBadgeCountMobile" class="absolute -top-1.5 -right-2.5 flex items-center justify-center w-4 h-4 rounded-full bg-red-500 text-white text-[9px] font-bold">
-          {{ count(session('cart', [])) }}
-        </span>
-        @endif
-      </div>
-      <span class="text-[10px] font-semibold leading-tight">Keranjang</span>
+    <!-- 3. MENU PESANAN -->
+    <a href="{{ route('customer.orders.index') }}" class="flex flex-col items-center justify-center gap-0.5 w-16 py-1 {{ Request::is('*orders*') ? 'text-brand-green font-bold' : 'text-gray-400' }}">
+      <i class="fa-solid fa-receipt text-base"></i>
+      <span class="text-[10px] leading-tight">Pesanan</span>
     </a>
 
-    <!-- Tentang -->
-    <a href="{{ url('/about') }}" class="flex flex-col items-center justify-center gap-0.5 w-16 py-1 {{ Request::is('about') ? 'text-brand-green' : 'text-gray-400' }}">
-      <i class="fa-solid fa-building text-lg"></i>
-      <span class="text-[10px] font-semibold leading-tight">Tentang</span>
+    <!-- 4. Tentang Kami -->
+    <a href="{{ url('/about') }}" class="flex flex-col items-center justify-center gap-0.5 w-16 py-1 {{ Request::is('about') ? 'text-brand-green font-bold' : 'text-gray-400' }}">
+      <i class="fa-solid fa-building text-base"></i>
+      <span class="text-[10px] leading-tight">Tentang</span>
     </a>
 
-    <!-- WhatsApp -->
-    <a href="https://wa.me/628123651717" target="_blank" class="flex flex-col items-center justify-center gap-0.5 w-16 py-1 text-gray-400">
-      <i class="fa-brands fa-whatsapp text-lg"></i>
-      <span class="text-[10px] font-semibold leading-tight">Chat</span>
-    </a>
+    <!-- 5. MENU PROFIL / SAYA (LANGSUNG MENGARAH KE HALAMAN PENGATURAN AKUN) -->
+    @if(Auth::guard('customer')->check())
+      <!-- Kondisi Sudah Login: Diarahkan langsung ke route customer.profile -->
+      <a href="{{ route('customer.profile') }}" class="flex flex-col items-center justify-center gap-0.5 w-16 py-1 {{ Request::is('customer/profile*') ? 'text-brand-green font-bold' : 'text-gray-400' }}">
+        <i class="fa-solid fa-user-circle text-base"></i>
+        <span class="text-[10px] leading-tight truncate max-w-[55px]">Saya</span>
+      </a>
+    @else
+      <!-- Kondisi Belum Login -->
+      <a href="{{ route('customer.login') }}" class="flex flex-col items-center justify-center gap-0.5 w-16 py-1 {{ Request::is('customer/login*') || Request::is('customer/register*') ? 'text-brand-green font-bold' : 'text-gray-400' }}">
+        <i class="fa-solid fa-user text-base"></i>
+        <span class="text-[10px] leading-tight">Akun</span>
+      </a>
+    @endif
 
   </div>
 </nav>
 
 
 <!-- ========== MAIN CONTENT ========== -->
-<!-- Tambah padding bottom di mobile agar konten tidak tertutup bottom nav -->
-<main class="pb-16 md:pb-0">
+<main class="pb-20 md:pb-0">
   @yield('content')
 </main>
 
@@ -178,7 +243,7 @@ tailwind.config = {
           </li>
           <li class="flex items-center gap-1 mt-1">
             <i class="fa-solid fa-phone text-white shrink-0"></i>
-            <span>08123851717</span>
+            <span>08123651818</span>
           </li>
         </ul>
       </div>
@@ -189,7 +254,7 @@ tailwind.config = {
         <ul class="space-y-1 text-[10px] md:text-xs text-gray-300 font-medium">
           <li><a href="{{ url('/') }}" class="hover:text-brand-green transition-colors block py-0.5">Beranda</a></li>
           <li><a href="{{ url('/products') }}" class="hover:text-brand-green transition-colors block py-0.5">Produk</a></li>
-          <li><a href="{{ url('/about') }}" class="hover:text-brand-green transition-colors block py-0.5">Tentang</a></li>
+          <li><a href="{{ url('/about') }}" class="hover:text-brand-green transition-colors block py-0.5">Tentang Kami</a></li>
         </ul>
       </div>
 
@@ -211,24 +276,31 @@ tailwind.config = {
     </div>
   </div>
 
-  <!-- Bottom bar -->
+  <!-- Bottom bar (Dengan Secret Link Login Admin pada kata 'reserved.') -->
   <div class="border-t border-white/5 bg-black/20">
     <p class="text-center text-[9px] md:text-xs text-gray-400 py-3 tracking-wide">
-      &copy; 2026 Tangga Mas Scaffolding & Formwork. All rights reserved.
+      &copy; 2026 Tangga Mas Scaffolding & Formwork. All rights 
+      <a href="{{ route('login') }}" class="hover:text-gray-300 transition-colors select-none">reserved.</a>
     </p>
   </div>
 </footer>
 
 
-<!-- JavaScript Live Autocomplete Search -->
+<!-- JavaScript Control -->
 <script>
 function toggleMobileSearch() {
   const searchInput = document.getElementById('mobileSearchInput');
-  searchInput.classList.toggle('hidden');
+  if (searchInput) searchInput.classList.toggle('hidden');
+}
+
+// Toggle Menu Profil Desktop
+function toggleProfileDropdown() {
+  const dropdown = document.getElementById('profileDropdown');
+  if (dropdown) dropdown.classList.toggle('hidden');
 }
 
 document.addEventListener('DOMContentLoaded', function() {
-  // === DESKTOP NAV: HILANG SAAT SCROLL ===
+  // DESKTOP NAV: HILANG SAAT SCROLL
   const bottomNav = document.getElementById('desktopBottomNav');
 
   if (bottomNav) {
@@ -315,28 +387,24 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
 
+  // Klik di luar untuk menutup Dropdown Search & Profile
   document.addEventListener('click', function(e) {
-    const containers = document.querySelectorAll('.dropdown-search-container');
-    containers.forEach(container => {
+    const searchContainers = document.querySelectorAll('.dropdown-search-container');
+    searchContainers.forEach(container => {
       if (!container.contains(e.target)) {
         const dropdown = container.querySelector('[id$="SearchResults"]');
         if (dropdown) dropdown.classList.add('hidden');
       }
     });
+
+    const profileContainer = document.querySelector('.dropdown-profile-container');
+    if (profileContainer && !profileContainer.contains(e.target)) {
+      const profileDropdown = document.getElementById('profileDropdown');
+      if (profileDropdown) profileDropdown.classList.add('hidden');
+    }
   });
 });
 </script>
 <script src="{{ asset('script.js') }}"></script>
-<!--Chat Tawk.to Script-->
-<!-- <script type="text/javascript">
-  var Tawk_API=Tawk_API||{}, Tawk_LoadStart=new Date();
-  (function(){var s1=document.createElement("script"),s0=document.getElementsByTagName("script")[0];
-  s1.async=true;
-  s1.src='https://embed.tawk.to/6a589021940f101d532399c8/1jtkv61gc';
-  s1.charset='UTF-8';
-  s1.setAttribute('crossorigin','*');
-  s0.parentNode.insertBefore(s1,s0);
-  })();
-</script> -->
 </body>
 </html>

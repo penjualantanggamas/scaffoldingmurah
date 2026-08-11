@@ -6,6 +6,11 @@ use App\Http\Controllers\ProdukController;
 use App\Http\Controllers\ArtikelController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\CartController;
+use App\Http\Controllers\CustomerAuthController;
+use App\Http\Controllers\CheckoutController;
+use App\Http\Controllers\AdminOrderController;
+use App\Http\Controllers\AdminShippingRateController;
+use App\Http\Controllers\Admin\SettingController;
 
 /*
 |--------------------------------------------------------------------------
@@ -13,26 +18,23 @@ use App\Http\Controllers\CartController;
 |--------------------------------------------------------------------------
 */
 
-// Halaman Utama / Beranda (Menampilkan Produk Terlaris secara dinamis)
+// Halaman Utama / Beranda
 Route::get('/', [ProdukController::class, 'home']);
 
 // Halaman Tentang Kami
 Route::get('/about', function () {
-    // Ambil 3 artikel K3 / produk terbaru untuk ditampilkan di halaman About
     $artikels = \App\Models\Artikel::latest()->take(3)->get();
     return view('about', compact('artikels'));
 });
 
-// Katalog Semua Produk (Dengan Fitur Search Bar di Navbar & Filter Diskon)
+// Katalog Semua Produk & Live Search
 Route::get('/products', [ProdukController::class, 'frontendIndex']);
-// Rute untuk mengambil data Live Search dalam format JSON
 Route::get('/api/search-products', [ProdukController::class, 'apiSearch']);
 
-// Halaman Detail Produk Berdasarkan Slug (Menampilkan Deskripsi & Produk Terkait)
+// Halaman Detail Produk Berdasarkan Slug
 Route::get('/products/detail/{slug}', function ($slug) {
     $produk = Produk::where('slug', $slug)->firstOrFail();
     
-    // PERBAIKAN: Ambil produk terkait dari kategori yang sama yang HANYA memiliki STOK > 0
     $relatedProducts = Produk::where('kategori', $produk->kategori)
         ->where('id', '!=', $produk->id)
         ->where(function($query) {
@@ -50,11 +52,10 @@ Route::get('/products/detail/{slug}', function ($slug) {
 
 /*
 |--------------------------------------------------------------------------
-| 2. ROUTE DETAIL KATEGORI (HALAMAN SELENGKAPNYA - PERBAIKAN FILTER STOK)
+| 2. ROUTE DETAIL KATEGORI (FILTER STOK)
 |--------------------------------------------------------------------------
 */
 
-// Fungsi pembantu agar kode kueri filter stok per kategori tetap bersih dan ringkas
 $getProdukFrontend = function ($kategori) {
     return Produk::with('varians')
         ->where('kategori', $kategori)
@@ -100,7 +101,6 @@ Route::get('/products/bekisting-system', function () use ($getProdukFrontend) {
 |--------------------------------------------------------------------------
 */
 
-// Route Frontend Artikel untuk Pengunjung Toko
 Route::get('/blog', [ArtikelController::class, 'frontendIndex'])->name('blog.index');
 Route::get('/blog/detail/{slug}', [ArtikelController::class, 'frontendShow'])->name('blog.show');
 
@@ -111,48 +111,63 @@ Route::get('/blog/detail/{slug}', [ArtikelController::class, 'frontendShow'])->n
 |--------------------------------------------------------------------------
 */
 
-// Semua rute di dalam grup middleware ini wajib login terlebih dahulu melalui sistem Breeze
+// Semua rute di dalam grup middleware ini wajib login Admin (Guard: web / Breeze)
 Route::middleware(['auth', 'verified'])->group(function () {
 
-    // Jembatan pengaman agar sistem Breeze tidak error mencari nama 'dashboard'
+    // Redirection Dashboard Breeze ke Admin Dashboard
     Route::get('/dashboard', function () {
         return redirect()->route('admin.dashboard');
     })->name('dashboard');
 
-    // Dashboard Utama Admin Anda yang asli
+    // Dashboard Utama Admin
     Route::get('/admin/dashboard', [ProdukController::class, 'dashboard'])->name('admin.dashboard');
 
-    // Otomatis Mendaftarkan Route CRUD Admin Produk
+    // CRUD Admin Produk
     Route::resource('admin/produk', ProdukController::class)->names([
         'index' => 'produk.index'
     ])->except(['show']); 
 
-    // Tombol Instan Pengubah Status Produk Terlaris dari Tabel Admin
+    // Opsi Fitur Produk
     Route::post('/admin/produk/{id}/toggle-terlaris', [ProdukController::class, 'toggleTerlaris'])->name('produk.toggleTerlaris');
-    // Route untuk Import Excel Produk
     Route::post('/admin/produk/import', [ProdukController::class, 'importExcel'])->name('produk.import');
-    // Route untuk Download Template Excel
     Route::get('/admin/produk/template', [ProdukController::class, 'downloadTemplate'])->name('produk.template');
-    Route::get('/produk/template-edit', [ProdukController::class, 'exportTemplateEdit'])->name('produk.templateEdit');
+    Route::get('/admin/produk/template-edit', [ProdukController::class, 'exportTemplateEdit'])->name('produk.templateEdit');
     Route::post('/admin/produk/delete-massal', [ProdukController::class, 'deleteMassal'])->name('admin.produk.deleteMassal');
-    // Otomatis Mendaftarkan Route CRUD Admin Artikel
+    
+    // CRUD Admin Artikel
     Route::resource('admin/artikel', ArtikelController::class);
 
-    // Live Chat Dashboard Admin Panel (Tawk.to)
+    // Live Chat Dashboard Admin Panel
     Route::get('/admin/live-chat', function () {
         return view('admin.live-chat');
     })->name('admin.livechat');
 
-    // Manajemen Akun Profil Admin Bawaan Breeze
+    // Manajemen Akun Profil Admin
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+
+    // Manajemen Pesanan Admin Panel
+    Route::get('/admin/orders', [AdminOrderController::class, 'index'])->name('admin.orders.index');
+    Route::get('/admin/orders/{id}', [AdminOrderController::class, 'show'])->name('admin.orders.show');
+    Route::patch('/admin/orders/{id}/status', [AdminOrderController::class, 'updateStatus'])->name('admin.orders.updateStatus');
+
+    // Manajemen Jangkauan Ongkir Armada Gudang
+    Route::get('/admin/shipping-rates', [AdminShippingRateController::class, 'index'])->name('admin.shipping.index');
+    Route::post('/admin/shipping-rates', [AdminShippingRateController::class, 'store'])->name('admin.shipping.store');
+    Route::patch('/admin/shipping-rates/{id}', [AdminShippingRateController::class, 'update'])->name('admin.shipping.update');
+    Route::patch('/admin/shipping-rates/{id}/toggle', [AdminShippingRateController::class, 'toggleStatus'])->name('admin.shipping.toggle');
+    Route::delete('/admin/shipping-rates/{id}', [AdminShippingRateController::class, 'destroy'])->name('admin.shipping.destroy');
+
+    // Pengaturan Mode Transaksi Admin (Toggle Switch Web vs WhatsApp)
+    Route::get('/admin/settings/transaction', [SettingController::class, 'index'])->name('admin.settings.transaction');
+    Route::patch('/admin/settings/transaction', [SettingController::class, 'update'])->name('admin.settings.transaction.update');
 });
 
 
 /*
 |--------------------------------------------------------------------------
-| 5. ROUTE AUTOMATIC BREEZE AUTHENTICATION
+| 5. ROUTE AUTOMATIC BREEZE AUTHENTICATION (ADMIN ONLY)
 |--------------------------------------------------------------------------
 */
 
@@ -169,3 +184,51 @@ Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
 Route::post('/cart/add/{id}', [CartController::class, 'add'])->name('cart.add');
 Route::post('/cart/update', [CartController::class, 'update'])->name('cart.update');
 Route::post('/cart/remove', [CartController::class, 'remove'])->name('cart.remove');
+
+
+/*
+|--------------------------------------------------------------------------
+| 7. ROUTE KHUSUS CUSTOMER AUTHENTICATION & ORDERS
+|--------------------------------------------------------------------------
+*/
+
+// Rute untuk Customer yang BELUM LOGIN (Guest Customer)
+Route::middleware('guest:customer')->group(function () {
+    Route::get('/customer/login', [CustomerAuthController::class, 'showLogin'])->name('customer.login');
+    Route::post('/customer/login', [CustomerAuthController::class, 'login']);
+    
+    Route::get('/customer/register', [CustomerAuthController::class, 'showRegister'])->name('customer.register');
+    Route::post('/customer/register', [CustomerAuthController::class, 'register']);
+});
+
+// Logout Customer
+Route::post('/customer/logout', [CustomerAuthController::class, 'logout'])->name('customer.logout');
+
+// RUTE PUBLIK DAFTAR PESANAN SAYA (Dapat dibuka oleh Guest/Customer belum login)
+Route::get('/customer/orders', [CheckoutController::class, 'myOrders'])->name('customer.orders.index');
+
+// Rute Terproteksi Khusus Customer (Wajib Login)
+Route::middleware('auth:customer')->group(function () {
+    
+    // Profil & Pengaturan Akun Customer
+    Route::get('/customer/profile', [CustomerAuthController::class, 'showProfile'])->name('customer.profile');
+    Route::patch('/customer/profile', [CustomerAuthController::class, 'updateProfile'])->name('customer.profile.update');
+
+    // Multi-Alamat Proyek Customer
+    Route::post('/customer/profile/address', [CustomerAuthController::class, 'storeAddress'])->name('customer.address.store');
+    Route::delete('/customer/profile/address/{id}', [CustomerAuthController::class, 'destroyAddress'])->name('customer.address.destroy');
+    Route::patch('/customer/address/{id}/set-primary', [CustomerAuthController::class, 'setPrimaryAddress'])->name('customer.address.setPrimary');
+
+    // Checkout Transaksi
+    Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
+    Route::post('/checkout', [CheckoutController::class, 'store'])->name('checkout.store');
+    Route::get('/checkout/success/{id}', [CheckoutController::class, 'success'])->name('checkout.success');
+    Route::post('/checkout/cancel-buy-now', [CheckoutController::class, 'cancelBuyNow'])->name('checkout.cancelBuyNow');
+
+    // Upload Bukti Transfer
+    Route::post('/checkout/upload-proof/{id}', [CheckoutController::class, 'uploadProof'])->name('checkout.uploadProof');
+    
+    // Halaman Detail Pesanan (Wajib Login)
+    Route::get('/customer/orders/{id}', [CheckoutController::class, 'showOrder'])->name('customer.orders.show');
+
+});

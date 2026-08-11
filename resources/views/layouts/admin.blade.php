@@ -36,37 +36,47 @@
             <a href="{{ route('admin.dashboard') }}" class="flex items-center gap-2">
               <img src="{{ asset('images/logotmputih.png') }}" class="h-7 w-auto object-contain" alt="Logo Tangga Mas">
             </a>
-            <!-- <span class="bg-brand-green/20 text-brand-green text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded border border-brand-green/30">
-                Control Panel
-            </span> -->
           </div>
 
+          <!-- NAVIGASI UTAMA ADMIN PANEL -->
           <nav class="flex items-center gap-1 sm:gap-4 text-xs sm:text-sm font-medium text-slate-300">
             <a href="{{ route('admin.dashboard') }}" class="px-3 py-2 rounded-lg hover:text-white hover:bg-slate-800 transition-all {{ Request::is('admin/dashboard') ? 'bg-slate-800 text-brand-green font-semibold' : '' }}">
               <i class="fa-solid fa-chart-line mr-1.5 text-xs"></i>Dashboard
             </a>
+            
             <a href="{{ route('produk.index') }}" class="px-3 py-2 rounded-lg hover:text-white hover:bg-slate-800 transition-all {{ Request::is('admin/produk*') ? 'bg-slate-800 text-brand-green font-semibold' : '' }}">
-              <i class="fa-solid fa-boxes-stacked mr-1.5 text-xs"></i>Produk CRUD
+              <i class="fa-solid fa-boxes-stacked mr-1.5 text-xs"></i>Produk
+            </a>
+
+            <!-- PESANAN MASUK -->
+            <a href="{{ route('admin.orders.index') }}" class="px-3 py-2 rounded-lg hover:text-white hover:bg-slate-800 transition-all {{ Request::is('admin/orders*') ? 'bg-slate-800 text-brand-green font-semibold' : '' }}">
+              <i class="fa-solid fa-boxes-packing mr-1.5 text-xs"></i>Pesanan
+            </a>
+
+            <!-- TARIF ONGKIR -->
+            <a href="{{ route('admin.shipping.index') }}" class="px-3 py-2 rounded-lg hover:text-white hover:bg-slate-800 transition-all {{ Request::is('admin/shipping-rates*') ? 'bg-slate-800 text-brand-green font-semibold' : '' }}">
+              <i class="fa-solid fa-truck-ramp-box mr-1.5 text-xs"></i>Ongkir
+            </a>
+
+            <!-- MENU BARU: PENGATURAN MODE TRANSAKSI -->
+            <a href="{{ route('admin.settings.transaction') }}" class="px-3 py-2 rounded-lg hover:text-white hover:bg-slate-800 transition-all {{ Request::is('admin/settings*') ? 'bg-slate-800 text-brand-green font-semibold' : '' }}">
+              <i class="fa-solid fa-[#1BBC9A] fa-toggle-on mr-1.5 text-xs"></i>Mode Transaksi
             </a>
           </nav>
-          <!-- <div class="flex items-center gap-4">
-            <a href="{{ url('/products') }}" target="_blank" class="text-xs text-slate-400 hover:text-white flex items-center gap-1.5 bg-slate-800 px-3 py-1.5 rounded-lg border border-slate-700/50 transition-colors">
-              <i class="fa-solid fa-globe"></i> <span class="hidden md:inline">Lihat Toko</span>
-            </a>
-          </div> -->
+
           <!-- Tombol Logout Khusus di Halaman Panel Admin -->
           <div class="flex items-center gap-4">
               <!-- Penanda Akun -->
-              <span class="text-sm text-gray-600 font-medium">
+              <span class="text-sm text-gray-300 font-medium hidden md:inline-block">
                   <i class="fa-solid fa-user-shield text-gray-400 mr-1"></i> {{ Auth::user()->name }}
               </span>
 
               <!-- Form Keluar -->
               <form method="POST" action="{{ route('logout') }}" class="inline">
                   @csrf
-                  <button type="submit" class="bg-red-50 hover:bg-red-100 text-red-600 text-xs font-semibold px-3 py-2 rounded-lg transition-all flex items-center gap-2 border border-red-200 shadow-sm">
+                  <button type="submit" class="bg-red-50 hover:bg-red-100 text-red-600 text-xs font-semibold px-3 py-2 rounded-lg transition-all flex items-center gap-2 border border-red-200 shadow-sm cursor-pointer">
                       <i class="fa-solid fa-right-from-bracket"></i>
-                      <span>Log Out</span>
+                      <span class="hidden sm:inline">Log Out</span>
                   </button>
               </form>
           </div>

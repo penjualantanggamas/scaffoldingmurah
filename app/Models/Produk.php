@@ -11,7 +11,7 @@ class Produk extends Model
 
     protected $table = 'produks';
     
-    // Mengizinkan semua kolom diisi (atau sesuaikan jika ingin menggunakan $fillable)
+    // Sudah menggunakan guarded kosong, jadi kolom berat, dimensi, dan PO otomatis aman!
     protected $guarded = [];
 
     // Relasi ke Kategori
@@ -24,5 +24,4 @@ class Produk extends Model
     {
         return $this->hasMany(ProdukVarian::class, 'produk_id');
     }
-    
 }

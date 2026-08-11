@@ -4,12 +4,15 @@ namespace App\Http\Controllers;
 
 use App\Models\Produk;
 use App\Models\Artikel; 
+use App\Models\ProdukVarian;
+use App\Models\Order; // Import Model Order
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use App\Imports\ProdukImport;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\ProdukTemplateExport;
 use App\Exports\ProdukEditExport;
+use Illuminate\Support\Facades\File;
 
 class ProdukController extends Controller
 {
@@ -23,11 +26,9 @@ class ProdukController extends Controller
             return redirect()->route('produk.index');
         }
 
-        // Jika ada request filter baru, ambil dari request. Jika tidak ada, cek apakah ada histori di session.
         $keyword = $request->has('search') ? $request->get('search') : session('last_search');
         $category = $request->has('kategori') ? $request->get('kategori') : session('last_kategori');
 
-        // Simpan filter saat ini ke dalam session untuk diingat nanti
         session([
             'last_search' => $keyword,
             'last_kategori' => $category
@@ -62,70 +63,96 @@ class ProdukController extends Controller
      */
     public function store(Request $request)
     {
-        // Aturan validasi dasar untuk produk utama
+        // Aturan validasi dasar untuk produk utama + Fitur Pre-Order Dinamis
         $rules = [
-            'kategori' => 'required|string',
-            'nama_produk' => 'required|string|max:255',
-            'spesifikasi' => 'nullable|string',
-            'deskripsi' => 'nullable|string',
+            'kategori'       => 'required|string',
+            'nama_produk'    => 'required|string|max:255',
+            'spesifikasi'    => 'nullable|string',
+            'deskripsi'      => 'nullable|string',
+            'is_preorder'    => 'required|in:0,1',
+            'waktu_preorder' => 'required_if:is_preorder,1|nullable|integer',
+            'maks_pembelian' => 'nullable|integer|min:0',
         ];
 
-        // Validasi bersyarat berdasarkan ada tidaknya varian ukuran (Termasuk Aturan Validasi Stok)
+        // Validasi bersyarat kargo logistik berdasarkan ada tidaknya varian ukuran
         if ($request->has('has_variant')) {
-            $rules['varians'] = 'required|array|min:1';
-            $rules['varians.*.ukuran'] = 'required|string|max:255';
-            $rules['varians.*.harga'] = 'required|numeric';
+            $rules['varians']            = 'required|array|min:1';
+            $rules['varians.*.ukuran']   = 'required|string|max:255';
+            $rules['varians.*.harga']    = 'required|numeric';
             $rules['varians.*.harga_coret'] = 'nullable|numeric';
-            $rules['varians.*.stok'] = 'required|integer|min:0'; // Tambahan validasi stok varian
-            $rules['varians.*.gambar'] = 'required|image|mimes:jpeg,png,jpg,webp|max:2048';
+            $rules['varians.*.stok']     = 'required|integer|min:0';
+            $rules['varians.*.berat']    = 'required|integer|min:0'; // Wajib di baris varian
+            $rules['varians.*.panjang']  = 'required|integer|min:0';
+            $rules['varians.*.lebar']    = 'required|integer|min:0';
+            $rules['varians.*.tinggi']   = 'required|integer|min:0';
+            $rules['varians.*.gambar']   = 'required|image|mimes:jpeg,png,jpg,webp';
         } else {
-            $rules['harga'] = 'required|numeric';
+            $rules['harga']       = 'required|numeric';
             $rules['harga_coret'] = 'nullable|numeric';
-            $rules['stok'] = 'required|integer|min:0'; // Tambahan validasi stok produk tunggal
-            $rules['warna'] = 'nullable|string|max:255';
-            $rules['ukuran'] = 'nullable|string|max:255';
-            $rules['gambar'] = 'required|image|mimes:jpeg,png,jpg,webp|max:2048';
+            $rules['stok']        = 'required|integer|min:0';
+            $rules['warna']       = 'nullable|string|max:255';
+            $rules['ukuran']      = 'nullable|string|max:255';
+            $rules['berat']       = 'required|integer|min:0'; // Wajib jika produk tunggal
+            $rules['panjang']     = 'required|integer|min:0';
+            $rules['lebar']       = 'required|integer|min:0';
+            $rules['tinggi']      = 'required|integer|min:0';
+            $rules['gambar']      = 'required|image|mimes:jpeg,png,jpg,webp';
         }
 
         $request->validate($rules);
 
-        // Siapkan kerangka data produk utama
         $slug = Str::slug($request->nama_produk) . '-' . rand(100, 999);
         $is_terlaris = $request->has('is_terlaris') ? true : false;
 
         // KONDISI A: JIKA ADALAH PRODUK DENGAN VARIAN
         if ($request->has('has_variant')) {
             $produk = Produk::create([
-                'kategori' => $request->kategori,
-                'nama_produk' => $request->nama_produk,
-                'spesifikasi' => $request->spesifikasi,
-                'deskripsi' => $request->deskripsi,
-                'warna' => $request->warna ?? null,
-                'ukuran' => null, 
-                'harga' => $request->varians[0]['harga'],
-                'harga_coret' => $request->varians[0]['harga_coret'] ?? null,
-                'stok' => 0, // Nilai default produk utama bermulti-varian dialihkan ke 0
-                'slug' => $slug,
-                'is_terlaris' => $is_terlaris,
-                'gambar' => null 
+                'kategori'       => $request->kategori,
+                'nama_produk'    => $request->nama_produk,
+                'spesifikasi'    => $request->spesifikasi,
+                'deskripsi'      => $request->deskripsi,
+                'warna'          => $request->warna ?? null,
+                'ukuran'         => null, 
+                'harga'          => $request->varians[0]['harga'],
+                'harga_coret'    => $request->varians[0]['harga_coret'] ?? null,
+                'stok'           => 0, // Nilai default produk utama bermulti-varian dialihkan ke 0
+                'slug'           => $slug,
+                'is_terlaris'    => $is_terlaris,
+                'gambar'         => null,
+                
+                // DATA LOGISTIK INDUK DI-NULL-KAN KARENA MENGIKUTI VARIAN
+                'berat'          => null,
+                'panjang'        => null,
+                'lebar'          => null,
+                'tinggi'         => null,
+                'maks_pembelian' => $request->maks_pembelian,
+                'is_preorder'    => $request->is_preorder,
+                'waktu_preorder' => $request->is_preorder == 1 ? $request->waktu_preorder : null,
             ]);
 
             $gambarUtamaSet = false;
 
-            foreach ($request->file('varians') as $index => $varianFile) {
+            foreach ($request->varians as $index => $varianData) {
                 $nama_gambar_varian = null;
                 
-                if (isset($varianFile['gambar'])) {
-                    $nama_gambar_varian = time() . '_var_' . $index . '.' . $varianFile['gambar']->extension();
-                    $varianFile['gambar']->move(public_path('images/products'), $nama_gambar_varian);
+                if ($request->hasFile("varians.$index.gambar")) {
+                    $file = $request->file("varians.$index.gambar");
+                    $nama_gambar_varian = time() . '_var_' . $index . '.' . $file->extension();
+                    $file->move(public_path('images/products'), $nama_gambar_varian);
                 }
 
                 $produk->varians()->create([
-                    'ukuran' => $request->varians[$index]['ukuran'],
-                    'harga' => $request->varians[$index]['harga'],
-                    'harga_coret' => $request->varians[$index]['harga_coret'] ?? null,
-                    'stok' => $request->varians[$index]['stok'], // Menyimpan nilai inventaris stok varian
-                    'gambar' => $nama_gambar_varian
+                    'ukuran'      => $varianData['ukuran'],
+                    'harga'       => $varianData['harga'],
+                    'harga_coret' => $varianData['harga_coret'] ?? null,
+                    'stok'        => $varianData['stok'],
+                    'gambar'      => $nama_gambar_varian,
+                    
+                    // SUNTIKAN DATA LOGISTIK KHUSUS TIAP VARIAN
+                    'berat'       => $varianData['berat'],
+                    'panjang'     => $varianData['panjang'],
+                    'lebar'       => $varianData['lebar'],
+                    'tinggi'      => $varianData['tinggi'],
                 ]);
 
                 if (!$gambarUtamaSet && $nama_gambar_varian) {
@@ -143,18 +170,27 @@ class ProdukController extends Controller
             }
 
             Produk::create([
-                'kategori' => $request->kategori,
-                'nama_produk' => $request->nama_produk,
-                'spesifikasi' => $request->spesifikasi,
-                'deskripsi' => $request->deskripsi,
-                'harga' => $request->harga,
-                'harga_coret' => $request->harga_coret,
-                'stok' => $request->stok, // Menyimpan nilai inventaris stok tunggal
-                'warna' => $request->warna,
-                'ukuran' => $request->ukuran,
-                'slug' => $slug,
-                'is_terlaris' => $is_terlaris,
-                'gambar' => $nama_gambar
+                'kategori'       => $request->kategori,
+                'nama_produk'    => $request->nama_produk,
+                'spesifikasi'    => $request->spesifikasi,
+                'deskripsi'      => $request->deskripsi,
+                'harga'          => $request->harga,
+                'harga_coret'    => $request->harga_coret,
+                'stok'           => $request->stok, 
+                'warna'          => $request->warna,
+                'ukuran'         => $request->ukuran,
+                'slug'           => $slug,
+                'is_terlaris'    => $is_terlaris,
+                'gambar'         => $nama_gambar,
+                
+                // SIMPAN DATA LOGISTIK & PO PADA TABEL UTAMA PRODUK TUNGGAL
+                'berat'          => $request->berat,
+                'panjang'        => $request->panjang,
+                'lebar'          => $request->lebar,
+                'tinggi'         => $request->tinggi,
+                'maks_pembelian' => $request->maks_pembelian,
+                'is_preorder'    => $request->is_preorder,
+                'waktu_preorder' => $request->is_preorder == 1 ? $request->waktu_preorder : null,
             ]);
         }
 
@@ -166,7 +202,7 @@ class ProdukController extends Controller
      */
     public function edit($id)
     {
-        $produk = Produk::findOrFail($id);
+        $produk = Produk::with('varians')->findOrFail($id);
         return view('admin.produk.edit', compact('produk'));
     }
 
@@ -178,41 +214,71 @@ class ProdukController extends Controller
         $produk = Produk::findOrFail($id);
 
         $rules = [
-            'kategori' => 'required|string',
-            'nama_produk' => 'required|string|max:255',
-            'spesifikasi' => 'nullable|string',
-            'deskripsi' => 'nullable|string',
+            'kategori'       => 'required|string',
+            'nama_produk'    => 'required|string|max:255',
+            'spesifikasi'    => 'nullable|string',
+            'deskripsi'      => 'required|string',
+            'is_preorder'    => 'required|in:0,1',
+            'waktu_preorder' => 'required_if:is_preorder,1|nullable|integer',
+            'maks_pembelian' => 'nullable|integer|min:0',
         ];
 
         if ($request->input('has_variant') == '1') {
-            $rules['varians'] = 'required|array|min:1';
-            $rules['varians.*.ukuran'] = 'required|string|max:255';
-            $rules['varians.*.harga'] = 'required|numeric';
+            $rules['varians']            = 'required|array|min:1';
+            $rules['varians.*.ukuran']   = 'required|string|max:255';
+            $rules['varians.*.harga']    = 'required|numeric';
             $rules['varians.*.harga_coret'] = 'nullable|numeric';
-            $rules['varians.*.stok'] = 'required|integer|min:0'; // Validasi stok varian saat update
+            $rules['varians.*.stok']     = 'required|integer|min:0';
+            $rules['varians.*.berat']    = 'required|integer|min:0';
+            $rules['varians.*.panjang']  = 'required|integer|min:0';
+            $rules['varians.*.lebar']    = 'required|integer|min:0';
+            $rules['varians.*.tinggi']   = 'required|integer|min:0';
         } else {
-            $rules['harga'] = 'required|numeric';
+            $rules['harga']       = 'required|numeric';
             $rules['harga_coret'] = 'nullable|numeric';
-            $rules['stok'] = 'required|integer|min:0'; // Validasi stok tunggal saat update
-            $rules['warna'] = 'nullable|string|max:255';
-            $rules['ukuran'] = 'nullable|string|max:255';
+            $rules['stok']        = 'required|integer|min:0';
+            $rules['warna']       = 'nullable|string|max:255';
+            $rules['ukuran']      = 'nullable|string|max:255';
+            $rules['berat']       = 'required|integer|min:0';
+            $rules['panjang']     = 'required|integer|min:0';
+            $rules['lebar']       = 'required|integer|min:0';
+            $rules['tinggi']      = 'required|integer|min:0';
         }
 
         $request->validate($rules);
 
         $slug = Str::slug($request->nama_produk) . '-' . rand(100, 999);
-        $produk->kategori = $request->kategori;
-        $produk->nama_produk = $request->nama_produk;
-        $produk->spesifikasi = $request->spesifikasi;
-        $produk->deskripsi = $request->deskripsi;
-        $produk->slug = $slug;
+        
+        // Perbarui data dasar utama
+        $produk->kategori       = $request->kategori;
+        $produk->nama_produk    = $request->nama_produk;
+        $produk->spesifikasi    = $request->spesifikasi;
+        $produk->deskripsi      = $request->deskripsi;
+        $produk->slug           = $slug;
+        $produk->maks_pembelian = $request->maks_pembelian;
+        $produk->is_preorder    = $request->is_preorder;
+        $produk->waktu_preorder = $request->is_preorder == 1 ? $request->waktu_preorder : null;
 
+        // KONDISI A: JIKA DISIMPAN SEBAGAI PRODUK BER-VARIAN
         if ($request->input('has_variant') == '1') {
-            $produk->warna = $request->warna ?? null;
-            $produk->ukuran = null;
-            $produk->harga = $request->varians[0]['harga'];
+            $produk->warna       = $request->warna ?? null;
+            $produk->ukuran      = null;
+            $produk->harga       = $request->varians[0]['harga'];
             $produk->harga_coret = $request->varians[0]['harga_coret'] ?? null;
-            $produk->stok = 0; // Set stok produk utama ke 0 jika memiliki varian ukuran
+            $produk->stok        = 0; 
+            
+            // Logistik induk dinullkan karena pindah ke tabel varian
+            $produk->berat       = null;
+            $produk->panjang     = null;
+            $produk->lebar       = null;
+            $produk->tinggi      = null;
+
+            if ($produk->gambar && !str_contains($produk->gambar, '_var_')) {
+                if (File::exists(public_path('images/products/' . $produk->gambar))) {
+                    File::delete(public_path('images/products/' . $produk->gambar));
+                }
+                $produk->gambar = null;
+            }
 
             $keptVariantIds = [];
 
@@ -228,14 +294,19 @@ class ProdukController extends Controller
                 if (isset($varianData['id'])) {
                     $varianExisting = $produk->varians()->find($varianData['id']);
                     if ($varianExisting) {
-                        $varianExisting->ukuran = $varianData['ukuran'];
-                        $varianExisting->harga = $varianData['harga'];
+                        $varianExisting->ukuran      = $varianData['ukuran'];
+                        $varianExisting->harga       = $varianData['harga'];
                         $varianExisting->harga_coret = $varianData['harga_coret'] ?? null;
-                        $varianExisting->stok = $varianData['stok']; // Update nilai stok varian aktif
+                        $varianExisting->stok        = $varianData['stok'];
+                        
+                        $varianExisting->berat       = $varianData['berat'];
+                        $varianExisting->panjang     = $varianData['panjang'];
+                        $varianExisting->lebar       = $varianData['lebar'];
+                        $varianExisting->tinggi      = $varianData['tinggi'];
                         
                         if ($nama_gambar_varian) {
-                            if ($varianExisting->gambar && file_exists(public_path('images/products/' . $varianExisting->gambar))) {
-                                unlink(public_path('images/products/' . $varianExisting->gambar));
+                            if ($varianExisting->gambar && File::exists(public_path('images/products/' . $varianExisting->gambar))) {
+                                File::delete(public_path('images/products/' . $varianExisting->gambar));
                             }
                             $varianExisting->gambar = $nama_gambar_varian;
                         }
@@ -244,11 +315,16 @@ class ProdukController extends Controller
                     }
                 } else {
                     $newVarian = $produk->varians()->create([
-                        'ukuran' => $varianData['ukuran'],
-                        'harga' => $varianData['harga'],
+                        'ukuran'      => $varianData['ukuran'],
+                        'harga'       => $varianData['harga'],
                         'harga_coret' => $varianData['harga_coret'] ?? null,
-                        'stok' => $varianData['stok'], // Simpan stok varian baru
-                        'gambar' => $nama_gambar_varian
+                        'stok'        => $varianData['stok'],
+                        'gambar'      => $nama_gambar_varian,
+                        
+                        'berat'       => $varianData['berat'],
+                        'panjang'     => $varianData['panjang'],
+                        'lebar'       => $varianData['lebar'],
+                        'tinggi'      => $varianData['tinggi'],
                     ]);
                     $keptVariantIds[] = $newVarian->id;
                 }
@@ -256,8 +332,8 @@ class ProdukController extends Controller
 
             $deletedVariants = $produk->varians()->whereNotIn('id', $keptVariantIds)->get();
             foreach ($deletedVariants as $dv) {
-                if ($dv->gambar && file_exists(public_path('images/products/' . $dv->gambar))) {
-                    unlink(public_path('images/products/' . $dv->gambar));
+                if ($dv->gambar && File::exists(public_path('images/products/' . $dv->gambar))) {
+                    File::delete(public_path('images/products/' . $dv->gambar));
                 }
                 $dv->delete();
             }
@@ -267,16 +343,30 @@ class ProdukController extends Controller
                 $produk->gambar = $varianPertama->gambar;
             }
 
-        } else {
-            $produk->harga = $request->harga;
+        } 
+        // KONDISI B: JIKA DISIMPAN SEBAGAI PRODUK TUNGGAL (TANPA VARIAN)
+        else {
+            foreach ($produk->varians as $oldVarian) {
+                if ($oldVarian->gambar && File::exists(public_path('images/products/' . $oldVarian->gambar))) {
+                    File::delete(public_path('images/products/' . $oldVarian->gambar));
+                }
+                $oldVarian->delete();
+            }
+
+            $produk->harga       = $request->harga;
             $produk->harga_coret = $request->harga_coret;
-            $produk->stok = $request->stok; // Update nilai stok produk tunggal
-            $produk->warna = $request->warna;
-            $produk->ukuran = $request->ukuran;
+            $produk->stok        = $request->stok; 
+            $produk->warna       = $request->warna;
+            $produk->ukuran      = $request->ukuran;
+            
+            $produk->berat       = $request->berat;
+            $produk->panjang     = $request->panjang;
+            $produk->lebar       = $request->lebar;
+            $produk->tinggi      = $request->tinggi;
 
             if ($request->hasFile('gambar')) {
-                if ($produk->gambar && file_exists(public_path('images/products/' . $produk->gambar))) {
-                    unlink(public_path('images/products/' . $produk->gambar));
+                if ($produk->gambar && File::exists(public_path('images/products/' . $produk->gambar))) {
+                    File::delete(public_path('images/products/' . $produk->gambar));
                 }
 
                 $nama_gambar = time() . '.' . $request->gambar->extension();
@@ -287,7 +377,6 @@ class ProdukController extends Controller
 
         $produk->save();
 
-        // AMBIL HISTORI FILTER DARI SESSION SEBELUM REDIRECT
         $searchParams = [];
         if (session()->has('last_search') && session('last_search') != '') {
             $searchParams['search'] = session('last_search');
@@ -304,10 +393,16 @@ class ProdukController extends Controller
      */
     public function destroy($id)
     {
-        $produk = Produk::findOrFail($id);
+        $produk = Produk::with('varians')->findOrFail($id);
 
-        if ($produk->gambar && file_exists(public_path('images/products/' . $produk->gambar))) {
-            unlink(public_path('images/products/' . $produk->gambar));
+        if ($produk->gambar && File::exists(public_path('images/products/' . $produk->gambar))) {
+            File::delete(public_path('images/products/' . $produk->gambar));
+        }
+
+        foreach ($produk->varians as $v) {
+            if ($v->gambar && File::exists(public_path('images/products/' . $v->gambar))) {
+                File::delete(public_path('images/products/' . $v->gambar));
+            }
         }
 
         $produk->delete();
@@ -322,7 +417,6 @@ class ProdukController extends Controller
     {
         $keyword = $request->get('search');
 
-        // Fungsi makro penanganan filter ketersediaan inventaris fisik (Stok > 0)
         $filterStokKatalog = function($query) use ($keyword) {
             return $query->where(function($q) {
                 $q->where('stok', '>', 0)
@@ -373,7 +467,6 @@ class ProdukController extends Controller
      */
     public function home()
     {
-        // Pastikan produk terlaris & rekomendasi promo diskon yang tampil juga memiliki stok fisik
         $filterFisikAda = function($query) {
             return $query->where(function($q) {
                 $q->where('stok', '>', 0)
@@ -396,30 +489,58 @@ class ProdukController extends Controller
     }
 
     /**
-     * 10. Menampilkan Dashboard Admin (Tergabung dengan data Artikel)
+     * 10. Menampilkan Dashboard Admin (Termasuk Data Performa Toko & Operasional Pesanan)
      */
     public function dashboard() 
     {
-        // 1. Data Produk
-        $totalProduk = Produk::count();
-        $totalFrame = Produk::where('kategori', 'frame')->count();
-        $totalRinglock = Produk::where('kategori', 'ringlock')->count();
-        $totalTubular = Produk::where('kategori', 'tubular')->count();
-        $produkTerbaru = Produk::latest()->take(5)->get();
+        // 1. STATISTIK CUPLIKAN OPERASIONAL PESANAN (SHOPEE SELLER CENTRE STYLE)
+        $countVerifikasi = Order::whereIn('status_pembayaran', ['menunggu_konfirmasi_admin', 'verifikasi'])->count();
+        $countDiproses   = Order::whereIn('status_pembayaran', ['dibayar', 'paid', 'lunas'])
+                                ->whereIn('status_pesanan', ['pending', 'diproses', 'sedang_dikemas', 'processing'])->count();
+        $countDikirim    = Order::whereIn('status_pesanan', ['dikirim', 'shipped'])->count();
+        $countSelesai    = Order::whereIn('status_pesanan', ['selesai', 'completed'])->count();
+        $countBatal      = Order::where(function ($q) {
+                                $q->whereIn('status_pesanan', ['dibatalkan', 'cancelled', 'batal'])
+                                  ->orWhereIn('status_pembayaran', ['dibatalkan', 'cancelled', 'batal']);
+                            })->count();
 
-        // 2. Data Artikel K3
-        $totalArtikel = Artikel::count(); 
+        // 2. DATA KATALOG PRODUK & ARTIKEL
+        $totalProduk    = Produk::count();
+        $totalFrame     = Produk::where('kategori', 'frame')->count();
+        $totalRinglock  = Produk::where('kategori', 'ringlock')->count();
+        $totalTubular   = Produk::where('kategori', 'tubular')->count();
+        $produkTerbaru  = Produk::latest()->take(5)->get();
+
+        $totalArtikel   = Artikel::count(); 
         $artikelTerbaru = Artikel::latest()->take(5)->get(); 
 
-        // 3. Kirim ke View
+        // 3. DATA PERFORMA TOKO
+        $totalPenjualan = Order::whereNotIn('status_pesanan', ['dibatalkan', 'cancelled', 'batal'])->sum('grand_total');
+        $totalPesanan   = Order::count();
+        
+        $totalPengunjung = 51; 
+        $totalKlikProduk = 73;
+        
+        $tingkatKonversi = $totalPengunjung > 0 ? ($totalPesanan / $totalPengunjung) * 100 : 0;
+
         return view('admin.dashboard', compact(
+            'countVerifikasi',
+            'countDiproses',
+            'countDikirim',
+            'countSelesai',
+            'countBatal',
             'totalProduk', 
             'totalFrame', 
             'totalRinglock', 
             'totalTubular', 
             'produkTerbaru',
             'totalArtikel',    
-            'artikelTerbaru'   
+            'artikelTerbaru',
+            'totalPenjualan',
+            'totalPesanan',
+            'totalPengunjung',
+            'totalKlikProduk',
+            'tingkatKonversi'
         ));
     }
 
@@ -456,7 +577,6 @@ class ProdukController extends Controller
             return response()->json([]);
         }
 
-        // Fitur auto-complete search box juga disaring hanya menampilkan barang yang ada stoknya
         $produks = Produk::where('nama_produk', 'LIKE', '%' . $query . '%')
             ->where(function($q) {
                 $q->where('stok', '>', 0)
@@ -486,10 +606,15 @@ class ProdukController extends Controller
         $ids = $request->ids;
 
         try {
-            $produks = Produk::whereIn('id', $ids)->get();
+            $produks = Produk::with('varians')->whereIn('id', $ids)->get();
             foreach ($produks as $produk) {
-                if ($produk->gambar && file_exists(public_path('images/products/' . $produk->gambar))) {
-                    @unlink(public_path('images/products/' . $produk->gambar));
+                if ($produk->gambar && File::exists(public_path('images/products/' . $produk->gambar))) {
+                    File::delete(public_path('images/products/' . $produk->gambar));
+                }
+                foreach ($produk->varians as $v) {
+                    if ($v->gambar && File::exists(public_path('images/products/' . $v->gambar))) {
+                        File::delete(public_path('images/products/' . $v->gambar));
+                    }
                 }
             }
 
@@ -509,10 +634,8 @@ class ProdukController extends Controller
 
     public function produkPerKategori($kategori)
     {
-        // Bersihkan string kategori jika ada embel-embel '-system' dari URL
         $kategoriClean = str_replace('-system', '', $kategori);
 
-        // Ambil produk yang stok utamanya > 0 ATAU variannya ada yang > 0
         $produks = Produk::with('varians')
             ->where('kategori', $kategoriClean)
             ->where(function($query) {

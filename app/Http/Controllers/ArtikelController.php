@@ -63,7 +63,7 @@ class ArtikelController extends Controller
             'kategori' => 'required|string',
             'ringkasan' => 'required|string|max:500',
             'konten' => 'required|string',
-            'gambar' => 'required|image|mimes:jpeg,png,jpg,webp'
+            'gambar' => 'required|image|mimes:jpeg,png,jpg,webp,svg'
         ]);
 
         $data = $request->all();
@@ -96,7 +96,7 @@ class ArtikelController extends Controller
             'kategori' => 'required|string',
             'ringkasan' => 'required|string|max:500',
             'konten' => 'required|string',
-            'gambar' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048'
+            'gambar' => 'nullable|image|mimes:jpeg,png,jpg,webp,svg'
         ]);
 
         $data = $request->all();

@@ -10,24 +10,33 @@ use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 class ProdukEditExport implements FromArray, WithHeadings, ShouldAutoSize
 {
     /**
-     * Mengatur Judul Kolom (Header) Excel
+     * Mengatur Judul Kolom Excel Lengkap dengan Aturan Main Modul Kargo
      */
     public function headings(): array
     {
         return [
-            'id_produk',        // ID Produk Utama di database
-            'id_varian',        // ID Varian (Kosong jika produk tunggal / baris induk)
-            'is_varian',        // Penanda (0 = Produk Utama, 1 = Varian Ukuran)
-            'kategori',
+            'id_produk (JANGAN DIUBAH)',        
+            'id_varian (JANGAN DIUBAH)',        
+            'is_varian (0=Baris Induk Utama, 1=Baris Anak Varian)',        
+            'kategori (frame/tubular/ringlock/kwikstage/bekisting)',
             'nama_produk',
-            'harga',
+            'harga (Angka Tanpa Titik)',
             'harga_coret',
             'stok',
             'spesifikasi',
             'deskripsi',
             'warna',
             'ukuran',
-            'is_terlaris'
+            'is_terlaris (0=Biasa, 1=Home Best Seller)',
+            
+            // ATRIBUT LOGISTIK & PRE-ORDER + PANDUAN
+            'berat_gr (Wajib Angka Gram. Contoh: 15kg = 15000)',         
+            'panjang_cm (Angka Bulat CM)',       
+            'lebar_cm (Angka Bulat CM)',         
+            'tinggi_cm (Angka Bulat CM)',        
+            'maks_pembelian (Batas Order Kargo Truk per Transaksi)',   
+            'is_preorder (0=Ready Stock Gudang, 1=Pre-Order Pabrik)',      
+            'waktu_preorder (Pilih Angka Hari: 3 / 5 / 7 / 14 jika PO)'    
         ];
     }
 
@@ -37,47 +46,59 @@ class ProdukEditExport implements FromArray, WithHeadings, ShouldAutoSize
     public function array(): array
     {
         $dataExcel = [];
-        
-        // Ambil semua produk beserta relasi variansnya
         $produks = Produk::with('varians')->get();
 
         foreach ($produks as $produk) {
             $hasVariant = $produk->varians->count() > 0;
 
-            // 1. TULIS BARIS UTAMA / INDUK
+            // 1. BARIS INDUK (is_varian = 0)
             $dataExcel[] = [
                 $produk->id,
-                '', // id_varian kosong untuk baris induk
-                '0', // is_varian = 0 (Induk)
+                '', 
+                '0', 
                 $produk->kategori,
                 $produk->nama_produk,
                 $produk->harga,
                 $produk->harga_coret,
-                $hasVariant ? 0 : ($produk->stok ?? 0), // Jika punya varian, stok induk diset 0
+                $hasVariant ? 0 : ($produk->stok ?? 0), 
                 $produk->spesifikasi,
                 $produk->deskripsi,
                 $produk->warna,
                 $produk->ukuran,
                 $produk->is_terlaris ? '1' : '0',
+                $hasVariant ? '' : $produk->berat,        
+                $hasVariant ? '' : $produk->panjang,      
+                $hasVariant ? '' : $produk->lebar,        
+                $hasVariant ? '' : $produk->tinggi,       
+                $produk->maks_pembelian,                  
+                $produk->is_preorder ? '1' : '0',         
+                $produk->is_preorder ? $produk->waktu_preorder : '', 
             ];
 
-            // 2. TULIS BARIS ANAK / VARIAN (Jika produk memiliki varian)
+            // 2. BARIS ANAK VARIAN (is_varian = 1)
             if ($hasVariant) {
                 foreach ($produk->varians as $v) {
                     $dataExcel[] = [
-                        $produk->id, // Tetap bawa ID induk agar tahu ini milik siapa
-                        $v->id,      // ID Varian disimpan sebagai kunci update
-                        '1',         // is_varian = 1 (Varian)
+                        $produk->id, 
+                        $v->id,      
+                        '1',         
                         $produk->kategori,
-                        $produk->nama_produk . ' - ' . $v->ukuran, // Nama produk bantu dengan teks ukuran
+                        $produk->nama_produk . ' - ' . $v->ukuran, 
                         $v->harga,
                         $v->harga_coret,
                         $v->stok ?? 0,
-                        '', // Spesifikasi varian kosong (ikut induk)
-                        '', // Deskripsi varian kosong (ikut induk)
+                        '', 
+                        '', 
                         $produk->warna,
-                        $v->ukuran, // Ukuran varian riil
-                        '0', // status terlaris ikut induk saja
+                        $v->ukuran, 
+                        '0', 
+                        $v->berat,    
+                        $v->panjang,  
+                        $v->lebar,    
+                        $v->tinggi,   
+                        '',           
+                        '',           
+                        ''            
                     ];
                 }
             }
