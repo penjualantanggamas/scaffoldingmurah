@@ -12,7 +12,6 @@ class ArtikelController extends Controller
        A. FUNGSI FRONTEND (UNTUK PEMBELI / PENGUNJUNG)
        ========================================================================== */
 
-    // 1. Menampilkan katalog semua artikel
     public function frontendIndex(Request $request)
     {
         $kategori = $request->get('kategori');
@@ -21,20 +20,17 @@ class ArtikelController extends Controller
                 return $query->where('kategori', $kategori);
             })
             ->latest()
-            ->paginate(6); // Menampilkan 6 artikel per halaman
+            ->paginate(6);
 
         return view('blog.index', compact('artikels'));
     }
 
-    // 2. Menampilkan isi detail bacaan artikel
     public function frontendShow($slug)
     {
         $artikel = Artikel::where('slug', $slug)->firstOrFail();
         
-        // Naikkan hit pembaca setiap kali halaman dibuka
         $artikel->increment('views');
 
-        // Mengambil 3 artikel lainnya untuk rekomendasi bacaan
         $relatedArticles = Artikel::where('id', '!=', $artikel->id)->latest()->take(3)->get();
 
         return view('blog.show', compact('artikel', 'relatedArticles'));
@@ -57,17 +53,41 @@ class ArtikelController extends Controller
 
     public function store(Request $request)
     {
-        // Validasi bersih tanpa input penulis
         $request->validate([
-            'judul' => 'required|string|max:255',
-            'kategori' => 'required|string',
+            'judul'     => 'required|string|max:255',
+            'kategori'  => 'required|string',
             'ringkasan' => 'required|string|max:500',
-            'konten' => 'required|string',
-            'gambar' => 'required|image|mimes:jpeg,png,jpg,webp,svg'
+            'konten'    => 'required|string',
+            'gambar'    => 'required|image|mimes:jpeg,png,jpg,webp,svg|max:10072',
+            'faqs'      => 'nullable|array',
+            'faqs.*.pertanyaan' => 'nullable|string',
+            'faqs.*.jawaban'    => 'nullable|string',
+        ], [
+            'judul.required'     => 'Judul artikel wajib diisi.',
+            'ringkasan.required' => 'Ringkasan singkat wajib diisi.',
+            'konten.required'    => 'Isi konten artikel lengkap wajib diisi.',
+            'gambar.required'    => 'Banner utama artikel wajib diunggah.',
+            'gambar.image'       => 'File banner harus berupa gambar.',
+            'gambar.mimes'       => 'Format banner harus JPEG, PNG, JPG, WEBP, atau SVG.',
+            'gambar.max'         => 'Ukuran banner terlalu besar! Maksimal 10 MB.',
         ]);
 
-        $data = $request->all();
+        $data = $request->except('faqs');
         $data['slug'] = Str::slug($request->judul) . '-' . rand(100, 999);
+
+        // Filter simpan FAQ yang tidak kosong saja
+        $formattedFaqs = [];
+        if ($request->has('faqs') && is_array($request->faqs)) {
+            foreach ($request->faqs as $faq) {
+                if (!empty($faq['pertanyaan']) && !empty($faq['jawaban'])) {
+                    $formattedFaqs[] = [
+                        'pertanyaan' => trim($faq['pertanyaan']),
+                        'jawaban'    => trim($faq['jawaban']),
+                    ];
+                }
+            }
+        }
+        $data['faqs'] = $formattedFaqs;
 
         if ($request->hasFile('gambar')) {
             $nama_gambar = time() . '_blog.' . $request->gambar->extension();
@@ -90,17 +110,39 @@ class ArtikelController extends Controller
     {
         $artikel = Artikel::findOrFail($id);
 
-        // Validasi bersih tanpa input penulis
         $request->validate([
-            'judul' => 'required|string|max:255',
-            'kategori' => 'required|string',
+            'judul'     => 'required|string|max:255',
+            'kategori'  => 'required|string',
             'ringkasan' => 'required|string|max:500',
-            'konten' => 'required|string',
-            'gambar' => 'nullable|image|mimes:jpeg,png,jpg,webp,svg'
+            'konten'    => 'required|string',
+            'gambar'    => 'nullable|image|mimes:jpeg,png,jpg,webp,svg|max:10072',
+            'faqs'      => 'nullable|array',
+            'faqs.*.pertanyaan' => 'nullable|string',
+            'faqs.*.jawaban'    => 'nullable|string',
+        ], [
+            'judul.required'     => 'Judul artikel wajib diisi.',
+            'ringkasan.required' => 'Ringkasan singkat wajib diisi.',
+            'konten.required'    => 'Isi konten artikel lengkap wajib diisi.',
+            'gambar.image'       => 'File banner harus berupa gambar.',
+            'gambar.mimes'       => 'Format banner harus JPEG, PNG, JPG, WEBP, atau SVG.',
+            'gambar.max'         => 'Ukuran banner terlalu besar! Maksimal 10 MB.',
         ]);
 
-        $data = $request->all();
-        $data['slug'] = Str::slug($request->judul) . '-' . rand(100, 999);
+        $data = $request->except('faqs');
+
+        // Filter simpan FAQ yang tidak kosong saja
+        $formattedFaqs = [];
+        if ($request->has('faqs') && is_array($request->faqs)) {
+            foreach ($request->faqs as $faq) {
+                if (!empty($faq['pertanyaan']) && !empty($faq['jawaban'])) {
+                    $formattedFaqs[] = [
+                        'pertanyaan' => trim($faq['pertanyaan']),
+                        'jawaban'    => trim($faq['jawaban']),
+                    ];
+                }
+            }
+        }
+        $data['faqs'] = $formattedFaqs;
 
         if ($request->hasFile('gambar')) {
             if ($artikel->gambar && file_exists(public_path('images/blog/' . $artikel->gambar))) {

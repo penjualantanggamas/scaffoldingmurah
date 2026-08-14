@@ -14,6 +14,11 @@ class Artikel extends Model
         'ringkasan', 
         'konten', 
         'gambar', 
+        'faqs',
         'views'
+    ];
+
+    protected $casts = [
+        'faqs' => 'array',
     ];
 }

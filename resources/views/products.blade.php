@@ -3,18 +3,32 @@
 @section('title', 'Products | Tangga Mas Scaffolding')
 
 @section('content')
-<!-- ========== TOP BANNER ========== -->
-<section class="container mx-auto px-4 pt-6 md:pt-10">
-  <div class="relative rounded-xl overflow-hidden aspect-[2.4/1] md:aspect-[4/1] w-full flex flex-col items-center justify-center text-center px-4 shadow-sm bg-gray-100">
-    <img src="{{ asset('images/buildringlock1.svg') }}" class="absolute inset-0 w-full h-full object-cover" alt="Banner Semua Produk Tangga Mas">
-    <div class="absolute inset-0 bg-black/45"></div>
-    <div class="relative z-10 px-2">
-      <h1 class="text-xl md:text-4xl font-bold text-white tracking-wide drop-shadow-sm">Semua Produk</h1>
-      <p class="text-white/80 text-[10px] md:text-sm mt-0.5 md:mt-1 max-w-md mx-auto">Katalog lengkap Scaffolding & Bekisting berkualitas industri</p>
-    </div>
-  </div>
-</section>
 
+<!-- ========== TOP BANNER HEADER (DINAMIS & AMAN) ========== -->
+<section class="container mx-auto px-4 pt-6 md:pt-10">
+@php
+    // Pengaman jika variabel tidak dikirim dari controller
+    $catalogHeaderBanner = $catalogHeaderBanner ?? null;
+    
+    $headerRaw = $catalogHeaderBanner?->content;
+    $headerContent = is_array($headerRaw) ? $headerRaw : (json_decode($headerRaw ?? '[]', true) ?? []);
+    
+    $headerImg = (!empty($headerContent['image']) && file_exists(public_path('images/banners/webp/' . $headerContent['image'])))
+        ? asset('images/banners/webp/' . $headerContent['image']) 
+        : asset('images/buildringlock1.svg');
+        
+    $headerJudul = $headerContent['judul_banner'] ?? 'Semua Produk';
+    $headerSub   = $headerContent['subjudul_banner'] ?? 'Katalog lengkap Scaffolding & Bekisting berkualitas industri';
+@endphp
+<div class="relative rounded-xl overflow-hidden aspect-[2.4/1] md:aspect-[4/1] w-full flex flex-col items-center justify-center text-center px-4 shadow-sm bg-gray-100">
+  <img src="{{ $headerImg }}" class="absolute inset-0 w-full h-full object-cover" alt="{{ $headerJudul }}" onerror="this.src='{{ asset('images/buildringlock1.svg') }}'">
+  <div class="absolute inset-0 bg-black/45"></div>
+  <div class="relative z-10 px-2">
+    <h1 class="text-xl md:text-4xl font-bold text-white tracking-wide drop-shadow-sm">{{ $headerJudul }}</h1>
+    <p class="text-white/80 text-[10px] md:text-sm mt-0.5 md:mt-1 max-w-md mx-auto">{{ $headerSub }}</p>
+  </div>
+</div>
+</section>
 
 <!-- ========== KATEGORI SISTEM SCAFFOLDING ========== -->
 <section class="container mx-auto px-4 mt-5 md:mt-8">
@@ -174,11 +188,25 @@
 </section>
 
 
-<!-- ========== MIDDLE ADVERTISING BANNER ========== -->
+<!-- ========== MIDDLE ADVERTISING BANNER (DINAMIS & AMAN) ========== -->
 <section class="container mx-auto px-4 py-6 md:py-10">
-  <div class="rounded-xl overflow-hidden aspect-[2.8/1] w-full bg-white flex items-center justify-center shadow-sm border border-gray-150">
-    <img src="{{ asset('images/banners/banner_tertiary.png') }}" alt="Promosi K3 Tangga Mas Scaffolding" class="w-full h-full object-contain" onerror="this.src='{{ asset('images/logotm.png') }}'">
-  </div>
+@php
+    // Pengaman jika variabel tidak dikirim dari controller
+    $catalogMiddleBanner = $catalogMiddleBanner ?? null;
+
+    $middleRaw = $catalogMiddleBanner?->content;
+    $middleContent = is_array($middleRaw) ? $middleRaw : (json_decode($middleRaw ?? '[]', true) ?? []);
+    
+    $middleImg = (!empty($middleContent['image']) && file_exists(public_path('images/banners/webp/' . $middleContent['image'])))
+        ? asset('images/banners/webp/' . $middleContent['image']) 
+        : asset('images/banners/banner_tertiary.png');
+        
+    $middleLink = $middleContent['link'] ?? '#';
+    $middleAlt  = $middleContent['alt'] ?? 'Promosi K3 Tangga Mas Scaffolding';
+@endphp
+<a href="{{ $middleLink }}" class="block rounded-xl overflow-hidden aspect-[2.8/1] w-full bg-white flex items-center justify-center shadow-sm border border-gray-150 hover:opacity-95 transition-opacity">
+  <img src="{{ $middleImg }}" alt="{{ $middleAlt }}" class="w-full h-full object-contain" onerror="this.src='{{ asset('images/logotm.png') }}'">
+</a>
 </section>
 
 
@@ -260,4 +288,5 @@
     </div>
   </div>
 </section>
+
 @endsection

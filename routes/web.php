@@ -11,6 +11,7 @@ use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\AdminOrderController;
 use App\Http\Controllers\AdminShippingRateController;
 use App\Http\Controllers\Admin\SettingController;
+use App\Http\Controllers\Admin\StoreDecorationController;
 
 /*
 |--------------------------------------------------------------------------
@@ -52,47 +53,16 @@ Route::get('/products/detail/{slug}', function ($slug) {
 
 /*
 |--------------------------------------------------------------------------
-| 2. ROUTE DETAIL KATEGORI (FILTER STOK)
+| 2. ROUTE DETAIL KATEGORI (HUBUNGKAN KE PRODUKCONTROLLER)
 |--------------------------------------------------------------------------
 */
 
-$getProdukFrontend = function ($kategori) {
-    return Produk::with('varians')
-        ->where('kategori', $kategori)
-        ->where(function($query) {
-            $query->where('stok', '>', 0)
-                  ->orWhereHas('varians', function($subQuery) {
-                      $subQuery->where('stok', '>', 0);
-                  });
-        })
-        ->latest()
-        ->get();
-};
-
-Route::get('/products/frame-system', function () use ($getProdukFrontend) {
-    $produks = $getProdukFrontend('frame');
-    return view('products.frame', compact('produks'));
-});
-
-Route::get('/products/ringlock-system', function () use ($getProdukFrontend) {
-    $produks = $getProdukFrontend('ringlock');
-    return view('products.ringlock', compact('produks'));
-});
-
-Route::get('/products/tubular-system', function () use ($getProdukFrontend) {
-    $produks = $getProdukFrontend('tubular');
-    return view('products.tubular', compact('produks'));
-});
-
-Route::get('/products/kwikstage-system', function () use ($getProdukFrontend) {
-    $produks = $getProdukFrontend('kwikstage');
-    return view('products.kwikstage', compact('produks'));
-});
-
-Route::get('/products/bekisting-system', function () use ($getProdukFrontend) {
-    $produks = $getProdukFrontend('bekisting');
-    return view('products.bekisting', compact('produks'));
-});
+// ⚡ Mengarahkan ke ProdukController agar data $categoryBanner & $produks terisi otomatis
+Route::get('/products/frame-system', [ProdukController::class, 'produkPerKategori']);
+Route::get('/products/ringlock-system', [ProdukController::class, 'produkPerKategori']);
+Route::get('/products/tubular-system', [ProdukController::class, 'produkPerKategori']);
+Route::get('/products/kwikstage-system', [ProdukController::class, 'produkPerKategori']);
+Route::get('/products/bekisting-system', [ProdukController::class, 'produkPerKategori']);
 
 
 /*
@@ -162,6 +132,15 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Pengaturan Mode Transaksi Admin (Toggle Switch Web vs WhatsApp)
     Route::get('/admin/settings/transaction', [SettingController::class, 'index'])->name('admin.settings.transaction');
     Route::patch('/admin/settings/transaction', [SettingController::class, 'update'])->name('admin.settings.transaction.update');
+
+    // Dekorasi Toko Routes
+    Route::get('/admin/dekorasi', [StoreDecorationController::class, 'index'])->name('admin.dekorasi.index');
+    Route::post('/admin/dekorasi/block', [StoreDecorationController::class, 'storeBlock'])->name('admin.dekorasi.storeBlock');
+    Route::post('/admin/dekorasi/block/{id}', [StoreDecorationController::class, 'updateBlock'])->name('admin.dekorasi.updateBlock');
+    Route::get('/admin/dekorasi/slide/delete/{id}/{slideId}', [StoreDecorationController::class, 'deleteSlide'])->name('admin.dekorasi.deleteSlide');
+    Route::post('/admin/dekorasi/toggle/{id}', [StoreDecorationController::class, 'toggleActive'])->name('admin.dekorasi.toggleActive');
+    Route::delete('/admin/dekorasi/block/{id}', [StoreDecorationController::class, 'destroy'])->name('admin.dekorasi.destroy');
+    Route::post('/admin/dekorasi/reorder', [StoreDecorationController::class, 'reorder'])->name('admin.dekorasi.reorder');
 });
 
 

@@ -37,9 +37,40 @@
         @endif
 
         <!-- Seksional Konten Utama: Menggunakan kelas pemeta artikel kustom -->
-        <div class="content-artikel text-gray-700 leading-relaxed border-b border-gray-100 pb-12">
+        <div class="content-artikel text-gray-700 leading-relaxed border-b border-gray-100 pb-8">
             {!! $artikel->konten !!}
         </div>
+
+        <!-- ================= SEKSI FAQ ARTIKEL (DITAMPILKAN JIKA ADA DATA) ================= -->
+        @if(!empty($artikel->faqs) && is_array($artikel->faqs) && count($artikel->faqs) > 0)
+        <section class="mt-8 pt-6 border-b border-gray-100 pb-10">
+            <div class="mb-5">
+                <h3 class="text-lg md:text-xl font-bold text-gray-900 flex items-center gap-2">
+                    <i class="fa-solid fa-circle-question text-[#1BBC9A]"></i> FAQ
+                </h3>
+                <!-- <p class="text-xs text-gray-500 mt-1">Jawaban singkat atas pertanyaan umum seputar pembahasan di artikel ini.</p> -->
+            </div>
+
+            <div class="space-y-3">
+                @foreach($artikel->faqs as $index => $faq)
+                <details class="group bg-gray-50/80 border border-gray-200/80 rounded-xl overflow-hidden transition-all duration-200 hover:border-emerald-300">
+                    <summary class="flex items-center justify-between p-4 cursor-pointer font-bold text-xs md:text-sm text-gray-800 group-open:text-[#1BBC9A] select-none">
+                        <span class="flex items-center gap-2.5">
+                            <span class="w-6 h-6 rounded-full bg-emerald-100 text-[#1BBC9A] text-xs font-extrabold flex items-center justify-center shrink-0">
+                                {{ $index + 1 }}
+                            </span>
+                            {{ $faq['pertanyaan'] }}
+                        </span>
+                        <i class="fa-solid fa-chevron-down text-xs text-gray-400 group-open:rotate-180 transition-transform duration-200 ml-2 shrink-0"></i>
+                    </summary>
+                    <div class="px-4 pb-4 pt-1 text-xs md:text-sm text-gray-600 border-t border-gray-200/60 bg-white leading-relaxed">
+                        {!! nl2br(e($faq['jawaban'])) !!}
+                    </div>
+                </details>
+                @endforeach
+            </div>
+        </section>
+        @endif
 
         @if($relatedArticles->count() > 0)
         <section class="mt-12 pt-4">

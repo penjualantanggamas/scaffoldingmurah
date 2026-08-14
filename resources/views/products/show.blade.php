@@ -23,10 +23,11 @@
     <!-- Main Card Container -->
     <div class="grid grid-cols-1 md:grid-cols-12 gap-0 bg-white rounded-xl border border-gray-150 shadow-sm items-start overflow-hidden">
         
-        <!-- AREA GAMBAR UTAMA -->
-        <div class="md:col-span-5 w-full md:sticky md:top-28">
-            <div class="bg-brand-gray-bg aspect-square flex items-center justify-center overflow-hidden relative shadow-inner">
-                <img id="main-product-image" src="{{ $produk->gambar ? asset('images/products/' . $produk->gambar) : asset('images/placeholder.png') }}" class="w-full h-full object-cover" alt="{{ $produk->nama_produk }}" onerror="this.src='{{ asset('images/logotm.png') }}'">
+        <!-- AREA GAMBAR UTAMA & CAROUSEL THUMBNAIL (ALA SHOPEE) -->
+        <div class="md:col-span-5 w-full md:sticky md:top-28 p-4 md:p-6 space-y-3">
+            <!-- Display Foto Besar Utama -->
+            <div class="bg-brand-gray-bg aspect-square flex items-center justify-center overflow-hidden relative shadow-inner rounded-xl border border-gray-200">
+                <img id="main-product-image" src="{{ $produk->gambar ? asset('images/products/' . $produk->gambar) : asset('images/placeholder.png') }}" class="w-full h-full object-cover transition-all duration-300" alt="{{ $produk->nama_produk }}" onerror="this.src='{{ asset('images/logotm.png') }}'">
                 
                 <!-- Badge Promo -->
                 <div id="promo-badge-container" class="{{ $produk->harga_coret ? '' : 'hidden' }} absolute top-4 left-4">
@@ -38,6 +39,29 @@
                     </span>
                 </div>
             </div>
+
+            <!-- CAROUSEL THUMBNAIL BARIS BAWAH (ALA SHOPEE) -->
+            @if($produk->gambar || ($produk->galeri && $produk->galeri->count() > 0))
+            <div class="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none" id="thumbnailList">
+                <!-- Thumbnail Foto Cover Utama -->
+                @if($produk->gambar)
+                <button type="button" onclick="changeMainImage('{{ asset('images/products/' . $produk->gambar) }}', this)"
+                        class="w-14 h-14 md:w-16 md:h-16 rounded-lg border-2 border-[#1BBC9A] overflow-hidden shrink-0 transition-all cursor-pointer opacity-100 thumbnail-btn">
+                    <img src="{{ asset('images/products/' . $produk->gambar) }}" class="w-full h-full object-cover" onerror="this.src='{{ asset('images/logotm.png') }}'">
+                </button>
+                @endif
+
+                <!-- Thumbnail Foto Galeri Tambahan -->
+                @if($produk->galeri && $produk->galeri->count() > 0)
+                    @foreach($produk->galeri as $galeri)
+                    <button type="button" onclick="changeMainImage('{{ asset('images/products/' . $galeri->foto) }}', this)"
+                            class="w-14 h-14 md:w-16 md:h-16 rounded-lg border border-gray-200 overflow-hidden shrink-0 transition-all cursor-pointer opacity-60 hover:opacity-100 thumbnail-btn">
+                        <img src="{{ asset('images/products/' . $galeri->foto) }}" class="w-full h-full object-cover" onerror="this.src='{{ asset('images/logotm.png') }}'">
+                    </button>
+                    @endforeach
+                @endif
+            </div>
+            @endif
         </div>
 
         <!-- INFO PRODUK & CONTROL OPSI -->
@@ -115,7 +139,7 @@
                 <!-- DESKRIPSI -->
                 <div class="mb-6 border-t border-gray-100 pt-4">
                     <h3 class="text-xs font-bold text-gray-800 mb-1.5">Deskripsi Produk:</h3>
-                    <p class="text-xs md:text-sm text-gray-600 leading-relaxed">
+                    <p class="text-xs md:text-sm text-gray-600 leading-relaxed whitespace-pre-line">
                         {{ $produk->deskripsi ?? 'PT Tangga Mas Jaya Makmur menjamin semua material perancah diproduksi menggunakan baja standar SNI berkualitas tinggi yang kuat menahan beban berat pada proyek konstruksi Anda.' }}
                     </p>
                 </div>
@@ -220,6 +244,22 @@
             return false;
         }
         return true;
+    }
+
+    // SWITCH GAMBAR UTAMA DARI THUMBNAIL GALERI (ALA SHOPEE)
+    function changeMainImage(imageUrl, btn) {
+        const mainImg = document.getElementById('main-product-image');
+        if (mainImg) mainImg.src = imageUrl;
+        
+        document.querySelectorAll('.thumbnail-btn').forEach(el => {
+            el.classList.remove('border-[#1BBC9A]', 'border-2', 'opacity-100');
+            el.classList.add('border-gray-200', 'border', 'opacity-60');
+        });
+
+        if (btn) {
+            btn.classList.remove('border-gray-200', 'border', 'opacity-60');
+            btn.classList.add('border-[#1BBC9A]', 'border-2', 'opacity-100');
+        }
     }
 
     // HELPER: Menyiapkan Payload Data Produk & Varian
@@ -350,7 +390,7 @@
                     if (gambarUrl && !gambarUrl.includes('null')) mainImage.setAttribute('src', gambarUrl);
 
                     const harga = parseInt(this.getAttribute('data-harga'));
-                    const hargaCoretAttr = this.getAttribute('data-hargacoret');
+                    const hargaCoretAttr = this.getAttribute('data-[#hargacoret]');
                     if(displayHarga) displayHarga.textContent = formatRupiah(harga);
 
                     if (hargaCoretAttr && displayHargaCoretReal) {

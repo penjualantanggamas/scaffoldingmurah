@@ -35,37 +35,66 @@
                 <h2 class="text-base font-bold text-gray-800 mb-6 border-b border-gray-100 pb-2">Informasi Produk</h2>
                 
                 <div class="space-y-5">
-                    <!-- Foto Produk (1:1 Ratio Slots) -->
+                    
+                    <!-- FOTO PRODUK MULTIPLE ALA SHOPEE (EDIT MODE) -->
                     <div>
-                        <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2"><span class="text-red-500">*</span> Foto Produk (Rasio 1:1)</label>
-                        <div class="grid grid-cols-2 sm:grid-cols-5 gap-3">
-                            <!-- Slot Cover Aktif (DENGAN PREVIEW) -->
-                            <div class="border-2 border-dashed border-gray-300 rounded-xl p-2 flex flex-col items-center justify-center relative aspect-square bg-gray-50 group" id="cover-slot">
-                                <!-- Preview Image (tampil jika sudah ada gambar atau setelah pilih file baru) -->
-                                <img id="cover-preview" 
-                                     src="{{ ($produk->gambar && !$hasVariant) ? asset('images/products/' . $produk->gambar) : '' }}" 
-                                     class="w-full h-full object-cover rounded-lg absolute inset-0 p-1 {{ ($produk->gambar && !$hasVariant) ? '' : 'hidden' }}">
+                        <div class="flex justify-between items-center mb-2">
+                            <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider">
+                                <span class="text-red-500">*</span> Foto Produk (Rasio 1:1, Maks. 9 Foto)
+                            </label>
+                            <span id="photoCounter" class="text-xs font-bold text-[#1BBC9A] font-mono">(0/9)</span>
+                        </div>
 
-                                <!-- Label Cover -->
-                                <div id="cover-label" class="absolute bottom-0 inset-x-0 bg-red-500 text-white text-[10px] text-center py-0.5 rounded-b-xl font-bold {{ ($produk->gambar && !$hasVariant) ? '' : 'hidden' }}">* Cover</div>
-
-                                <!-- Placeholder (tampil jika belum ada gambar) -->
-                                <div id="cover-placeholder" class="flex flex-col items-center {{ ($produk->gambar && !$hasVariant) ? 'hidden' : '' }}">
+                        <!-- GRID UPLOAD ALA SHOPEE -->
+                        <div class="grid grid-cols-2 sm:grid-cols-5 md:grid-cols-9 gap-3" id="shopeeImageGrid">
+                            
+                            <!-- SLOT 1: FOTO COVER UTAMA -->
+                            <div class="relative group aspect-square rounded-xl border-2 border-dashed border-gray-300 bg-gray-50 flex flex-col items-center justify-center overflow-hidden hover:border-[#1BBC9A] transition-all cursor-pointer" onclick="document.getElementById('coverInput').click()">
+                                <img id="coverPreview" 
+                                     src="{{ $produk->gambar ? asset('images/products/' . $produk->gambar) : '' }}" 
+                                     class="{{ $produk->gambar ? '' : 'hidden' }} w-full h-full object-cover">
+                                
+                                <div id="coverPlaceholder" class="{{ $produk->gambar ? 'hidden' : '' }} flex flex-col items-center text-center p-1">
                                     <i class="fa-regular fa-image text-gray-400 text-xl mb-1"></i>
-                                    <span class="text-[10px] text-gray-450 text-center">Utama (Cover)</span>
+                                    <span class="text-[10px] text-gray-500 font-medium">+ Foto Cover</span>
                                 </div>
 
-                                <input type="file" name="gambar" id="cover-input" accept="image/*" class="absolute inset-0 opacity-0 cursor-pointer">
+                                <div id="coverLabel" class="{{ $produk->gambar ? '' : 'hidden' }} absolute bottom-0 inset-x-0 bg-red-500 text-white text-[9px] font-bold py-0.5 text-center uppercase tracking-wider">
+                                    * Cover
+                                </div>
+
+                                <input type="file" id="coverInput" name="gambar" accept="image/*" class="hidden" onchange="previewCover(this)">
                             </div>
 
-                            <!-- Keterangan Tambahan Foto -->
-                            <div class="col-span-1 sm:col-span-4 flex items-center bg-gray-50 rounded-xl p-4 border border-gray-100">
-                                <p class="text-[14px] text-gray-400 leading-relaxed">
-                                    <strong class="text-gray-650 block mb-0.5">💡 Tips Gambar Scaffolding:</strong>
-                                    Gunakan file yang jelas ukuran 1:1 dan berformat WEBP untuk gambar display katalog produk Tangga Mas agar tidak berat dan profesional.
-                                </p>
+                            <!-- FOTO GALERI EXISTING -->
+                            @if($produk->galeri && $produk->galeri->count() > 0)
+                                @foreach($produk->galeri as $img)
+                                    <div class="relative aspect-square rounded-xl border border-gray-200 bg-white overflow-hidden group shadow-sm" id="existing-img-{{ $img->id }}">
+                                        <img src="{{ asset('images/products/' . $img->foto) }}" class="w-full h-full object-cover">
+                                        <button type="button" onclick="removeExistingImage({{ $img->id }})" 
+                                                class="absolute top-1 right-1 bg-rose-600 hover:bg-rose-700 text-white w-5 h-5 rounded-full flex items-center justify-center text-[10px] shadow transition-all cursor-pointer">
+                                            <i class="fa-solid fa-xmark"></i>
+                                        </button>
+                                    </div>
+                                @endforeach
+                            @endif
+
+                            <!-- CONTAINER PREVIEW GALERI BARU (DYNAMIC) -->
+                            <div id="galleryPreviews" class="contents"></div>
+
+                            <!-- TOMBOL TAMBAH FOTO GALERI -->
+                            <div id="addMoreBox" class="aspect-square rounded-xl border-2 border-dashed border-amber-300 bg-amber-50/50 hover:bg-amber-100/50 flex flex-col items-center justify-center cursor-pointer transition-all p-1 text-center" onclick="document.getElementById('galleryInput').click()">
+                                <i class="fa-solid fa-square-plus text-amber-500 text-xl mb-1"></i>
+                                <span class="text-[10px] font-bold text-amber-800">Tambah Foto</span>
                             </div>
+
+                            <input type="file" id="galleryInput" name="galeri[]" accept="image/*" multiple class="hidden" onchange="handleGalleryUpload(this)">
+                            <input type="hidden" name="deleted_images" id="deletedImagesInput" value="">
                         </div>
+
+                        <p class="text-[11px] text-gray-400 mt-2">
+                            💡 <strong>Tips Foto:</strong> Slot pertama otomatis menjadi <strong>Cover Utama</strong>. Anda bisa klik ikon silang (X) untuk menghapus foto galeri pendukung.
+                        </p>
                     </div>
 
                     <!-- Nama Produk -->
@@ -299,30 +328,175 @@
 
 <!-- JAVASCRIPT LOGIC (SHOPEE FLOW CONTROLLER) -->
 <script>
-    // 1. Karakter Counter Nama Produk
+    // Penampung Akumulatif File Gambar Galeri
+    const galleryDT = new DataTransfer();
+    let deletedImageIds = [];
+
+    // 1. FUNGSI BUKA DIALOG PILIH FOTO GALERI
+    function openGalleryPicker() {
+        const galleryInput = document.getElementById('galleryInput');
+        if (galleryInput) {
+            galleryInput.value = ''; // Reset nilai agar event 'change' selalu terpicu dengan stabil
+            galleryInput.click();
+        }
+    }
+
+    // 2. PREVIEW FOTO COVER UTAMA
+    function previewCover(input) {
+        const coverPreview = document.getElementById('coverPreview');
+        const coverPlaceholder = document.getElementById('coverPlaceholder');
+        const coverLabel = document.getElementById('coverLabel');
+
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                coverPreview.src = e.target.result;
+                coverPreview.classList.remove('hidden');
+                coverLabel.classList.remove('hidden');
+                coverPlaceholder.classList.add('hidden');
+                updatePhotoCounter();
+            }
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+
+    // 3. TANGGAPI SELEKSI FOTO GALERI BARU (AKUMULATIF BERTAHAP)
+    function handleGalleryUpload(input) {
+        const files = Array.from(input.files);
+        if (!files.length) return;
+
+        files.forEach(file => {
+            const existingCount = document.querySelectorAll('[id^="existing-img-"]').length;
+            const coverInput = document.getElementById('coverInput');
+            const hasNewCover = coverInput && coverInput.files && coverInput.files.length > 0;
+            const hasOldCover = "{{ $produk->gambar ? 1 : 0 }}" == "1";
+            const coverCount = (hasNewCover || hasOldCover) ? 1 : 0;
+            const totalFoto = existingCount + coverCount + galleryDT.files.length;
+
+            if (totalFoto < 9) {
+                galleryDT.items.add(file);
+            } else {
+                alert('Maksimal total foto (Cover + Galeri) adalah 9 foto.');
+            }
+        });
+
+        // SINKRONKAN HASIL AKUMULASI KE INPUT FORM
+        input.files = galleryDT.files;
+
+        // RENDER PREVIEW
+        renderGalleryPreviews();
+    }
+
+    // 4. RENDER PREVIEW FOTO GALERI BARU
+    function renderGalleryPreviews() {
+        const container = document.getElementById('galleryPreviews');
+        if (!container) return;
+        container.innerHTML = '';
+
+        Array.from(galleryDT.files).forEach((file, index) => {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const div = document.createElement('div');
+                div.className = 'relative aspect-square rounded-xl border border-gray-200 bg-white overflow-hidden group shadow-sm';
+                div.innerHTML = `
+                    <img src="${e.target.result}" class="w-full h-full object-cover">
+                    <button type="button" onclick="removeNewGalleryImage(${index})" 
+                            class="absolute top-1 right-1 bg-rose-600 hover:bg-rose-700 text-white w-5 h-5 rounded-full flex items-center justify-center text-[10px] shadow transition-all cursor-pointer">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                `;
+                container.appendChild(div);
+            };
+            reader.readAsDataURL(file);
+        });
+
+        updatePhotoCounter();
+    }
+
+    // 5. HAPUS FOTO GALERI LAMA DARI DATABASE
+    function removeExistingImage(id) {
+        deletedImageIds.push(id);
+        document.getElementById('deletedImagesInput').value = JSON.stringify(deletedImageIds);
+        document.getElementById(`existing-img-${id}`)?.remove();
+        updatePhotoCounter();
+    }
+
+    // 6. HAPUS FOTO GALERI BARU SEBELUM SUBMIT
+    function removeNewGalleryImage(index) {
+        const newDT = new DataTransfer();
+        Array.from(galleryDT.files).forEach((file, i) => {
+            if (i !== index) newDT.items.add(file);
+        });
+
+        galleryDT.items.clear();
+        Array.from(newDT.files).forEach(f => galleryDT.items.add(f));
+
+        const galleryInput = document.getElementById('galleryInput');
+        if (galleryInput) galleryInput.files = galleryDT.files;
+
+        renderGalleryPreviews();
+    }
+
+    // 7. HITUNG JUMLAH TOTAL FOTO (MAX 9)
+    function updatePhotoCounter() {
+        const existingCount = document.querySelectorAll('[id^="existing-img-"]').length;
+        const coverInput = document.getElementById('coverInput');
+        const hasNewCover = coverInput && coverInput.files && coverInput.files.length > 0;
+        const hasOldCover = "{{ $produk->gambar ? 1 : 0 }}" == "1";
+        const coverCount = (hasNewCover || hasOldCover) ? 1 : 0;
+        const total = existingCount + coverCount + galleryDT.files.length;
+
+        const photoCounter = document.getElementById('photoCounter');
+        if (photoCounter) photoCounter.innerText = `(${total}/9)`;
+
+        const addMoreBox = document.getElementById('addMoreBox');
+        if (addMoreBox) {
+            if (total >= 9) {
+                addMoreBox.classList.add('hidden');
+            } else {
+                addMoreBox.classList.remove('hidden');
+            }
+        }
+    }
+
+    // SINKRONISASI PASTIKAN TERIKAT SAAT FORM DITERUSKAN KE CONTROLLER
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.querySelector('form');
+        if (form) {
+            form.addEventListener('submit', function() {
+                const galleryInput = document.getElementById('galleryInput');
+                if (galleryInput && galleryDT.files.length > 0) {
+                    galleryInput.files = galleryDT.files;
+                }
+            });
+        }
+        updatePhotoCounter();
+    });
+
+    // Karakter Counter Nama Produk
     const namaInput = document.getElementById('nama_produk');
     const charCount = document.getElementById('char-count');
-    
     function updateCharCount() {
-        charCount.textContent = `${namaInput.value.length}/255`;
+        if(namaInput && charCount) charCount.textContent = `${namaInput.value.length}/255`;
     }
-    namaInput.addEventListener('input', updateCharCount);
-    updateCharCount();
+    if(namaInput) {
+        namaInput.addEventListener('input', updateCharCount);
+        updateCharCount();
+    }
 
-    // 2. Kontrol Tab Navigation Scroll Spy & Active State
+    // Kontrol Tab Navigation
     const tabs = document.querySelectorAll('#form-tabs a');
     tabs.forEach(tab => {
         tab.addEventListener('click', function(e) {
             e.preventDefault();
             tabs.forEach(t => t.className = "text-gray-500 hover:text-gray-700 py-3 px-1 transition-all");
             this.className = "text-[#1BBC9A] border-b-2 border-[#1BBC9A] py-3 px-1 transition-all";
-            
             const targetId = this.getAttribute('href');
             document.querySelector(targetId).scrollIntoView({ behavior: 'smooth' });
         });
     });
 
-    // 3. Kontrol Dinamis Switcher Variasi (Single VS Variant Matriks)
+    // Switcher Variasi Single vs Varian
     const hasVariantCheckbox = document.getElementById('has_variant');
     const singleBlock = document.getElementById('single-product-block');
     const variantBlock = document.getElementById('variant-product-block');
@@ -336,132 +510,110 @@
     const singleLebar = document.getElementById('single_lebar');
     const singleTinggi = document.getElementById('single_tinggi');
 
-    hasVariantCheckbox.addEventListener('change', function() {
-        if (this.checked) {
-            singleBlock.classList.add('hidden');
-            variantBlock.classList.remove('hidden');
-            logisticSingleFields.classList.add('hidden');
-            logisticVariantNote.classList.remove('hidden');
+    if(hasVariantCheckbox) {
+        hasVariantCheckbox.addEventListener('change', function() {
+            if (this.checked) {
+                singleBlock.classList.add('hidden');
+                variantBlock.classList.remove('hidden');
+                logisticSingleFields.classList.add('hidden');
+                logisticVariantNote.classList.remove('hidden');
 
-            singleHarga.removeAttribute('required');
-            singleStok.removeAttribute('required');
-            singleBerat.removeAttribute('required');
-            singlePanjang.removeAttribute('required');
-            singleLebar.removeAttribute('required');
-            singleTinggi.removeAttribute('required');
+                singleHarga.removeAttribute('required');
+                singleStok.removeAttribute('required');
+                singleBerat.removeAttribute('required');
+                singlePanjang.removeAttribute('required');
+                singleLebar.removeAttribute('required');
+                singleTinggi.removeAttribute('required');
 
-            document.querySelectorAll('.variant-field').forEach(el => el.setAttribute('required', 'true'));
-        } else {
-            singleBlock.classList.remove('hidden');
-            variantBlock.classList.add('hidden');
-            logisticSingleFields.classList.remove('hidden');
-            logisticVariantNote.classList.add('hidden');
+                document.querySelectorAll('.variant-field').forEach(el => el.setAttribute('required', 'true'));
+            } else {
+                singleBlock.classList.remove('hidden');
+                variantBlock.classList.add('hidden');
+                logisticSingleFields.classList.remove('hidden');
+                logisticVariantNote.classList.add('hidden');
 
-            singleHarga.setAttribute('required', 'true');
-            singleStok.setAttribute('required', 'true');
-            singleBerat.setAttribute('required', 'true');
-            singlePanjang.setAttribute('required', 'true');
-            singleLebar.setAttribute('required', 'true');
-            singleTinggi.setAttribute('required', 'true');
+                singleHarga.setAttribute('required', 'true');
+                singleStok.setAttribute('required', 'true');
+                singleBerat.setAttribute('required', 'true');
+                singlePanjang.setAttribute('required', 'true');
+                singleLebar.setAttribute('required', 'true');
+                singleTinggi.setAttribute('required', 'true');
 
-            document.querySelectorAll('.variant-field').forEach(el => el.removeAttribute('required'));
-        }
-    });
+                document.querySelectorAll('.variant-field').forEach(el => el.removeAttribute('required'));
+            }
+        });
+    }
 
-    // 4. Logika Penambahan Baris Varian Baru (Matriks Kolom Lengkap)
+    // Tambah Baris Varian
     let variantIndex = {{ $hasVariant ? $produk->varians->count() : 0 }};
-    
-    document.getElementById('add-variant-btn').addEventListener('click', function() {
-        const container = document.getElementById('variant-container');
-        const newRow = document.createElement('tr');
-        newRow.className = 'variant-row divide-x divide-gray-100';
-        newRow.innerHTML = `
-            <td class="p-2"><input type="text" name="varians[${variantIndex}][ukuran]" class="w-full border border-gray-300 rounded-md p-1.5 text-xs variant-field focus:outline-none focus:border-[#1BBC9A]" placeholder="T190" required></td>
-            <td class="p-2"><input type="number" name="varians[${variantIndex}][harga]" class="w-full border border-gray-300 rounded-md p-1.5 text-xs variant-field focus:outline-none focus:border-[#1BBC9A]" placeholder="240000" required></td>
-            <td class="p-2"><input type="number" name="varians[${variantIndex}][harga_coret]" class="w-full border border-gray-300 rounded-md p-1.5 text-xs focus:outline-none focus:border-[#1BBC9A]" placeholder="Diskon"></td>
-            <td class="p-2"><input type="number" name="varians[${variantIndex}][stok]" value="0" min="0" class="w-full border border-gray-300 rounded-md p-1.5 text-xs variant-field focus:outline-none focus:border-[#1BBC9A]" required></td>
-            <td class="p-2"><input type="number" name="varians[${variantIndex}][berat]" min="0" class="w-full border border-gray-300 rounded-md p-1.5 text-xs variant-field focus:outline-none focus:border-[#1BBC9A]" placeholder="Gram" required></td>
-            <td class="p-2">
-                <div class="flex items-center gap-1 font-mono text-[10px] text-gray-400">
-                    <input type="number" name="varians[${variantIndex}][panjang]" min="0" class="w-12 border border-gray-300 rounded-md p-1 text-center text-xs text-gray-700 variant-field focus:outline-none focus:border-[#1BBC9A]" placeholder="P" required> x
-                    <input type="number" name="varians[${variantIndex}][lebar]" min="0" class="w-12 border border-gray-300 rounded-md p-1 text-center text-xs text-gray-700 variant-field focus:outline-none focus:border-[#1BBC9A]" placeholder="L" required> x
-                    <input type="number" name="varians[${variantIndex}][tinggi]" min="0" class="w-12 border border-gray-300 rounded-md p-1 text-center text-xs text-gray-700 variant-field focus:outline-none focus:border-[#1BBC9A]" placeholder="T" required>
-                </div>
-            </td>
-            <td class="p-2">
-                <div class="flex items-center gap-1">
-                    <img class="variant-preview w-7 h-7 object-cover rounded border shrink-0 hidden" src="">
-                    <input type="file" name="varians[${variantIndex}][gambar]" accept="image/*" class="w-full text-[9px] bg-white border border-gray-300 rounded-md p-0.5">
-                </div>
-            </td>
-            <td class="p-2 text-center"><button type="button" class="text-red-500 hover:text-red-700 remove-variant-btn cursor-pointer transition-colors"><i class="fa-solid fa-trash"></i></button></td>
-        `;
-        container.appendChild(newRow);
-        variantIndex++;
-    });
+    const addVariantBtn = document.getElementById('add-variant-btn');
+    if(addVariantBtn) {
+        addVariantBtn.addEventListener('click', function() {
+            const container = document.getElementById('variant-container');
+            const newRow = document.createElement('tr');
+            newRow.className = 'variant-row divide-x divide-gray-100';
+            newRow.innerHTML = `
+                <td class="p-2"><input type="text" name="varians[${variantIndex}][ukuran]" class="w-full border border-gray-300 rounded-md p-1.5 text-xs variant-field focus:outline-none focus:border-[#1BBC9A]" placeholder="T190" required></td>
+                <td class="p-2"><input type="number" name="varians[${variantIndex}][harga]" class="w-full border border-gray-300 rounded-md p-1.5 text-xs variant-field focus:outline-none focus:border-[#1BBC9A]" placeholder="240000" required></td>
+                <td class="p-2"><input type="number" name="varians[${variantIndex}][harga_coret]" class="w-full border border-gray-300 rounded-md p-1.5 text-xs focus:outline-none focus:border-[#1BBC9A]" placeholder="Diskon"></td>
+                <td class="p-2"><input type="number" name="varians[${variantIndex}][stok]" value="0" min="0" class="w-full border border-gray-300 rounded-md p-1.5 text-xs variant-field focus:outline-none focus:border-[#1BBC9A]" required></td>
+                <td class="p-2"><input type="number" name="varians[${variantIndex}][berat]" min="0" class="w-full border border-gray-300 rounded-md p-1.5 text-xs variant-field focus:outline-none focus:border-[#1BBC9A]" placeholder="Gram" required></td>
+                <td class="p-2">
+                    <div class="flex items-center gap-1 font-mono text-[10px] text-gray-400">
+                        <input type="number" name="varians[${variantIndex}][panjang]" min="0" class="w-12 border border-gray-300 rounded-md p-1 text-center text-xs text-gray-700 variant-field focus:outline-none focus:border-[#1BBC9A]" placeholder="P" required> x
+                        <input type="number" name="varians[${variantIndex}][lebar]" min="0" class="w-12 border border-gray-300 rounded-md p-1 text-center text-xs text-gray-700 variant-field focus:outline-none focus:border-[#1BBC9A]" placeholder="L" required> x
+                        <input type="number" name="varians[${variantIndex}][tinggi]" min="0" class="w-12 border border-gray-300 rounded-md p-1 text-center text-xs text-gray-700 variant-field focus:outline-none focus:border-[#1BBC9A]" placeholder="T" required>
+                    </div>
+                </td>
+                <td class="p-2">
+                    <div class="flex items-center gap-1">
+                        <img class="variant-preview w-7 h-7 object-cover rounded border shrink-0 hidden">
+                        <input type="file" name="varians[${variantIndex}][gambar]" accept="image/*" class="w-full text-[9px] bg-white border border-gray-300 rounded-md p-0.5">
+                    </div>
+                </td>
+                <td class="p-2 text-center"><button type="button" class="text-red-500 hover:text-red-700 remove-variant-btn cursor-pointer transition-colors"><i class="fa-solid fa-trash"></i></button></td>
+            `;
+            container.appendChild(newRow);
+            variantIndex++;
+        });
+    }
 
-    // Event Delegation untuk Hapus Row Varian
-    document.getElementById('variant-container').addEventListener('click', function(e) {
-        if (e.target.closest('.remove-variant-btn')) { 
-            e.target.closest('.variant-row').remove(); 
-        }
-    });
+    const variantContainer = document.getElementById('variant-container');
+    if(variantContainer) {
+        variantContainer.addEventListener('click', function(e) {
+            if (e.target.closest('.remove-variant-btn')) {
+                e.target.closest('.variant-row').remove();
+            }
+        });
 
-    // 5. Kontrol Input Tampilan Durasi Pre-Order (PO)
+        variantContainer.addEventListener('change', function(e) {
+            if (e.target.type === 'file' && e.target.name.includes('[gambar]')) {
+                const file = e.target.files[0];
+                const previewImg = e.target.closest('.flex').querySelector('.variant-preview');
+
+                if (file && file.type.startsWith('image/')) {
+                    const reader = new FileReader();
+                    reader.onload = function(event) {
+                        previewImg.src = event.target.result;
+                        previewImg.classList.remove('hidden');
+                    };
+                    reader.readAsDataURL(file);
+                } else {
+                    previewImg.src = '';
+                    previewImg.classList.add('hidden');
+                }
+            }
+        });
+    }
+
+    // Kontrol Durasi PO
     const poNo = document.getElementById('po-no');
     const poYes = document.getElementById('po-yes');
     const poDurationBlock = document.getElementById('po-duration-block');
 
-    poNo.addEventListener('change', function() {
-        if(this.checked) poDurationBlock.classList.add('hidden');
-    });
-    poYes.addEventListener('change', function() {
-        if(this.checked) poDurationBlock.classList.remove('hidden');
-    });
-
-    // 6. PREVIEW GAMBAR COVER PRODUK (REAL-TIME)
-    const coverInput = document.getElementById('cover-input');
-    const coverPreview = document.getElementById('cover-preview');
-    const coverPlaceholder = document.getElementById('cover-placeholder');
-    const coverLabel = document.getElementById('cover-label');
-
-    coverInput.addEventListener('change', function(e) {
-        const file = e.target.files[0];
-        if (file && file.type.startsWith('image/')) {
-            const reader = new FileReader();
-            reader.onload = function(event) {
-                coverPreview.src = event.target.result;
-                coverPreview.classList.remove('hidden');
-                coverLabel.classList.remove('hidden');
-                coverPlaceholder.classList.add('hidden');
-            };
-            reader.readAsDataURL(file);
-        } else {
-            coverPreview.src = '';
-            coverPreview.classList.add('hidden');
-            coverLabel.classList.add('hidden');
-            coverPlaceholder.classList.remove('hidden');
-        }
-    });
-
-    // 7. PREVIEW GAMBAR VARIAN (REAL-TIME) - Event Delegation
-    document.getElementById('variant-container').addEventListener('change', function(e) {
-        if (e.target.type === 'file' && e.target.name.includes('[gambar]')) {
-            const file = e.target.files[0];
-            const previewImg = e.target.closest('.flex').querySelector('.variant-preview');
-
-            if (file && file.type.startsWith('image/')) {
-                const reader = new FileReader();
-                reader.onload = function(event) {
-                    previewImg.src = event.target.result;
-                    previewImg.classList.remove('hidden');
-                };
-                reader.readAsDataURL(file);
-            } else {
-                previewImg.src = '';
-                previewImg.classList.add('hidden');
-            }
-        }
-    });
+    if(poNo && poYes && poDurationBlock) {
+        poNo.addEventListener('change', function() { if(this.checked) poDurationBlock.classList.add('hidden'); });
+        poYes.addEventListener('change', function() { if(this.checked) poDurationBlock.classList.remove('hidden'); });
+    }
 </script>
 @endsection

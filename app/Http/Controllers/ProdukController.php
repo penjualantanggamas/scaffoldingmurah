@@ -5,7 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Produk;
 use App\Models\Artikel; 
 use App\Models\ProdukVarian;
-use App\Models\Order; // Import Model Order
+use App\Models\Order;
+use App\Models\ProductImage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use App\Imports\ProdukImport;
@@ -13,6 +14,7 @@ use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\ProdukTemplateExport;
 use App\Exports\ProdukEditExport;
 use Illuminate\Support\Facades\File;
+use App\Models\StoreDecoration;
 
 class ProdukController extends Controller
 {
@@ -59,7 +61,7 @@ class ProdukController extends Controller
     }
 
     /**
-     * 3. Memproses penyimpanan data produk baru ke database (Opsional Varian)
+     * 3. Memproses penyimpanan data produk baru ke database (Cover + Galeri + Varian)
      */
     public function store(Request $request)
     {
@@ -72,6 +74,8 @@ class ProdukController extends Controller
             'is_preorder'    => 'required|in:0,1',
             'waktu_preorder' => 'required_if:is_preorder,1|nullable|integer',
             'maks_pembelian' => 'nullable|integer|min:0',
+            'gambar'         => 'required|image|mimes:jpeg,png,jpg,webp|max:3072',
+            'galeri.*'       => 'nullable|image|mimes:jpeg,png,jpg,webp|max:3072',
         ];
 
         // Validasi bersyarat kargo logistik berdasarkan ada tidaknya varian ukuran
@@ -81,28 +85,34 @@ class ProdukController extends Controller
             $rules['varians.*.harga']    = 'required|numeric';
             $rules['varians.*.harga_coret'] = 'nullable|numeric';
             $rules['varians.*.stok']     = 'required|integer|min:0';
-            $rules['varians.*.berat']    = 'required|integer|min:0'; // Wajib di baris varian
+            $rules['varians.*.berat']    = 'required|integer|min:0';
             $rules['varians.*.panjang']  = 'required|integer|min:0';
             $rules['varians.*.lebar']    = 'required|integer|min:0';
             $rules['varians.*.tinggi']   = 'required|integer|min:0';
-            $rules['varians.*.gambar']   = 'required|image|mimes:jpeg,png,jpg,webp';
+            $rules['varians.*.gambar']   = 'nullable|image|mimes:jpeg,png,jpg,webp';
         } else {
             $rules['harga']       = 'required|numeric';
             $rules['harga_coret'] = 'nullable|numeric';
             $rules['stok']        = 'required|integer|min:0';
             $rules['warna']       = 'nullable|string|max:255';
             $rules['ukuran']      = 'nullable|string|max:255';
-            $rules['berat']       = 'required|integer|min:0'; // Wajib jika produk tunggal
+            $rules['berat']       = 'required|integer|min:0';
             $rules['panjang']     = 'required|integer|min:0';
             $rules['lebar']       = 'required|integer|min:0';
             $rules['tinggi']      = 'required|integer|min:0';
-            $rules['gambar']      = 'required|image|mimes:jpeg,png,jpg,webp';
         }
 
         $request->validate($rules);
 
         $slug = Str::slug($request->nama_produk) . '-' . rand(100, 999);
         $is_terlaris = $request->has('is_terlaris') ? true : false;
+
+        // 1. UPLOAD FOTO COVER UTAMA
+        $nama_gambar_cover = null;
+        if ($request->hasFile('gambar')) {
+            $nama_gambar_cover = 'cover_' . time() . '_' . rand(100, 999) . '.' . $request->file('gambar')->getClientOriginalExtension();
+            $request->file('gambar')->move(public_path('images/products'), $nama_gambar_cover);
+        }
 
         // KONDISI A: JIKA ADALAH PRODUK DENGAN VARIAN
         if ($request->has('has_variant')) {
@@ -115,12 +125,10 @@ class ProdukController extends Controller
                 'ukuran'         => null, 
                 'harga'          => $request->varians[0]['harga'],
                 'harga_coret'    => $request->varians[0]['harga_coret'] ?? null,
-                'stok'           => 0, // Nilai default produk utama bermulti-varian dialihkan ke 0
+                'stok'           => 0,
                 'slug'           => $slug,
                 'is_terlaris'    => $is_terlaris,
-                'gambar'         => null,
-                
-                // DATA LOGISTIK INDUK DI-NULL-KAN KARENA MENGIKUTI VARIAN
+                'gambar'         => $nama_gambar_cover,
                 'berat'          => null,
                 'panjang'        => null,
                 'lebar'          => null,
@@ -130,14 +138,12 @@ class ProdukController extends Controller
                 'waktu_preorder' => $request->is_preorder == 1 ? $request->waktu_preorder : null,
             ]);
 
-            $gambarUtamaSet = false;
-
             foreach ($request->varians as $index => $varianData) {
                 $nama_gambar_varian = null;
                 
                 if ($request->hasFile("varians.$index.gambar")) {
                     $file = $request->file("varians.$index.gambar");
-                    $nama_gambar_varian = time() . '_var_' . $index . '.' . $file->extension();
+                    $nama_gambar_varian = time() . '_var_' . $index . '_' . rand(100, 999) . '.' . $file->getClientOriginalExtension();
                     $file->move(public_path('images/products'), $nama_gambar_varian);
                 }
 
@@ -147,29 +153,16 @@ class ProdukController extends Controller
                     'harga_coret' => $varianData['harga_coret'] ?? null,
                     'stok'        => $varianData['stok'],
                     'gambar'      => $nama_gambar_varian,
-                    
-                    // SUNTIKAN DATA LOGISTIK KHUSUS TIAP VARIAN
                     'berat'       => $varianData['berat'],
                     'panjang'     => $varianData['panjang'],
                     'lebar'       => $varianData['lebar'],
                     'tinggi'      => $varianData['tinggi'],
                 ]);
-
-                if (!$gambarUtamaSet && $nama_gambar_varian) {
-                    $produk->update(['gambar' => $nama_gambar_varian]);
-                    $gambarUtamaSet = true;
-                }
             }
         } 
         // KONDISI B: JIKA PRODUK TUNGGAL (TANPA VARIAN)
         else {
-            $nama_gambar = null;
-            if ($request->hasFile('gambar')) {
-                $nama_gambar = time() . '.' . $request->gambar->extension();
-                $request->gambar->move(public_path('images/products'), $nama_gambar);
-            }
-
-            Produk::create([
+            $produk = Produk::create([
                 'kategori'       => $request->kategori,
                 'nama_produk'    => $request->nama_produk,
                 'spesifikasi'    => $request->spesifikasi,
@@ -181,9 +174,7 @@ class ProdukController extends Controller
                 'ukuran'         => $request->ukuran,
                 'slug'           => $slug,
                 'is_terlaris'    => $is_terlaris,
-                'gambar'         => $nama_gambar,
-                
-                // SIMPAN DATA LOGISTIK & PO PADA TABEL UTAMA PRODUK TUNGGAL
+                'gambar'         => $nama_gambar_cover,
                 'berat'          => $request->berat,
                 'panjang'        => $request->panjang,
                 'lebar'          => $request->lebar,
@@ -194,7 +185,21 @@ class ProdukController extends Controller
             ]);
         }
 
-        return redirect()->route('produk.index')->with('success', 'Produk Tangga Mas sukses disimpan!');
+        // 2. UPLOAD FOTO GALERI TAMBAHAN (ALA SHOPEE)
+        if ($request->hasFile('galeri')) {
+            foreach ($request->file('galeri') as $index => $file) {
+                $galeriName = 'galeri_' . $produk->id . '_' . time() . '_' . $index . '.' . $file->getClientOriginalExtension();
+                $file->move(public_path('images/products'), $galeriName);
+
+                ProductImage::create([
+                    'produk_id' => $produk->id,
+                    'foto'      => $galeriName,
+                    'urutan'    => $index + 1,
+                ]);
+            }
+        }
+
+        return redirect()->route('produk.index')->with('success', 'Produk Tangga Mas dan galeri foto sukses disimpan!');
     }
 
     /**
@@ -202,12 +207,12 @@ class ProdukController extends Controller
      */
     public function edit($id)
     {
-        $produk = Produk::with('varians')->findOrFail($id);
+        $produk = Produk::with(['varians', 'galeri'])->findOrFail($id);
         return view('admin.produk.edit', compact('produk'));
     }
 
     /**
-     * 5. Memproses pembaruan/update data produk di database (Opsional Varian)
+     * 5. Memproses pembaruan/update data produk di database (Cover + Galeri + Varian)
      */
     public function update(Request $request, $id)
     {
@@ -221,6 +226,8 @@ class ProdukController extends Controller
             'is_preorder'    => 'required|in:0,1',
             'waktu_preorder' => 'required_if:is_preorder,1|nullable|integer',
             'maks_pembelian' => 'nullable|integer|min:0',
+            'gambar'         => 'nullable|image|mimes:jpeg,png,jpg,webp|max:3072',
+            'galeri.*'       => 'nullable|image|mimes:jpeg,png,jpg,webp|max:3072',
         ];
 
         if ($request->input('has_variant') == '1') {
@@ -249,6 +256,46 @@ class ProdukController extends Controller
 
         $slug = Str::slug($request->nama_produk) . '-' . rand(100, 999);
         
+        // 1. UPDATE FOTO COVER UTAMA JIKA ADA FILE BARU
+        if ($request->hasFile('gambar')) {
+            if ($produk->gambar && File::exists(public_path('images/products/' . $produk->gambar))) {
+                File::delete(public_path('images/products/' . $produk->gambar));
+            }
+
+            $nama_gambar_cover = 'cover_' . time() . '_' . rand(100, 999) . '.' . $request->file('gambar')->getClientOriginalExtension();
+            $request->file('gambar')->move(public_path('images/products'), $nama_gambar_cover);
+            $produk->gambar = $nama_gambar_cover;
+        }
+
+        // 2. HAPUS FOTO GALERI LAMA YANG DIHAPUS ADMIN
+        if ($request->filled('deleted_images')) {
+            $deletedIds = json_decode($request->deleted_images, true);
+            if (is_array($deletedIds) && count($deletedIds) > 0) {
+                $imagesToDelete = ProductImage::whereIn('id', $deletedIds)->get();
+                foreach ($imagesToDelete as $img) {
+                    if ($img->foto && File::exists(public_path('images/products/' . $img->foto))) {
+                        File::delete(public_path('images/products/' . $img->foto));
+                    }
+                    $img->delete();
+                }
+            }
+        }
+
+        // 3. TAMBAH FOTO GALERI BARU JIKA ADA
+        if ($request->hasFile('galeri')) {
+            $lastOrder = $produk->galeri()->max('urutan') ?? 0;
+            foreach ($request->file('galeri') as $index => $file) {
+                $galeriName = 'galeri_' . $produk->id . '_' . time() . '_' . $index . '.' . $file->getClientOriginalExtension();
+                $file->move(public_path('images/products'), $galeriName);
+
+                ProductImage::create([
+                    'produk_id' => $produk->id,
+                    'foto'      => $galeriName,
+                    'urutan'    => $lastOrder + $index + 1,
+                ]);
+            }
+        }
+
         // Perbarui data dasar utama
         $produk->kategori       = $request->kategori;
         $produk->nama_produk    = $request->nama_produk;
@@ -267,18 +314,10 @@ class ProdukController extends Controller
             $produk->harga_coret = $request->varians[0]['harga_coret'] ?? null;
             $produk->stok        = 0; 
             
-            // Logistik induk dinullkan karena pindah ke tabel varian
             $produk->berat       = null;
             $produk->panjang     = null;
             $produk->lebar       = null;
             $produk->tinggi      = null;
-
-            if ($produk->gambar && !str_contains($produk->gambar, '_var_')) {
-                if (File::exists(public_path('images/products/' . $produk->gambar))) {
-                    File::delete(public_path('images/products/' . $produk->gambar));
-                }
-                $produk->gambar = null;
-            }
 
             $keptVariantIds = [];
 
@@ -287,7 +326,7 @@ class ProdukController extends Controller
 
                 if ($request->hasFile("varians.$index.gambar")) {
                     $file = $request->file("varians.$index.gambar");
-                    $nama_gambar_varian = time() . '_var_' . $index . '.' . $file->extension();
+                    $nama_gambar_varian = time() . '_var_' . $index . '_' . rand(100, 999) . '.' . $file->getClientOriginalExtension();
                     $file->move(public_path('images/products'), $nama_gambar_varian);
                 }
 
@@ -320,7 +359,6 @@ class ProdukController extends Controller
                         'harga_coret' => $varianData['harga_coret'] ?? null,
                         'stok'        => $varianData['stok'],
                         'gambar'      => $nama_gambar_varian,
-                        
                         'berat'       => $varianData['berat'],
                         'panjang'     => $varianData['panjang'],
                         'lebar'       => $varianData['lebar'],
@@ -337,12 +375,6 @@ class ProdukController extends Controller
                 }
                 $dv->delete();
             }
-
-            $varianPertama = $produk->varians()->first();
-            if ($varianPertama) {
-                $produk->gambar = $varianPertama->gambar;
-            }
-
         } 
         // KONDISI B: JIKA DISIMPAN SEBAGAI PRODUK TUNGGAL (TANPA VARIAN)
         else {
@@ -363,16 +395,6 @@ class ProdukController extends Controller
             $produk->panjang     = $request->panjang;
             $produk->lebar       = $request->lebar;
             $produk->tinggi      = $request->tinggi;
-
-            if ($request->hasFile('gambar')) {
-                if ($produk->gambar && File::exists(public_path('images/products/' . $produk->gambar))) {
-                    File::delete(public_path('images/products/' . $produk->gambar));
-                }
-
-                $nama_gambar = time() . '.' . $request->gambar->extension();
-                $request->gambar->move(public_path('images/products'), $nama_gambar);
-                $produk->gambar = $nama_gambar;
-            }
         }
 
         $produk->save();
@@ -385,7 +407,7 @@ class ProdukController extends Controller
             $searchParams['kategori'] = session('last_kategori');
         }
 
-        return redirect()->route('produk.index', $searchParams)->with('success', 'Data produk sukses diperbarui!');
+        return redirect()->route('produk.index', $searchParams)->with('success', 'Data produk dan galeri sukses diperbarui!');
     }
 
     /**
@@ -393,7 +415,7 @@ class ProdukController extends Controller
      */
     public function destroy($id)
     {
-        $produk = Produk::with('varians')->findOrFail($id);
+        $produk = Produk::with(['varians', 'galeri'])->findOrFail($id);
 
         if ($produk->gambar && File::exists(public_path('images/products/' . $produk->gambar))) {
             File::delete(public_path('images/products/' . $produk->gambar));
@@ -402,6 +424,12 @@ class ProdukController extends Controller
         foreach ($produk->varians as $v) {
             if ($v->gambar && File::exists(public_path('images/products/' . $v->gambar))) {
                 File::delete(public_path('images/products/' . $v->gambar));
+            }
+        }
+
+        foreach ($produk->galeri as $g) {
+            if ($g->foto && File::exists(public_path('images/products/' . $g->foto))) {
+                File::delete(public_path('images/products/' . $g->foto));
             }
         }
 
@@ -416,6 +444,10 @@ class ProdukController extends Controller
     public function frontendIndex(Request $request)
     {
         $keyword = $request->get('search');
+
+        // AMBIL BANNER KATALOG DARI DATABASE (STORE DECORATION)
+        $catalogHeaderBanner = StoreDecoration::where('type', 'catalog_header_banner')->first();
+        $catalogMiddleBanner = StoreDecoration::where('type', 'catalog_middle_banner')->first();
 
         $filterStokKatalog = function($query) use ($keyword) {
             return $query->where(function($q) {
@@ -441,6 +473,8 @@ class ProdukController extends Controller
         $bekistingProducts = $filterStokKatalog(Produk::where('kategori', 'bekisting'))->take(4)->get();
 
         return view('products', compact(
+            'catalogHeaderBanner',
+            'catalogMiddleBanner',
             'frameProducts', 
             'ringlockProducts', 
             'tubularProducts', 
@@ -463,37 +497,49 @@ class ProdukController extends Controller
     }
 
     /**
-     * 9. Menampilkan halaman depan toko (Home - Disaring Berdasarkan Ketersediaan Stok)
+     * 9. Menampilkan halaman depan toko (Home)
      */
     public function home()
     {
-        $filterFisikAda = function($query) {
-            return $query->where(function($q) {
-                $q->where('stok', '>', 0)
-                  ->orWhereHas('varians', function($subQuery) {
-                      $subQuery->where('stok', '>', 0);
-                  });
-            });
-        };
+        // 1. Ambil semua blok dekorasi toko yang aktif berdasarkan urutan
+        $decorations = StoreDecoration::where('is_active', true)
+            ->orderBy('urutan', 'asc')
+            ->get();
 
-        $bestSellerProducts = $filterFisikAda(Produk::where('is_terlaris', true))->latest()->take(4)->get();
-
-        $recommendedProducts = $filterFisikAda(Produk::whereNotNull('harga_coret'))
+        // 2. Query Fallback untuk Produk Promo Diskon
+        $recommendedProducts = Produk::whereNotNull('harga_coret')
             ->whereColumn('harga_coret', '>', 'harga')
+            ->where(function($q) {
+                $q->where('stok', '>', 0)
+                ->orWhereHas('varians', function($subQuery) {
+                    $subQuery->where('stok', '>', 0);
+                });
+            })
             ->orderByRaw('(harga_coret - harga) DESC')
             ->latest()
             ->take(4)
             ->get();
 
-        return view('index', compact('bestSellerProducts', 'recommendedProducts'));
+        // 3. Query Fallback untuk Produk Terlaris (HOT)
+        $bestSellerProducts = Produk::where('is_terlaris', true)
+            ->where(function($q) {
+                $q->where('stok', '>', 0)
+                ->orWhereHas('varians', function($subQuery) {
+                    $subQuery->where('stok', '>', 0);
+                });
+            })
+            ->latest()
+            ->take(4)
+            ->get();
+
+        return view('index', compact('decorations', 'recommendedProducts', 'bestSellerProducts'));
     }
 
     /**
-     * 10. Menampilkan Dashboard Admin (Termasuk Data Performa Toko & Operasional Pesanan)
+     * 10. Menampilkan Dashboard Admin
      */
     public function dashboard() 
     {
-        // 1. STATISTIK CUPLIKAN OPERASIONAL PESANAN (SHOPEE SELLER CENTRE STYLE)
         $countVerifikasi = Order::whereIn('status_pembayaran', ['menunggu_konfirmasi_admin', 'verifikasi'])->count();
         $countDiproses   = Order::whereIn('status_pembayaran', ['dibayar', 'paid', 'lunas'])
                                 ->whereIn('status_pesanan', ['pending', 'diproses', 'sedang_dikemas', 'processing'])->count();
@@ -504,7 +550,6 @@ class ProdukController extends Controller
                                   ->orWhereIn('status_pembayaran', ['dibatalkan', 'cancelled', 'batal']);
                             })->count();
 
-        // 2. DATA KATALOG PRODUK & ARTIKEL
         $totalProduk    = Produk::count();
         $totalFrame     = Produk::where('kategori', 'frame')->count();
         $totalRinglock  = Produk::where('kategori', 'ringlock')->count();
@@ -514,7 +559,6 @@ class ProdukController extends Controller
         $totalArtikel   = Artikel::count(); 
         $artikelTerbaru = Artikel::latest()->take(5)->get(); 
 
-        // 3. DATA PERFORMA TOKO
         $totalPenjualan = Order::whereNotIn('status_pesanan', ['dibatalkan', 'cancelled', 'batal'])->sum('grand_total');
         $totalPesanan   = Order::count();
         
@@ -557,7 +601,7 @@ class ProdukController extends Controller
             Excel::import(new ProdukImport, $request->file('file_excel'));
             return redirect()->route('produk.index')->with('success', 'Data produk sukses diimpor dari Excel!');
         } catch (\Exception $e) {
-            return redirect()->back()->with('error', 'Gagal mengimpor data. Pastikan format kolom Excel sudah benar. Error: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Gagal mengimpor data. Error: ' . $e->getMessage());
         }
     }
 
@@ -606,7 +650,7 @@ class ProdukController extends Controller
         $ids = $request->ids;
 
         try {
-            $produks = Produk::with('varians')->whereIn('id', $ids)->get();
+            $produks = Produk::with(['varians', 'galeri'])->whereIn('id', $ids)->get();
             foreach ($produks as $produk) {
                 if ($produk->gambar && File::exists(public_path('images/products/' . $produk->gambar))) {
                     File::delete(public_path('images/products/' . $produk->gambar));
@@ -614,6 +658,11 @@ class ProdukController extends Controller
                 foreach ($produk->varians as $v) {
                     if ($v->gambar && File::exists(public_path('images/products/' . $v->gambar))) {
                         File::delete(public_path('images/products/' . $v->gambar));
+                    }
+                }
+                foreach ($produk->galeri as $g) {
+                    if ($g->foto && File::exists(public_path('images/products/' . $g->foto))) {
+                        File::delete(public_path('images/products/' . $g->foto));
                     }
                 }
             }
@@ -632,11 +681,27 @@ class ProdukController extends Controller
         }
     }
 
-    public function produkPerKategori($kategori)
+    /**
+     * Menampilkan Produk Berdasarkan Kategori Spesifik (Frontend)
+     */
+    public function produkPerKategori(Request $request, $kategori = null)
     {
-        $kategoriClean = str_replace('-system', '', $kategori);
+        // ⚡ Jika $kategori kosong (dari route statis), ambil dari segment URL (misal: /products/frame-system -> 'frame-system')
+        if (empty($kategori)) {
+            $kategori = $request->segment(2);
+        }
 
-        $produks = Produk::with('varians')
+        // 1. Bersihkan string url (misal: 'frame-system' atau 'Frame' menjadi 'frame')
+        $kategoriClean = strtolower(trim(str_replace('-system', '', $kategori)));
+
+        // 2. Ambil data banner dekorasi dari DB dengan multi-fallback
+        $categoryBanner = StoreDecoration::where('type', 'category_banner_' . $kategoriClean)
+            ->orWhere('type', 'category_banner_' . strtolower($kategori))
+            ->orWhere('type', 'LIKE', '%' . $kategoriClean . '%')
+            ->first();
+
+        // 3. Query produk yang memiliki stok
+        $produks = Produk::with(['varians', 'galeri'])
             ->where('kategori', $kategoriClean)
             ->where(function($query) {
                 $query->where('stok', '>', 0)
@@ -647,6 +712,23 @@ class ProdukController extends Controller
             ->latest()
             ->get();
 
-        return view('frontend.products', compact('produks', 'kategoriClean'));
+        // 4. Deteksi otomatis lokasi file Blade
+        $possibleViews = [
+            'products.' . $kategoriClean,          // contoh: resources/views/products/frame.blade.php
+            'frontend.' . $kategoriClean,          // contoh: resources/views/frontend/frame.blade.php
+            'frontend.' . strtolower($kategori),   // contoh: resources/views/frontend/frame-system.blade.php
+            $kategoriClean,                        // contoh: resources/views/frame.blade.php
+            strtolower($kategori),                 // contoh: resources/views/frame-system.blade.php
+            'frontend.products',                   // fallback
+            'products'
+        ];
+
+        foreach ($possibleViews as $view) {
+            if (view()->exists($view)) {
+                return view($view, compact('produks', 'kategoriClean', 'categoryBanner'));
+            }
+        }
+
+        return view('frontend.products', compact('produks', 'kategoriClean', 'categoryBanner'));
     }
 }
