@@ -33,13 +33,12 @@
         <!-- UKURAN DIPASTIKAN LEBAR (Menggunakan max-w-2xl untuk kelegaan maksimal) -->
         <div class="w-full max-w-2xl bg-white shadow-2xl rounded-2xl border border-gray-100 px-8 py-10 sm:px-12 transition-all duration-300">
             
-            <!-- Header Brand Tangga Mas (Bebas dari Logo Laravel) -->
+            <!-- Header Brand Tangga Mas -->
             <div class="text-center mb-10">
                 <a href="{{ url('/') }}" class="inline-block mb-4">
                     <img src="{{ asset('images/logotm.png') }}" class="h-14 w-auto object-contain mx-auto" alt="Logo Tangga Mas Scaffolding">
                 </a>
-                <!-- <h2 class="text-3xl font-extrabold text-gray-800 tracking-tight">Portal Manajemen Admin</h2>
-                <p class="text-sm text-gray-500 mt-2">Silakan masuk untuk mengelola katalog perancah besi & konten edukasi K3 Tangga Mas</p> -->
+                <!-- <h1> Seller Center </h1> -->
             </div>
 
             <!-- Status Sesi Otentikasi -->
@@ -56,7 +55,7 @@
                 <!-- Input Alamat Email -->
                 <div>
                     <label for="email" class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-2 flex items-center gap-2">
-                        <i class="fa-solid fa-envelope text-gray-400 text-base"></i> Alamat Email Resmi
+                        <i class="fa-solid fa-envelope text-gray-400 text-base"></i> Alamat Email
                     </label>
                     <input 
                         id="email" 
@@ -66,7 +65,7 @@
                         value="{{ old('email') }}" 
                         required 
                         autofocus 
-                        placeholder="admin@gmail.com"
+                        placeholder=""
                         autocomplete="username" 
                     />
                     @error('email')
@@ -92,7 +91,7 @@
                         type="password"
                         name="password"
                         required 
-                        placeholder="••••••••••••"
+                        placeholder=""
                         autocomplete="current-password" 
                     />
                     @error('password')
@@ -116,21 +115,6 @@
                     </button>
                 </div>
             </form>
-
-            <!-- Pembatas Menu Pendaftaran -->
-            <div class="relative flex py-8 items-center">
-                <div class="flex-grow border-t border-gray-100"></div>
-                <span class="flex-shrink mx-4 text-xs text-gray-400 font-bold uppercase tracking-widest">Belum Punya Akun?</span>
-                <div class="flex-grow border-t border-gray-100"></div>
-            </div>
-
-            <!-- Bagian Tombol Registrasi Akun Baru -->
-            <div class="text-center">
-                <a href="{{ route('register') }}" class="inline-flex w-full items-center justify-center gap-2 border border-gray-200 hover:border-[#1BBC9A] hover:bg-emerald-50/20 text-gray-700 hover:text-[#1BBC9A] font-bold text-sm py-3.5 px-4 rounded-xl transition-all duration-200 cursor-pointer">
-                    <i class="fa-solid fa-user-plus text-xs"></i>
-                    <span>Register</span>
-                </a>
-            </div>
 
         </div>
     </div>

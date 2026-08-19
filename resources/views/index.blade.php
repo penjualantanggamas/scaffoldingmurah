@@ -54,28 +54,68 @@
         </section>
 
 
-        {{-- ==================== 2. KATEGORI SISTEM SCAFFOLDING ==================== --}}
+        {{-- ==================== 2. KATEGORI SISTEM SCAFFOLDING (MODEL PILLS BERGAMBAR) ==================== --}}
         @elseif($block->type === 'category_pills')
         @php
-            $allCategories = [
-                'frame'     => 'Frame System',
-                'ringlock'  => 'Ringlock System',
-                'tubular'   => 'Tubular System',
-                'kwikstage' => 'Kwikstage System',
-                'bekisting' => 'Bekisting System',
+            $categoryDetails = [
+                'frame' => [
+                    'label' => 'Frame System',
+                    'image' => asset('images/categories/1 Set Main Frame.png'),
+                    'icon'  => 'fa-border-all',
+                ],
+                'ringlock' => [
+                    'label' => 'Ringlock System',
+                    'image' => asset('images/categories/1 set ringlock.png'),
+                    'icon'  => 'fa-dharmachakra',
+                ],
+                'tubular' => [
+                    'label' => 'Tubular System',
+                    'image' => asset('images/categories/1 set tubular.png'),
+                    'icon'  => 'fa-boxes-stacked',
+                ],
+                'kwikstage' => [
+                    'label' => 'Kwikstage System',
+                    'image' => asset('images/categories/1 set kwikstage.png'),
+                    'icon'  => 'fa-cubes',
+                ],
+                'bekisting' => [
+                    'label' => 'Bekisting System',
+                    'image' => asset('images/categories/1 Set Bekisting.png'),
+                    'icon'  => 'fa-layer-group',
+                ],
             ];
-            $selectedCategories = $block->content['categories'] ?? array_keys($allCategories);
+
+            $selectedCategories = $block->content['categories'] ?? array_keys($categoryDetails);
             if (empty($selectedCategories)) {
-                $selectedCategories = array_keys($allCategories);
+                $selectedCategories = array_keys($categoryDetails);
             }
         @endphp
         <section class="container mx-auto px-4 mt-6 md:mt-8">
-          <div class="flex md:justify-center items-center gap-2 overflow-x-auto no-scrollbar pb-2 md:pb-0 whitespace-nowrap">
+          <!-- @if(!empty($block->judul))
+            <h2 class="text-base md:text-xl font-bold text-gray-900 mb-3 md:mb-4">{{ $block->judul }}</h2>
+          @endif -->
+
+          <div class="flex items-center md:justify-center gap-3 overflow-x-auto no-scrollbar pb-2 md:pb-0 whitespace-nowrap">
             @foreach($selectedCategories as $catKey)
-              @if(isset($allCategories[$catKey]))
-              <a href="{{ url('/products#' . $catKey . '-system') }}" class="inline-flex items-center justify-center bg-white border border-gray-200 rounded-full px-4 py-2 hover:border-brand-green hover:text-brand-green hover:shadow-sm transition-all cursor-pointer shrink-0">
-                <span class="text-xs font-semibold text-gray-600 tracking-wide">{{ $allCategories[$catKey] }}</span>
-              </a>
+              @if(isset($categoryDetails[$catKey]))
+                @php $cat = $categoryDetails[$catKey]; @endphp
+                <a href="{{ url('/products/' . $catKey . '-system') }}" 
+                   class="inline-flex items-center gap-2.5 px-4 py-2 sm:px-5 sm:py-2.5 rounded-full border border-gray-200 bg-white hover:border-brand-green hover:bg-emerald-50/40 hover:shadow-sm transition-all duration-200 shrink-0 group cursor-pointer">
+                    
+                    <!-- Gambar Mini Kategori / Fallback Ikon -->
+                    <div class="w-6 h-6 sm:w-7 sm:h-7 flex items-center justify-center shrink-0">
+                        <img src="{{ $cat['image'] }}" 
+                             alt="{{ $cat['label'] }}" 
+                             class="w-full h-full object-contain group-hover:scale-110 transition-transform duration-200"
+                             onerror="this.style.display='none'; this.nextElementSibling.classList.remove('hidden');">
+                        <i class="fa-solid {{ $cat['icon'] }} text-brand-green text-base sm:text-lg hidden"></i>
+                    </div>
+
+                    <!-- Teks Nama Kategori -->
+                    <span class="text-xs sm:text-sm font-semibold text-gray-800 group-hover:text-brand-green transition-colors">
+                        {{ $cat['label'] }}
+                    </span>
+                </a>
               @endif
             @endforeach
           </div>

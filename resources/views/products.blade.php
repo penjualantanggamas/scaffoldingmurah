@@ -30,24 +30,58 @@
 </div>
 </section>
 
-<!-- ========== KATEGORI SISTEM SCAFFOLDING ========== -->
+<!-- ========== KATEGORI SISTEM SCAFFOLDING (MODEL PILLS BERGAMBAR) ========== -->
 <section class="container mx-auto px-4 mt-5 md:mt-8">
-  <div class="flex md:justify-center items-center gap-2 overflow-x-auto no-scrollbar pb-3 md:pb-0 whitespace-nowrap -mx-4 px-4 md:mx-0 md:px-0">
-    <a href="{{ url('/products#frame-system') }}" class="inline-flex items-center justify-center bg-white border border-gray-200 rounded-full px-3.5 py-1.5 hover:border-brand-green hover:text-brand-green hover:shadow-sm transition-all cursor-pointer shrink-0">
-      <span class="text-[11px] md:text-xs font-semibold text-gray-600 tracking-wide">Frame System</span>
-    </a>
-    <a href="{{ url('/products#ringlock-system') }}" class="inline-flex items-center justify-center bg-white border border-gray-200 rounded-full px-3.5 py-1.5 hover:border-brand-green hover:text-brand-green hover:shadow-sm transition-all cursor-pointer shrink-0">
-      <span class="text-[11px] md:text-xs font-semibold text-gray-600 tracking-wide">Ringlock System</span>
-    </a>
-    <a href="{{ url('/products#tubular-system') }}" class="inline-flex items-center justify-center bg-white border border-gray-200 rounded-full px-3.5 py-1.5 hover:border-brand-green hover:text-brand-green hover:shadow-sm transition-all cursor-pointer shrink-0">
-      <span class="text-[11px] md:text-xs font-semibold text-gray-600 tracking-wide">Tubular System</span>
-    </a>
-    <a href="{{ url('/products#kwikstage-system') }}" class="inline-flex items-center justify-center bg-white border border-gray-200 rounded-full px-3.5 py-1.5 hover:border-brand-green hover:text-brand-green hover:shadow-sm transition-all cursor-pointer shrink-0">
-      <span class="text-[11px] md:text-xs font-semibold text-gray-600 tracking-wide">Kwikstage System</span>
-    </a>
-    <a href="{{ url('/products#bekisting-system') }}" class="inline-flex items-center justify-center bg-white border border-gray-200 rounded-full px-3.5 py-1.5 hover:border-brand-green hover:text-brand-green hover:shadow-sm transition-all cursor-pointer shrink-0">
-      <span class="text-[11px] md:text-xs font-semibold text-gray-600 tracking-wide">Bekisting System</span>
-    </a>
+  @php
+      $categoryDetails = [
+          'frame' => [
+              'label' => 'Frame System',
+              'image' => asset('images/categories/1 Set Main Frame.png'),
+              'icon'  => 'fa-border-all',
+          ],
+          'ringlock' => [
+              'label' => 'Ringlock System',
+              'image' => asset('images/categories/1 set ringlock.png'),
+              'icon'  => 'fa-dharmachakra',
+          ],
+          'tubular' => [
+              'label' => 'Tubular System',
+              'image' => asset('images/categories/1 set tubular.png'),
+              'icon'  => 'fa-boxes-stacked',
+          ],
+          'kwikstage' => [
+              'label' => 'Kwikstage System',
+              'image' => asset('images/categories/1 set kwikstage.png'),
+              'icon'  => 'fa-cubes',
+          ],
+          'bekisting' => [
+              'label' => 'Bekisting System',
+              'image' => asset('images/categories/1 Set Bekisting.png'),
+              'icon'  => 'fa-layer-group',
+          ],
+      ];
+  @endphp
+
+  <div class="flex items-center md:justify-center gap-2.5 md:gap-3 overflow-x-auto no-scrollbar pb-3 md:pb-0 whitespace-nowrap -mx-4 px-4 md:mx-0 md:px-0">
+    @foreach($categoryDetails as $catKey => $cat)
+      <a href="{{ url('/products#' . $catKey . '-system') }}" 
+         class="inline-flex items-center gap-2 px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-full border border-gray-200 bg-white hover:border-brand-green hover:bg-emerald-50/40 hover:shadow-sm transition-all duration-200 shrink-0 group cursor-pointer">
+          
+          <!-- Gambar Mini Kategori / Fallback Ikon -->
+          <div class="w-5 h-5 sm:w-6 sm:h-6 flex items-center justify-center shrink-0">
+              <img src="{{ $cat['image'] }}" 
+                   alt="{{ $cat['label'] }}" 
+                   class="w-full h-full object-contain group-hover:scale-110 transition-transform duration-200"
+                   onerror="this.style.display='none'; this.nextElementSibling.classList.remove('hidden');">
+              <i class="fa-solid {{ $cat['icon'] }} text-brand-green text-xs sm:text-sm hidden"></i>
+          </div>
+
+          <!-- Teks Nama Kategori -->
+          <span class="text-[11px] md:text-xs font-semibold text-gray-700 group-hover:text-brand-green transition-colors">
+              {{ $cat['label'] }}
+          </span>
+      </a>
+    @endforeach
   </div>
 </section>
 
