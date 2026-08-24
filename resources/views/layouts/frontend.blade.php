@@ -135,29 +135,53 @@ tailwind.config = {
       <!-- Right icons (Language Switcher, Search HP, Cart, & Profile) -->
       <div class="flex items-center gap-2 md:gap-4 text-gray-600 shrink-0">
         
-        <!-- CUSTOM LANGUAGE SWITCHER (IDN | ENG | CHN) -->
-        <div class="relative group shrink-0">
-          <button type="button" class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-gray-50 hover:bg-gray-100 border border-gray-200 text-xs font-bold text-gray-700 transition-all cursor-pointer">
+        <!-- CUSTOM LANGUAGE SWITCHER WITH FLAGCDN & CLICK TOGGLE -->
+        <div class="relative shrink-0" id="langDropdownWrapper">
+          <button type="button" 
+                  onclick="toggleLangDropdown(event)" 
+                  class="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-gray-50 hover:bg-gray-100 active:scale-95 border border-gray-200 text-xs font-bold text-gray-700 transition-all cursor-pointer select-none">
             <span id="activeLangText">IDN</span>
             <span class="text-gray-300">|</span>
-            <span id="activeFlag" class="text-sm">🇮🇩</span>
-            <i class="fa-solid fa-chevron-down text-[9px] text-gray-400 ml-0.5"></i>
+            <img id="activeFlag" src="https://flagcdn.com/w20/id.png" alt="Indonesia" class="w-4 h-auto rounded-sm shrink-0 object-cover">
+            <i id="langChevron" class="fa-solid fa-chevron-down text-[9px] text-gray-400 ml-0.5 transition-transform duration-200"></i>
           </button>
 
           <!-- Dropdown Pilihan Bahasa -->
-          <div class="hidden group-hover:block absolute right-0 mt-1 w-36 bg-white border border-gray-100 rounded-xl shadow-xl z-50 overflow-hidden py-1">
-            <button type="button" onclick="setLanguage('id')" class="flex items-center justify-between w-full px-3 py-2 text-xs font-semibold text-gray-700 hover:bg-emerald-50 hover:text-[#1BBC9A] transition-colors cursor-pointer text-left">
-              <span>IDN (Indonesia)</span>
-              <span>🇮🇩</span>
-            </button>
-            <button type="button" onclick="setLanguage('en')" class="flex items-center justify-between w-full px-3 py-2 text-xs font-semibold text-gray-700 hover:bg-emerald-50 hover:text-[#1BBC9A] transition-colors cursor-pointer text-left">
-              <span>ENG (English)</span>
-              <span>🇬🇧</span>
-            </button>
-            <button type="button" onclick="setLanguage('zh-CN')" class="flex items-center justify-between w-full px-3 py-2 text-xs font-semibold text-gray-700 hover:bg-emerald-50 hover:text-[#1BBC9A] transition-colors cursor-pointer text-left">
-              <span>CHN (China)</span>
-              <span>🇨🇳</span>
-            </button>
+          <div id="langMenu" class="hidden absolute right-0 top-full pt-1.5 w-44 z-50">
+            <div class="bg-white border border-gray-100 rounded-xl shadow-xl overflow-hidden py-1 ring-1 ring-black/5">
+              <button type="button" 
+                      onclick="setLanguage('id')" 
+                      data-lang="id"
+                      class="lang-option flex items-center justify-between w-full px-3 py-2 text-xs font-semibold text-gray-700 hover:bg-emerald-50 hover:text-[#1BBC9A] active:scale-[0.98] transition-all cursor-pointer text-left">
+                <div class="flex items-center gap-2">
+                  <img src="https://flagcdn.com/w20/id.png" alt="Indonesia" class="w-4 h-auto rounded-sm shrink-0 object-cover">
+                  <span>IDN (Indonesia)</span>
+                </div>
+                <i class="fa-solid fa-check text-xs check-icon text-[#1BBC9A] hidden"></i>
+              </button>
+
+              <button type="button" 
+                      onclick="setLanguage('en')" 
+                      data-lang="en"
+                      class="lang-option flex items-center justify-between w-full px-3 py-2 text-xs font-semibold text-gray-700 hover:bg-emerald-50 hover:text-[#1BBC9A] active:scale-[0.98] transition-all cursor-pointer text-left">
+                <div class="flex items-center gap-2">
+                  <img src="https://flagcdn.com/w20/gb.png" alt="English" class="w-4 h-auto rounded-sm shrink-0 object-cover">
+                  <span>ENG (English)</span>
+                </div>
+                <i class="fa-solid fa-check text-xs check-icon text-[#1BBC9A] hidden"></i>
+              </button>
+
+              <button type="button" 
+                      onclick="setLanguage('zh-CN')" 
+                      data-lang="zh-CN"
+                      class="lang-option flex items-center justify-between w-full px-3 py-2 text-xs font-semibold text-gray-700 hover:bg-emerald-50 hover:text-[#1BBC9A] active:scale-[0.98] transition-all cursor-pointer text-left">
+                <div class="flex items-center gap-2">
+                  <img src="https://flagcdn.com/w20/cn.png" alt="China" class="w-4 h-auto rounded-sm shrink-0 object-cover">
+                  <span>CHN (China)</span>
+                </div>
+                <i class="fa-solid fa-check text-xs check-icon text-[#1BBC9A] hidden"></i>
+              </button>
+            </div>
           </div>
         </div>
 
@@ -344,6 +368,22 @@ tailwind.config = {
     }, 'google_translate_element');
   }
 
+  function toggleLangDropdown(event) {
+    event.stopPropagation();
+    const menu = document.getElementById('langMenu');
+    const chevron = document.getElementById('langChevron');
+    if (!menu) return;
+
+    const isHidden = menu.classList.contains('hidden');
+    if (isHidden) {
+      menu.classList.remove('hidden');
+      if (chevron) chevron.classList.add('rotate-180');
+    } else {
+      menu.classList.add('hidden');
+      if (chevron) chevron.classList.remove('rotate-180');
+    }
+  }
+
   function setLanguage(lang) {
     document.cookie = "googtrans=/id/" + lang + "; path=/;";
     document.cookie = "googtrans=/id/" + lang + "; domain=" + window.location.hostname + "; path=/;";
@@ -368,16 +408,26 @@ tailwind.config = {
     const flagElem = document.getElementById('activeFlag');
     const textElem = document.getElementById('activeLangText');
 
+    let flagUrl = 'https://flagcdn.com/w20/id.png';
+    let labelText = 'IDN';
+
     if (currentLang === 'zh-CN') {
-      if (flagElem) flagElem.textContent = '🇨🇳';
-      if (textElem) textElem.textContent = 'CHN';
+      flagUrl = 'https://flagcdn.com/w20/cn.png';
+      labelText = 'CHN';
     } else if (currentLang === 'en') {
-      if (flagElem) flagElem.textContent = '🇬🇧';
-      if (textElem) textElem.textContent = 'ENG';
-    } else {
-      if (flagElem) flagElem.textContent = '🇮🇩';
-      if (textElem) textElem.textContent = 'IDN';
+      flagUrl = 'https://flagcdn.com/w20/gb.png';
+      labelText = 'ENG';
     }
+
+    if (flagElem) flagElem.src = flagUrl;
+    if (textElem) textElem.textContent = labelText;
+
+    document.querySelectorAll('.lang-option').forEach(opt => {
+      if (opt.getAttribute('data-lang') === currentLang) {
+        opt.classList.add('bg-emerald-50/50', 'text-[#1BBC9A]');
+        opt.querySelector('.check-icon')?.classList.remove('hidden');
+      }
+    });
   });
 </script>
 <script type="text/javascript" src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
@@ -515,6 +565,14 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 
   document.addEventListener('click', function(e) {
+    const langWrapper = document.getElementById('langDropdownWrapper');
+    if (langWrapper && !langWrapper.contains(e.target)) {
+      const langMenu = document.getElementById('langMenu');
+      const langChevron = document.getElementById('langChevron');
+      if (langMenu) langMenu.classList.add('hidden');
+      if (langChevron) langChevron.classList.remove('rotate-180');
+    }
+
     const searchContainers = document.querySelectorAll('.dropdown-search-container');
     searchContainers.forEach(container => {
       if (!container.contains(e.target)) {
@@ -563,5 +621,3 @@ document.addEventListener('DOMContentLoaded', function() {
 <script src="{{ asset('script.js') }}"></script>
 </body>
 </html>
-
-<!--  -->
