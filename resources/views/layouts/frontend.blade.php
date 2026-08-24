@@ -563,3 +563,5 @@ document.addEventListener('DOMContentLoaded', function() {
 <script src="{{ asset('script.js') }}"></script>
 </body>
 </html>
+
+<!--  -->
