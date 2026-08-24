@@ -15,7 +15,11 @@ class Artikel extends Model
         'konten', 
         'gambar', 
         'faqs',
-        'views'
+        'views',
+        'meta_title', 
+        'meta_keywords', 
+        'meta_author', 
+        'meta_description'
     ];
 
     protected $casts = [

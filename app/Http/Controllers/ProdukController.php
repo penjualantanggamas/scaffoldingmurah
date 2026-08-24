@@ -61,11 +61,11 @@ class ProdukController extends Controller
     }
 
     /**
-     * 3. Memproses penyimpanan data produk baru ke database (Cover + Galeri + Varian)
+     * 3. Memproses penyimpanan data produk baru ke database (Cover + Galeri + Varian + SEO)
      */
     public function store(Request $request)
     {
-        // Aturan validasi dasar untuk produk utama + Fitur Pre-Order Dinamis
+        // Aturan validasi dasar untuk produk utama + Fitur Pre-Order Dinamis + Meta SEO
         $rules = [
             'kategori'       => 'required|string',
             'nama_produk'    => 'required|string|max:255',
@@ -76,6 +76,12 @@ class ProdukController extends Controller
             'maks_pembelian' => 'nullable|integer|min:0',
             'gambar'         => 'required|image|mimes:jpeg,png,jpg,webp|max:3072',
             'galeri.*'       => 'nullable|image|mimes:jpeg,png,jpg,webp|max:3072',
+
+            // Validasi Meta Tags SEO
+            'meta_title'       => 'nullable|string|max:255',
+            'meta_keywords'    => 'nullable|string',
+            'meta_author'      => 'nullable|string|max:255',
+            'meta_description' => 'nullable|string',
         ];
 
         // Validasi bersyarat kargo logistik berdasarkan ada tidaknya varian ukuran
@@ -117,25 +123,31 @@ class ProdukController extends Controller
         // KONDISI A: JIKA ADALAH PRODUK DENGAN VARIAN
         if ($request->has('has_variant')) {
             $produk = Produk::create([
-                'kategori'       => $request->kategori,
-                'nama_produk'    => $request->nama_produk,
-                'spesifikasi'    => $request->spesifikasi,
-                'deskripsi'      => $request->deskripsi,
-                'warna'          => $request->warna ?? null,
-                'ukuran'         => null, 
-                'harga'          => $request->varians[0]['harga'],
-                'harga_coret'    => $request->varians[0]['harga_coret'] ?? null,
-                'stok'           => 0,
-                'slug'           => $slug,
-                'is_terlaris'    => $is_terlaris,
-                'gambar'         => $nama_gambar_cover,
-                'berat'          => null,
-                'panjang'        => null,
-                'lebar'          => null,
-                'tinggi'         => null,
-                'maks_pembelian' => $request->maks_pembelian,
-                'is_preorder'    => $request->is_preorder,
-                'waktu_preorder' => $request->is_preorder == 1 ? $request->waktu_preorder : null,
+                'kategori'         => $request->kategori,
+                'nama_produk'      => $request->nama_produk,
+                'spesifikasi'      => $request->spesifikasi,
+                'deskripsi'        => $request->deskripsi,
+                'warna'            => $request->warna ?? null,
+                'ukuran'           => null, 
+                'harga'            => $request->varians[0]['harga'],
+                'harga_coret'      => $request->varians[0]['harga_coret'] ?? null,
+                'stok'             => 0,
+                'slug'             => $slug,
+                'is_terlaris'      => $is_terlaris,
+                'gambar'           => $nama_gambar_cover,
+                'berat'            => null,
+                'panjang'          => null,
+                'lebar'            => null,
+                'tinggi'           => null,
+                'maks_pembelian'   => $request->maks_pembelian,
+                'is_preorder'      => $request->is_preorder,
+                'waktu_preorder'   => $request->is_preorder == 1 ? $request->waktu_preorder : null,
+
+                // SEO Data
+                'meta_title'       => $request->meta_title,
+                'meta_keywords'    => $request->meta_keywords,
+                'meta_author'      => $request->meta_author,
+                'meta_description' => $request->meta_description,
             ]);
 
             foreach ($request->varians as $index => $varianData) {
@@ -163,29 +175,35 @@ class ProdukController extends Controller
         // KONDISI B: JIKA PRODUK TUNGGAL (TANPA VARIAN)
         else {
             $produk = Produk::create([
-                'kategori'       => $request->kategori,
-                'nama_produk'    => $request->nama_produk,
-                'spesifikasi'    => $request->spesifikasi,
-                'deskripsi'      => $request->deskripsi,
-                'harga'          => $request->harga,
-                'harga_coret'    => $request->harga_coret,
-                'stok'           => $request->stok, 
-                'warna'          => $request->warna,
-                'ukuran'         => $request->ukuran,
-                'slug'           => $slug,
-                'is_terlaris'    => $is_terlaris,
-                'gambar'         => $nama_gambar_cover,
-                'berat'          => $request->berat,
-                'panjang'        => $request->panjang,
-                'lebar'          => $request->lebar,
-                'tinggi'         => $request->tinggi,
-                'maks_pembelian' => $request->maks_pembelian,
-                'is_preorder'    => $request->is_preorder,
-                'waktu_preorder' => $request->is_preorder == 1 ? $request->waktu_preorder : null,
+                'kategori'         => $request->kategori,
+                'nama_produk'      => $request->nama_produk,
+                'spesifikasi'      => $request->spesifikasi,
+                'deskripsi'        => $request->deskripsi,
+                'harga'            => $request->harga,
+                'harga_coret'      => $request->harga_coret,
+                'stok'             => $request->stok, 
+                'warna'            => $request->warna,
+                'ukuran'           => $request->ukuran,
+                'slug'             => $slug,
+                'is_terlaris'      => $is_terlaris,
+                'gambar'           => $nama_gambar_cover,
+                'berat'            => $request->berat,
+                'panjang'          => $request->panjang,
+                'lebar'            => $request->lebar,
+                'tinggi'           => $request->tinggi,
+                'maks_pembelian'   => $request->maks_pembelian,
+                'is_preorder'      => $request->is_preorder,
+                'waktu_preorder'   => $request->is_preorder == 1 ? $request->waktu_preorder : null,
+
+                // SEO Data
+                'meta_title'       => $request->meta_title,
+                'meta_keywords'    => $request->meta_keywords,
+                'meta_author'      => $request->meta_author,
+                'meta_description' => $request->meta_description,
             ]);
         }
 
-        // 2. UPLOAD FOTO GALERI TAMBAHAN (ALA SHOPEE)
+        // 2. UPLOAD FOTO GALERI TAMBAHAN
         if ($request->hasFile('galeri')) {
             foreach ($request->file('galeri') as $index => $file) {
                 $galeriName = 'galeri_' . $produk->id . '_' . time() . '_' . $index . '.' . $file->getClientOriginalExtension();
@@ -212,7 +230,7 @@ class ProdukController extends Controller
     }
 
     /**
-     * 5. Memproses pembaruan/update data produk di database (Cover + Galeri + Varian)
+     * 5. Memproses pembaruan/update data produk di database (Cover + Galeri + Varian + SEO)
      */
     public function update(Request $request, $id)
     {
@@ -228,6 +246,12 @@ class ProdukController extends Controller
             'maks_pembelian' => 'nullable|integer|min:0',
             'gambar'         => 'nullable|image|mimes:jpeg,png,jpg,webp|max:3072',
             'galeri.*'       => 'nullable|image|mimes:jpeg,png,jpg,webp|max:3072',
+
+            // Validasi Meta Tags SEO
+            'meta_title'       => 'nullable|string|max:255',
+            'meta_keywords'    => 'nullable|string',
+            'meta_author'      => 'nullable|string|max:255',
+            'meta_description' => 'nullable|string',
         ];
 
         if ($request->input('has_variant') == '1') {
@@ -305,6 +329,12 @@ class ProdukController extends Controller
         $produk->maks_pembelian = $request->maks_pembelian;
         $produk->is_preorder    = $request->is_preorder;
         $produk->waktu_preorder = $request->is_preorder == 1 ? $request->waktu_preorder : null;
+
+        // Perbarui data SEO
+        $produk->meta_title       = $request->meta_title;
+        $produk->meta_keywords    = $request->meta_keywords;
+        $produk->meta_author      = $request->meta_author;
+        $produk->meta_description = $request->meta_description;
 
         // KONDISI A: JIKA DISIMPAN SEBAGAI PRODUK BER-VARIAN
         if ($request->input('has_variant') == '1') {
@@ -686,21 +716,17 @@ class ProdukController extends Controller
      */
     public function produkPerKategori(Request $request, $kategori = null)
     {
-        // ⚡ Jika $kategori kosong (dari route statis), ambil dari segment URL (misal: /products/frame-system -> 'frame-system')
         if (empty($kategori)) {
             $kategori = $request->segment(2);
         }
 
-        // 1. Bersihkan string url (misal: 'frame-system' atau 'Frame' menjadi 'frame')
         $kategoriClean = strtolower(trim(str_replace('-system', '', $kategori)));
 
-        // 2. Ambil data banner dekorasi dari DB dengan multi-fallback
         $categoryBanner = StoreDecoration::where('type', 'category_banner_' . $kategoriClean)
             ->orWhere('type', 'category_banner_' . strtolower($kategori))
             ->orWhere('type', 'LIKE', '%' . $kategoriClean . '%')
             ->first();
 
-        // 3. Query produk yang memiliki stok
         $produks = Produk::with(['varians', 'galeri'])
             ->where('kategori', $kategoriClean)
             ->where(function($query) {
@@ -712,14 +738,13 @@ class ProdukController extends Controller
             ->latest()
             ->get();
 
-        // 4. Deteksi otomatis lokasi file Blade
         $possibleViews = [
-            'products.' . $kategoriClean,          // contoh: resources/views/products/frame.blade.php
-            'frontend.' . $kategoriClean,          // contoh: resources/views/frontend/frame.blade.php
-            'frontend.' . strtolower($kategori),   // contoh: resources/views/frontend/frame-system.blade.php
-            $kategoriClean,                        // contoh: resources/views/frame.blade.php
-            strtolower($kategori),                 // contoh: resources/views/frame-system.blade.php
-            'frontend.products',                   // fallback
+            'products.' . $kategoriClean,          
+            'frontend.' . $kategoriClean,          
+            'frontend.' . strtolower($kategori),   
+            $kategoriClean,                        
+            strtolower($kategori),                 
+            'frontend.products',                   
             'products'
         ];
 

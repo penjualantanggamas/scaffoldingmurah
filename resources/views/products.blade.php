@@ -65,6 +65,7 @@
   <div class="flex items-center md:justify-center gap-2.5 md:gap-3 overflow-x-auto no-scrollbar pb-3 md:pb-0 whitespace-nowrap -mx-4 px-4 md:mx-0 md:px-0">
     @foreach($categoryDetails as $catKey => $cat)
       <a href="{{ url('/products#' . $catKey . '-system') }}" 
+         onclick="trackGAEvent('click_category_pill', { category_name: '{{ $cat['label'] }}', source_page: 'katalog_produk' })"
          class="inline-flex items-center gap-2 px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-full border border-gray-200 bg-white hover:border-brand-green hover:bg-emerald-50/40 hover:shadow-sm transition-all duration-200 shrink-0 group cursor-pointer">
           
           <!-- Gambar Mini Kategori / Fallback Ikon -->
@@ -238,7 +239,10 @@
     $middleLink = $middleContent['link'] ?? '#';
     $middleAlt  = $middleContent['alt'] ?? 'Promosi K3 Tangga Mas Scaffolding';
 @endphp
-<a href="{{ $middleLink }}" class="block rounded-xl overflow-hidden aspect-[2.8/1] w-full bg-white flex items-center justify-center shadow-sm border border-gray-150 hover:opacity-95 transition-opacity">
+<!-- EVENT GA4: Click Promotion -->
+<a href="{{ $middleLink }}" 
+   onclick="trackGAEvent('click_promotion', { promotion_name: '{{ $middleAlt }}', source_page: 'katalog_produk' })"
+   class="block rounded-xl overflow-hidden aspect-[2.8/1] w-full bg-white flex items-center justify-center shadow-sm border border-gray-150 hover:opacity-95 transition-opacity">
   <img src="{{ $middleImg }}" alt="{{ $middleAlt }}" class="w-full h-full object-contain" onerror="this.src='{{ asset('images/logotm.png') }}'">
 </a>
 </section>
@@ -322,5 +326,28 @@
     </div>
   </div>
 </section>
+
+<!-- ========== GA4 EVENT: FILTER KATALOG & SEARCH QUERY ========== -->
+@if(request()->has('kategori') || request()->has('search') || Request::segment(2))
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // 1. Pelacak Filter Kategori Katalog
+        @if(request()->has('kategori') || Request::segment(2))
+            trackGAEvent('filter_katalog', {
+                filter_category: '{{ request('kategori') ?? Request::segment(2) }}',
+                source_page: 'katalog_produk'
+            });
+        @endif
+
+        // 2. Pelacak Kata Kunci Pencarian (Search Query)
+        @if(request()->has('search') && !empty(request('search')))
+            trackGAEvent('search_query', {
+                search_term: '{{ request('search') }}',
+                source_page: 'katalog_produk'
+            });
+        @endif
+    });
+</script>
+@endif
 
 @endsection

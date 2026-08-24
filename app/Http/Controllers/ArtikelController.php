@@ -54,14 +54,20 @@ class ArtikelController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'judul'     => 'required|string|max:255',
-            'kategori'  => 'required|string',
-            'ringkasan' => 'required|string|max:500',
-            'konten'    => 'required|string',
-            'gambar'    => 'required|image|mimes:jpeg,png,jpg,webp,svg|max:10072',
-            'faqs'      => 'nullable|array',
-            'faqs.*.pertanyaan' => 'nullable|string',
-            'faqs.*.jawaban'    => 'nullable|string',
+            'judul'            => 'required|string|max:255',
+            'kategori'         => 'required|string',
+            'ringkasan'        => 'required|string|max:500',
+            'konten'           => 'required|string',
+            'gambar'           => 'required|image|mimes:jpeg,png,jpg,webp,svg|max:10072',
+            'faqs'             => 'nullable|array',
+            'faqs.*.pertanyaan'=> 'nullable|string',
+            'faqs.*.jawaban'   => 'nullable|string',
+
+            // Validasi Meta Tags SEO (Optional / Nullable)
+            'meta_title'       => 'nullable|string|max:255',
+            'meta_keywords'    => 'nullable|string',
+            'meta_author'      => 'nullable|string|max:255',
+            'meta_description' => 'nullable|string',
         ], [
             'judul.required'     => 'Judul artikel wajib diisi.',
             'ringkasan.required' => 'Ringkasan singkat wajib diisi.',
@@ -111,14 +117,20 @@ class ArtikelController extends Controller
         $artikel = Artikel::findOrFail($id);
 
         $request->validate([
-            'judul'     => 'required|string|max:255',
-            'kategori'  => 'required|string',
-            'ringkasan' => 'required|string|max:500',
-            'konten'    => 'required|string',
-            'gambar'    => 'nullable|image|mimes:jpeg,png,jpg,webp,svg|max:10072',
-            'faqs'      => 'nullable|array',
-            'faqs.*.pertanyaan' => 'nullable|string',
-            'faqs.*.jawaban'    => 'nullable|string',
+            'judul'            => 'required|string|max:255',
+            'kategori'         => 'required|string',
+            'ringkasan'        => 'required|string|max:500',
+            'konten'           => 'required|string',
+            'gambar'           => 'nullable|image|mimes:jpeg,png,jpg,webp,svg|max:10072',
+            'faqs'             => 'nullable|array',
+            'faqs.*.pertanyaan'=> 'nullable|string',
+            'faqs.*.jawaban'   => 'nullable|string',
+
+            // Validasi Meta Tags SEO (Optional / Nullable)
+            'meta_title'       => 'nullable|string|max:255',
+            'meta_keywords'    => 'nullable|string',
+            'meta_author'      => 'nullable|string|max:255',
+            'meta_description' => 'nullable|string',
         ], [
             'judul.required'     => 'Judul artikel wajib diisi.',
             'ringkasan.required' => 'Ringkasan singkat wajib diisi.',

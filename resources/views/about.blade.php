@@ -20,7 +20,6 @@
 
       <!-- Image placeholder -->
       <div class="rounded-xl bg-brand-gray-bg border border-gray-200 aspect-[4/3] flex items-center justify-center order-1 md:order-none">
-        <!-- Ganti div ini dengan jika ada aset gambar -->
         <img src="{{ asset('images/banners/webp/mianbannerabout.webp') }}" class="w-full h-full object-cover rounded-xl"> 
       </div>
 
@@ -69,12 +68,9 @@
     </div>
   </section>
 
-    <!-- ========== SCAFFOLDING BERSERTIFIKASI ========== -->
+  <!-- ========== SCAFFOLDING BERSERTIFIKASI ========== -->
   <section class="container mx-auto px-4 py-12 md:py-16">
     <div class="max-w-3xl mx-auto text-center">
-      <!-- <span class="flex items-center justify-center w-14 h-14 rounded-full bg-brand-green/10 text-brand-green-dark mb-5 mx-auto">
-        <i class="fa-solid fa-certificate text-2xl"></i> -->
-      <!-- </span> --> 
       <h2 class="text-2xl md:text-3xl font-bold text-gray-900 mb-4">Scaffolding Bersertifikasi & Teruji</h2>
       <p class="text-gray-500 leading-relaxed text-sm md:text-base mb-6">
         Sebagai produsen scaffolding, kami memastikan setiap produk memiliki standar kualitas yang tinggi sehingga mampu digunakan dalam berbagai kondisi proyek konstruksi.
@@ -120,10 +116,10 @@
         </div>
       </div>
 
-      <!-- Grid Daftar Artikel -->
+      <!-- Grid Daftar Artikel (Seluruh Card Bisa Diklik) -->
       <div class="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
         @forelse($artikels as $item)
-        <article class="bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 flex flex-col group">
+        <a href="{{ route('blog.show', $item->slug) }}" class="bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 flex flex-col group cursor-pointer block">
           <!-- Thumbnail Gambar -->
           <div class="aspect-[16/10] bg-gray-100 overflow-hidden relative">
             @if($item->gambar)
@@ -144,18 +140,18 @@
                 <span><i class="fa-regular fa-eye mr-1"></i> {{ $item->views }}x dibaca</span>
               </div>
               <h3 class="font-bold text-gray-900 text-base mb-2 group-hover:text-brand-green transition-colors line-clamp-2">
-                <a href="{{ route('blog.show', $item->slug) }}">{{ $item->judul }}</a>
+                {{ $item->judul }}
               </h3>
               <p class="text-xs text-gray-500 leading-relaxed line-clamp-2 mb-4">{{ $item->ringkasan }}</p>
             </div>
 
             <div class="pt-4 border-t border-gray-50 flex items-center justify-end">
-              <a href="{{ route('blog.show', $item->slug) }}" class="text-xs font-bold text-brand-green hover:text-brand-green-dark flex items-center gap-1 transition-all">
+              <span class="text-xs font-bold text-brand-green group-hover:text-brand-green-dark flex items-center gap-1 transition-all">
                 Baca Detail <i class="fa-solid fa-arrow-right text-[10px] group-hover:translate-x-0.5 transition-transform"></i>
-              </a>
+              </span>
             </div>
           </div>
-        </article>
+        </a>
         @empty
         <div class="col-span-full text-center py-12 bg-gray-50 rounded-xl border border-dashed border-gray-200">
           <i class="fa-solid fa-newspaper text-3xl text-gray-300 mb-2 block"></i>
@@ -215,14 +211,12 @@
 
   <!-- ========== CTA BANNER ========== -->
   <section class="container mx-auto px-4 py-6 md:py-10">
-    <!-- Href diarahkan ke WhatsApp resmi Tangga Mas -->
     <a href="https://wa.me/628123651717?text=Halo%20Tangga%20Mas,%20saya%20mau%20konsultasi%20terkait%20kebutuhan%20scaffolding" 
        target="_blank" 
        rel="noopener noreferrer" 
        class="relative block rounded-xl overflow-hidden aspect-[1.8/1] md:aspect-[3.5/1] w-full bg-brand-green shadow-sm border border-gray-150 transition-transform duration-300 hover:scale-[1.003]" 
        title="Hubungi Kami via WhatsApp">
       
-      <!-- 1. Gambar Latar Belakang (Menggunakan object-cover agar memenuhi seluruh area) -->
       <img 
         src="{{ asset('images/banners/webp/bannerbawahblur1.webp') }}" 
         alt="Background Proyek Tangga Mas Scaffolding" 
@@ -230,10 +224,8 @@
         onerror="this.src='{{ asset('images/logotm.png') }}'"
       >
       
-      <!-- 2. Overlay Gelap Ringan (Memastikan teks putih selalu kontras & tajam di HP/Desktop) -->
       <div class="absolute inset-0 bg-black/40"></div>
 
-      <!-- 3. Lapisan Konten Teks (z-10 absolute center) -->
       <div class="absolute inset-0 z-10 flex flex-col items-center justify-center text-center p-4 md:p-8">
         <h2 class="text-white font-bold text-lg md:text-3xl tracking-wide leading-tight drop-shadow-md max-w-2xl">
           Siap Memulai Proyek Anda? 
@@ -243,7 +235,6 @@
           Konsultasikan kebutuhan scaffolding & bekisting sekarang.
         </p>
         
-        <!-- Tombol Aksi Kecil Interaktif -->
         <span class="inline-flex items-center gap-1.5 bg-white text-gray-900 font-bold text-[10px] md:text-xs px-4 py-2 rounded-full shadow-md mt-3 md:mt-4 group-hover:bg-brand-green group-hover:text-white transition-colors">
           <i class="fa-brands fa-whatsapp text-emerald-650 text-xs md:text-sm"></i>
           Hubungi WhatsApp
@@ -251,6 +242,6 @@
       </div>
 
     </a>
-</section>
+  </section>
   
 @endsection

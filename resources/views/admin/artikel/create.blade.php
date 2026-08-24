@@ -47,7 +47,7 @@
                 <div>
                     <label class="block text-sm font-semibold text-gray-700 mb-1">Kategori Konten <span class="text-red-500">*</span></label>
                     <select name="kategori" class="w-full border @error('kategori') border-red-500 @else border-gray-300 @enderror rounded-lg p-2.5 bg-white text-sm focus:outline-none focus:border-brand-green" required>
-                        <option value="Edukasi K3" {{ old('kategori') == 'Edukasi K3' ? 'selected' : '' }}>Edukasi</option>
+                        <option value="Edukasi K3" {{ old('kategori') == 'Edukasi K3' ? 'selected' : '' }}>Edukasi K3</option>
                         <option value="Info Produk" {{ old('kategori') == 'Info Produk' ? 'selected' : '' }}>Info Produk</option>
                         <option value="Event & Proyek" {{ old('kategori') == 'Event & Proyek' ? 'selected' : '' }}>Event & Proyek</option>
                     </select>
@@ -75,7 +75,7 @@
                 @enderror
             </div>
 
-            <!-- ================= BANNER UTAMA ================= -->
+            <!-- BANNER UTAMA -->
             <div>
                 <label class="block text-sm font-semibold text-gray-700 mb-1">Upload Banner Utama Artikel <span class="text-red-500">*</span> <span class="text-xs font-normal text-gray-400">(Format: JPG, PNG, WEBP | Maks: 10MB)</span></label>
                 <input type="file" name="gambar" accept="image/*" class="w-full border @error('gambar') border-red-500 @else border-gray-300 @enderror rounded-lg p-2 bg-white text-sm focus:outline-none" required>
@@ -103,6 +103,51 @@
                 </div>
             </div>
 
+            <!-- ================= SEKSI OPTIMASI SEO (META TAGS) ================= -->
+            <div class="pt-4 border-t border-gray-200">
+                <div class="mb-3">
+                    <h3 class="text-base font-bold text-gray-800 flex items-center gap-2">
+                        <i class="fa-solid fa-magnifying-glass text-[#1BBC9A]"></i> Optimasi SEO (Meta Tags)
+                    </h3>
+                    <p class="text-xs text-gray-500">Pengaturan meta tag untuk meningkatkan peringkat artikel di mesin pencari Google. Kosongkan jika ingin menggunakan bawaan sistem.</p>
+                </div>
+
+                <div class="space-y-4 bg-gray-50 p-4 rounded-xl border border-gray-200">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">Meta Title</label>
+                            <input type="text" name="meta_title" value="{{ old('meta_title') }}" class="w-full border border-gray-300 rounded-lg p-2.5 text-xs focus:outline-none focus:border-[#1BBC9A] bg-white" placeholder="Kosongkan jika ingin menyamakan dengan Judul Artikel">
+                            @error('meta_title')
+                                <span class="text-xs text-red-500 mt-1 block font-medium">{{ $message }}</span>
+                            @enderror
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">Meta Author</label>
+                            <input type="text" name="meta_author" value="{{ old('meta_author', 'PT. Tangga Mas Jaya Makmur') }}" class="w-full border border-gray-300 rounded-lg p-2.5 text-xs focus:outline-none focus:border-[#1BBC9A] bg-white" placeholder="Contoh: PT. Tangga Mas Jaya Makmur">
+                            @error('meta_author')
+                                <span class="text-xs text-red-500 mt-1 block font-medium">{{ $message }}</span>
+                            @enderror
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">Meta Keywords</label>
+                        <input type="text" name="meta_keywords" value="{{ old('meta_keywords') }}" class="w-full border border-gray-300 rounded-lg p-2.5 text-xs focus:outline-none focus:border-[#1BBC9A] bg-white" placeholder="Pisahkan dengan koma. Contoh: Jual Scaffolding, K3 Konstruksi, Tangga Mas">
+                        @error('meta_keywords')
+                            <span class="text-xs text-red-500 mt-1 block font-medium">{{ $message }}</span>
+                        @enderror
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">Meta Description</label>
+                        <textarea name="meta_description" rows="2" class="w-full border border-gray-300 rounded-lg p-2.5 text-xs focus:outline-none focus:border-[#1BBC9A] bg-white" placeholder="Ringkasan singkat 150-160 karakter untuk hasil pencarian Google...">{{ old('meta_description') }}</textarea>
+                        @error('meta_description')
+                            <span class="text-xs text-red-500 mt-1 block font-medium">{{ $message }}</span>
+                        @enderror
+                    </div>
+                </div>
+            </div>
+
             <div class="flex gap-3 pt-4 border-t border-gray-100">
                 <button type="submit" class="bg-[#1BBC9A] text-white px-6 py-2.5 rounded-xl font-semibold hover:bg-[#0C5646] transition-colors text-sm shadow-sm flex items-center gap-2 cursor-pointer">
                     <i class="fa-solid fa-paper-plane text-xs"></i> Terbitkan Artikel
@@ -120,7 +165,8 @@
             toolbar: {
                 items: [
                     'heading', '|', 'bold', 'italic', 'underline', 'link',
-                    '|', 'bulletedList', 'numberedList', '|', 'undo', 'redo'
+                    '|', 'bulletedList', 'numberedList', '|', 'insertTable',
+                    '|', 'undo', 'redo'
                 ]
             },
             heading: {
@@ -129,6 +175,13 @@
                     { model: 'heading1', view: 'h1', title: 'Heading 1', class: 'ck-heading_heading1' },
                     { model: 'heading2', view: 'h2', title: 'Heading 2', class: 'ck-heading_heading2' },
                     { model: 'heading3', view: 'h3', title: 'Heading 3', class: 'ck-heading_heading3' }
+                ]
+            },
+            table: {
+                contentToolbar: [
+                    'tableColumn',
+                    'tableRow',
+                    'mergeTableCells'
                 ]
             }
         })
@@ -139,7 +192,6 @@
         })
         .catch(error => { console.error(error); });
 
-    // Script Dynamis FAQ Repeater
     let faqIndex = 0;
     function addFaqRow(pertanyaan = '', jawaban = '') {
         const container = document.getElementById('faqContainer');
@@ -181,5 +233,21 @@
     .ck-content h2 { font-size: 1.5em !important; font-weight: bold !important; }
     .ck-content h3 { font-size: 1.25em !important; font-weight: bold !important; }
     .ck-content a { color: #1BBC9A !important; text-decoration: underline !important; }
+
+    .ck-content table {
+        width: 100% !important;
+        border-collapse: collapse !important;
+        margin: 1rem 0 !important;
+    }
+    .ck-content th {
+        background-color: #f3f4f6 !important;
+        font-weight: bold !important;
+        padding: 8px 12px !important;
+        border: 1px solid #d1d5db !important;
+    }
+    .ck-content td {
+        padding: 8px 12px !important;
+        border: 1px solid #d1d5db !important;
+    }
 </style>
 @endsection

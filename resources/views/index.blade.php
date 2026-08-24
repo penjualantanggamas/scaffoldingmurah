@@ -20,15 +20,18 @@
               @php
                   $targetUrl = !empty($slide['link']) ? $slide['link'] : '#';
                   $isExternal = str_starts_with($targetUrl, 'http://') || str_starts_with($targetUrl, 'https://');
+                  $bannerTitle = $slide['alt'] ?? $block->judul ?? 'Hero Banner Promo';
               @endphp
               <div class="carousel-slide relative min-w-full h-full bg-white flex items-center justify-center">
+                <!-- EVENT GA4: Click Promotion (Hero Slider) -->
                 <a href="{{ $targetUrl }}" 
+                   onclick="trackGAEvent('click_promotion', { promotion_name: '{{ $bannerTitle }}', source_page: 'beranda_hero' })"
                    @if($isExternal) target="_blank" rel="noopener noreferrer" @endif
                    class="w-full h-full block relative z-10 hover:opacity-95 transition-opacity cursor-pointer" 
-                   title="{{ $slide['alt'] ?? $block->judul }}">
+                   title="{{ $bannerTitle }}">
                   <img src="{{ asset('images/banners/webp/' . $slide['image']) }}" 
                        class="w-full h-full object-cover md:object-contain" 
-                       alt="{{ $slide['alt'] ?? $block->judul }}" 
+                       alt="{{ $bannerTitle }}" 
                        onerror="this.src='{{ asset('images/logotm.png') }}'">
                 </a>
               </div>
@@ -91,15 +94,12 @@
             }
         @endphp
         <section class="container mx-auto px-4 mt-6 md:mt-8">
-          <!-- @if(!empty($block->judul))
-            <h2 class="text-base md:text-xl font-bold text-gray-900 mb-3 md:mb-4">{{ $block->judul }}</h2>
-          @endif -->
-
           <div class="flex items-center md:justify-center gap-3 overflow-x-auto no-scrollbar pb-2 md:pb-0 whitespace-nowrap">
             @foreach($selectedCategories as $catKey)
               @if(isset($categoryDetails[$catKey]))
                 @php $cat = $categoryDetails[$catKey]; @endphp
                 <a href="{{ url('/products/' . $catKey . '-system') }}" 
+                   onclick="trackGAEvent('click_category_pill', { category_name: '{{ $cat['label'] }}', source_page: 'beranda' })"
                    class="inline-flex items-center gap-2.5 px-4 py-2 sm:px-5 sm:py-2.5 rounded-full border border-gray-200 bg-white hover:border-brand-green hover:bg-emerald-50/40 hover:shadow-sm transition-all duration-200 shrink-0 group cursor-pointer">
                     
                     <!-- Gambar Mini Kategori / Fallback Ikon -->
@@ -240,14 +240,17 @@
         @php
             $singleTargetUrl = !empty($block->content['link']) ? $block->content['link'] : '#';
             $isSingleExternal = str_starts_with($singleTargetUrl, 'http://') || str_starts_with($singleTargetUrl, 'https://');
+            $singleAlt = $block->content['alt'] ?? 'Banner Promosi Tangga Mas Scaffolding';
         @endphp
         <section class="container mx-auto px-4 pb-10 md:pb-14 md:pt-10">
+          <!-- EVENT GA4: Click Promotion (Single Banner) -->
           <a href="{{ $singleTargetUrl }}" 
+             onclick="trackGAEvent('click_promotion', { promotion_name: '{{ $singleAlt }}', source_page: 'beranda_single' })"
              @if($isSingleExternal) target="_blank" rel="noopener noreferrer" @endif
              class="block rounded-xl overflow-hidden aspect-[2.8/1] w-full bg-white flex items-center justify-center shadow-sm border border-gray-100 hover:opacity-95 transition-opacity"> 
             <img 
               src="{{ asset('images/banners/webp/' . $block->content['image']) }}" 
-              alt="{{ $block->content['alt'] ?? 'Banner Promosi Tangga Mas Scaffolding' }}" 
+              alt="{{ $singleAlt }}" 
               class="w-full h-full object-contain"
               onerror="this.src='{{ asset('images/logotm.png') }}'">
           </a>

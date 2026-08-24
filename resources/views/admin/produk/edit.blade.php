@@ -19,6 +19,7 @@
                 <a href="#sec-deskripsi" class="text-gray-500 hover:text-gray-700 py-3 px-1 transition-all">Deskripsi</a>
                 <a href="#sec-penjualan" class="text-gray-500 hover:text-gray-700 py-3 px-1 transition-all">Informasi Penjualan</a>
                 <a href="#sec-pengiriman" class="text-gray-500 hover:text-gray-700 py-3 px-1 transition-all">Pengiriman</a>
+                <a href="#sec-seo" class="text-gray-500 hover:text-gray-700 py-3 px-1 transition-all">SEO</a>
             </nav>
         </div>
     </div>
@@ -103,7 +104,7 @@
                             <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider"><span class="text-red-500">*</span> Nama Produk</label>
                             <span id="char-count" class="text-[10px] text-gray-400 font-mono">0/255</span>
                         </div>
-                        <input type="text" id="nama_produk" name="nama_produk" value="{{ $produk->nama_produk }}" class="w-full border border-gray-300 rounded-lg p-2.5 text-xs focus:outline-none focus:border-[#1BBC9A] transition-all" required placeholder="Contoh: JACK BASE TYPE 60 CM KUALITAS SNI BESI GALVANIS">
+                        <input type="text" id="nama_produk" name="nama_produk" value="{{ old('nama_produk', $produk->nama_produk) }}" class="w-full border border-gray-300 rounded-lg p-2.5 text-xs focus:outline-none focus:border-[#1BBC9A] transition-all" required placeholder="Contoh: JACK BASE TYPE 60 CM KUALITAS SNI BESI GALVANIS">
                     </div>
 
                     <!-- Kategori & Spesifikasi -->
@@ -111,32 +112,33 @@
                         <div>
                             <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1"><span class="text-red-500">*</span> Kategori Halaman</label>
                             <select name="kategori" class="w-full bg-white border border-gray-300 rounded-lg pl-3 pr-8 py-2.5 text-xs focus:outline-none focus:border-[#1BBC9A] text-gray-700 appearance-none bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%236B7280%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E')] bg-[length:0.6rem_auto] bg-[position:right_0.75rem_center] bg-no-repeat">
-                                <option value="frame" {{ $produk->kategori == 'frame' ? 'selected' : '' }}>Frame System</option>
-                                <option value="ringlock" {{ $produk->kategori == 'ringlock' ? 'selected' : '' }}>Ringlock System</option>
-                                <option value="tubular" {{ $produk->kategori == 'tubular' ? 'selected' : '' }}>Tubular System</option>
-                                <option value="kwikstage" {{ $produk->kategori == 'kwikstage' ? 'selected' : '' }}>Kwikstage System</option>
-                                <option value="bekisting" {{ $produk->kategori == 'bekisting' ? 'selected' : '' }}>Bekisting System</option>
+                                <option value="frame" {{ old('kategori', $produk->kategori) == 'frame' ? 'selected' : '' }}>Frame System</option>
+                                <option value="ringlock" {{ old('kategori', $produk->kategori) == 'ringlock' ? 'selected' : '' }}>Ringlock System</option>
+                                <option value="tubular" {{ old('kategori', $produk->kategori) == 'tubular' ? 'selected' : '' }}>Tubular System</option>
+                                <option value="kwikstage" {{ old('kategori', $produk->kategori) == 'kwikstage' ? 'selected' : '' }}>Kwikstage System</option>
+                                <option value="bekisting" {{ old('kategori', $produk->kategori) == 'bekisting' ? 'selected' : '' }}>Bekisting System</option>
                             </select>
                         </div>
                         <div>
                             <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">Spesifikasi Singkat</label>
-                            <input type="text" name="spesifikasi" value="{{ $produk->spesifikasi }}" class="w-full border border-gray-300 rounded-lg p-2.5 text-xs focus:outline-none focus:border-[#1BBC9A]" placeholder="Contoh: Tinggi pipa 6 meter, ketebalan baja 3.2mm">
+                            <input type="text" name="spesifikasi" value="{{ old('spesifikasi', $produk->spesifikasi) }}" class="w-full border border-gray-300 rounded-lg p-2.5 text-xs focus:outline-none focus:border-[#1BBC9A]" placeholder="Contoh: Tinggi pipa 6 meter, ketebalan baja 3.2mm">
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- SECTION 2: DESKRIPSI -->
+            <!-- SECTION 2: DESKRIPSI (DENGAN CKEDITOR) -->
             <div id="sec-deskripsi" class="bg-white rounded-xl p-6 shadow-sm border border-gray-100 scroll-mt-16">
                 <h2 class="text-base font-bold text-gray-800 mb-4 border-b border-gray-100 pb-2"><span class="text-red-500">*</span> Deskripsi Lengkap Produk</h2>
-                <textarea name="deskripsi" rows="6" class="w-full border border-gray-300 rounded-lg p-3 text-xs focus:outline-none focus:border-[#1BBC9A] font-sans leading-relaxed" placeholder="Tuliskan spesifikasi teknis penunjang K3 keselamatan proyek, cara pemakaian, serta keunggulan fisik material besi baja SNI secara rinci...">{{ $produk->deskripsi }}</textarea>
+                <div class="prose max-w-none">
+                    <textarea name="deskripsi" id="deskripsi_editor" class="w-full border border-gray-300 rounded-lg p-3 text-xs focus:outline-none focus:border-[#1BBC9A]">{!! old('deskripsi', $produk->deskripsi) !!}</textarea>
+                </div>
             </div>
 
             <!-- SECTION 3: INFORMASI PENJUALAN -->
             <div id="sec-penjualan" class="bg-white rounded-xl p-6 shadow-sm border border-gray-100 scroll-mt-16">
                 <h2 class="text-base font-bold text-gray-800 mb-4 border-b border-gray-100 pb-2">Informasi Penjualan</h2>
 
-                <!-- Toggle Variasi Shopee Style -->
                 <div class="bg-slate-50 p-4 rounded-xl border border-gray-150 mb-6 flex items-center justify-between">
                     <div>
                         <span class="block text-xs font-bold text-gray-800">Aktifkan Variasi Ukuran / Seri Produk</span>
@@ -153,31 +155,31 @@
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <div>
                             <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1"><span class="text-red-500">*</span> Harga (Rp)</label>
-                            <input type="number" name="harga" id="single_harga" value="{{ $produk->harga }}" class="w-full border border-gray-300 rounded-lg p-2.5 text-xs focus:outline-none focus:border-[#1BBC9A]" {{ !$hasVariant ? 'required' : '' }}>
+                            <input type="number" name="harga" id="single_harga" value="{{ old('harga', $produk->harga) }}" class="w-full border border-gray-300 rounded-lg p-2.5 text-xs focus:outline-none focus:border-[#1BBC9A]" {{ !$hasVariant ? 'required' : '' }}>
                         </div>
                         <div>
                             <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">Harga Coret / Diskon (Rp)</label>
-                            <input type="number" name="harga_coret" value="{{ $produk->harga_coret }}" class="w-full border border-gray-300 rounded-lg p-2.5 text-xs focus:outline-none focus:border-[#1BBC9A]">
+                            <input type="number" name="harga_coret" value="{{ old('harga_coret', $produk->harga_coret) }}" class="w-full border border-gray-300 rounded-lg p-2.5 text-xs focus:outline-none focus:border-[#1BBC9A]">
                         </div>
                     </div>
 
                     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                         <div>
                             <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1"><span class="text-red-500">*</span> Jumlah Stok Fisik</label>
-                            <input type="number" name="stok" id="single_stok" min="0" value="{{ $produk->stok ?? 0 }}" class="w-full border border-gray-300 rounded-lg p-2.5 text-xs focus:outline-none focus:border-[#1BBC9A]" {{ !$hasVariant ? 'required' : '' }}>
+                            <input type="number" name="stok" id="single_stok" min="0" value="{{ old('stok', $produk->stok ?? 0) }}" class="w-full border border-gray-300 rounded-lg p-2.5 text-xs focus:outline-none focus:border-[#1BBC9A]" {{ !$hasVariant ? 'required' : '' }}>
                         </div>
                         <div>
                             <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">Maks. Batas Pembelian</label>
-                            <input type="number" name="maks_pembelian" value="{{ $produk->maks_pembelian }}" class="w-full border border-gray-300 rounded-lg p-2.5 text-xs focus:outline-none focus:border-[#1BBC9A]" placeholder="Per Transaksi (Batas Kargo)">
+                            <input type="number" name="maks_pembelian" value="{{ old('maks_pembelian', $produk->maks_pembelian) }}" class="w-full border border-gray-300 rounded-lg p-2.5 text-xs focus:outline-none focus:border-[#1BBC9A]" placeholder="Per Transaksi (Batas Kargo)">
                         </div>
                         <div>
                             <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">Warna Material (Opsional)</label>
-                            <input type="text" name="warna" value="{{ $produk->warna }}" class="w-full border border-gray-300 rounded-lg p-2.5 text-xs focus:outline-none focus:border-[#1BBC9A]" placeholder="Contoh: Orange / Hitam / Silver">
+                            <input type="text" name="warna" value="{{ old('warna', $produk->warna) }}" class="w-full border border-gray-300 rounded-lg p-2.5 text-xs focus:outline-none focus:border-[#1BBC9A]" placeholder="Contoh: Orange / Hitam / Silver">
                         </div>
                     </div>
                 </div>
 
-                <!-- SUB-BLOCK B: MATRIKS VARIATION TABLE (Shopee Style) -->
+                <!-- SUB-BLOCK B: MATRIKS VARIATION TABLE -->
                 <div id="variant-product-block" class="{{ !$hasVariant ? 'hidden' : '' }} border border-gray-200 rounded-xl overflow-hidden bg-gray-50 p-4">
                     <div class="flex justify-between items-center mb-4">
                         <span class="text-xs font-bold text-gray-700 uppercase tracking-wider">Matriks Hubungan Seri Ukuran</span>
@@ -244,13 +246,12 @@
             <div id="sec-pengiriman" class="bg-white rounded-xl p-6 shadow-sm border border-gray-100 scroll-mt-16">
                 <h2 class="text-base font-bold text-gray-800 mb-5 border-b border-gray-100 pb-2">Pengiriman & Logistik</h2>
 
-                <!-- Berat & Volume untuk Produk Tunggal -->
                 <div id="logistic-single-fields" class="{{ $hasVariant ? 'hidden' : '' }} space-y-4 mb-6">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                         <div>
                             <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1"><span class="text-red-500">*</span> Berat Produk Asli</label>
                             <div class="relative">
-                                <input type="number" name="berat" id="single_berat" value="{{ $produk->berat }}" min="0" class="w-full border border-gray-300 rounded-lg p-2.5 pr-10 text-xs focus:outline-none focus:border-[#1BBC9A]" placeholder="Contoh: 18500" {{ !$hasVariant ? 'required' : '' }}>
+                                <input type="number" name="berat" id="single_berat" value="{{ old('berat', $produk->berat) }}" min="0" class="w-full border border-gray-300 rounded-lg p-2.5 pr-10 text-xs focus:outline-none focus:border-[#1BBC9A]" placeholder="Contoh: 18500" {{ !$hasVariant ? 'required' : '' }}>
                                 <span class="absolute right-3 top-2.5 text-xs text-gray-400 font-bold">gr</span>
                             </div>
                             <span class="text-[10px] text-gray-400 block mt-1">Masukkan angka gram bulat (Contoh: 18.5 kg = tulis 18500).</span>
@@ -260,15 +261,15 @@
                             <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1"><span class="text-red-500">*</span> Dimensi Ukuran Kargo Paket</label>
                             <div class="flex items-center gap-2 font-mono text-xs text-gray-400">
                                 <div class="relative flex-1">
-                                    <input type="number" name="panjang" id="single_panjang" value="{{ $produk->panjang }}" min="0" class="w-full border border-gray-300 rounded-lg p-2.5 pr-8 text-xs text-gray-700 focus:outline-none focus:border-[#1BBC9A]" placeholder="Panjang" {{ !$hasVariant ? 'required' : '' }}>
+                                    <input type="number" name="panjang" id="single_panjang" value="{{ old('panjang', $produk->panjang) }}" min="0" class="w-full border border-gray-300 rounded-lg p-2.5 pr-8 text-xs text-gray-700 focus:outline-none focus:border-[#1BBC9A]" placeholder="Panjang" {{ !$hasVariant ? 'required' : '' }}>
                                     <span class="absolute right-2 top-2.5 text-[10px]">cm</span>
                                 </div> x
                                 <div class="relative flex-1">
-                                    <input type="number" name="lebar" id="single_lebar" value="{{ $produk->lebar }}" min="0" class="w-full border border-gray-300 rounded-lg p-2.5 pr-8 text-xs text-gray-700 focus:outline-none focus:border-[#1BBC9A]" placeholder="Lebar" {{ !$hasVariant ? 'required' : '' }}>
+                                    <input type="number" name="lebar" id="single_lebar" value="{{ old('lebar', $produk->lebar) }}" min="0" class="w-full border border-gray-300 rounded-lg p-2.5 pr-8 text-xs text-gray-700 focus:outline-none focus:border-[#1BBC9A]" placeholder="Lebar" {{ !$hasVariant ? 'required' : '' }}>
                                     <span class="absolute right-2 top-2.5 text-[10px]">cm</span>
                                 </div> x
                                 <div class="relative flex-1">
-                                    <input type="number" name="tinggi" id="single_tinggi" value="{{ $produk->tinggi }}" min="0" class="w-full border border-gray-300 rounded-lg p-2.5 pr-8 text-xs text-gray-700 focus:outline-none focus:border-[#1BBC9A]" placeholder="Tinggi" {{ !$hasVariant ? 'required' : '' }}>
+                                    <input type="number" name="tinggi" id="single_tinggi" value="{{ old('tinggi', $produk->tinggi) }}" min="0" class="w-full border border-gray-300 rounded-lg p-2.5 pr-8 text-xs text-gray-700 focus:outline-none focus:border-[#1BBC9A]" placeholder="Tinggi" {{ !$hasVariant ? 'required' : '' }}>
                                     <span class="absolute right-2 top-2.5 text-[10px]">cm</span>
                                 </div>
                             </div>
@@ -277,7 +278,6 @@
                     </div>
                 </div>
 
-                <!-- Notifikasi Info jika Varian Aktif -->
                 <div id="logistic-variant-note" class="{{ !$hasVariant ? 'hidden' : '' }} bg-amber-50 rounded-xl p-4 border border-amber-200 text-amber-700 mb-6 flex gap-2 items-start">
                     <i class="fa-solid fa-circle-info mt-0.5 text-xs"></i>
                     <p class="text-[11px] leading-relaxed font-medium">
@@ -299,7 +299,6 @@
                         </div>
                     </div>
 
-                    <!-- Dropdown Waktu PO Dinamis -->
                     <div id="po-duration-block" class="{{ !$produk->is_preorder ? 'hidden' : '' }} bg-gray-50 p-4 rounded-xl border border-gray-200 max-w-sm">
                         <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">Durasi Antrean Produksi</label>
                         <select name="waktu_preorder" class="w-full bg-white border border-gray-300 rounded-lg pl-3 pr-8 py-2 text-xs focus:outline-none focus:border-[#1BBC9A] appearance-none bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%236B7280%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E')] bg-[length:0.55rem_auto] bg-[position:right_0.75rem_center] bg-no-repeat">
@@ -309,6 +308,51 @@
                             <option value="14" {{ $produk->waktu_preorder == 14 ? 'selected' : '' }}>14 Hari Kerja</option>
                         </select>
                         <p class="text-[10px] text-gray-400 mt-1">Estimasi pengerjaan pabrikasi di atas belum termasuk durasi perjalanan logistik kendaraan.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SECTION 5: OPTIMASI SEO (META TAGS) -->
+            <div id="sec-seo" class="bg-white rounded-xl p-6 shadow-sm border border-gray-100 scroll-mt-16">
+                <div class="mb-4 border-b border-gray-100 pb-2">
+                    <h2 class="text-base font-bold text-gray-800 flex items-center gap-2">
+                        <i class="fa-solid fa-magnifying-glass text-[#1BBC9A]"></i> Optimasi SEO Produk (Meta Tags)
+                    </h2>
+                    <p class="text-xs text-gray-400 mt-1">Pengaturan meta tag agar produk perancah ini muncul secara optimal di pencarian Google & pratinjau media sosial.</p>
+                </div>
+
+                <div class="space-y-4 bg-gray-50 p-4 rounded-xl border border-gray-200">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">Meta Title</label>
+                            <input type="text" name="meta_title" value="{{ old('meta_title', $produk->meta_title) }}" class="w-full border border-gray-300 rounded-lg p-2.5 text-xs focus:outline-none focus:border-[#1BBC9A] bg-white" placeholder="Kosongkan jika menyamakan dengan Nama Produk">
+                            @error('meta_title')
+                                <span class="text-xs text-red-500 mt-1 block font-medium">{{ $message }}</span>
+                            @enderror
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">Meta Author</label>
+                            <input type="text" name="meta_author" value="{{ old('meta_author', $produk->meta_author ?? 'PT. Tangga Mas Jaya Makmur') }}" class="w-full border border-gray-300 rounded-lg p-2.5 text-xs focus:outline-none focus:border-[#1BBC9A] bg-white" placeholder="Contoh: PT. Tangga Mas Jaya Makmur">
+                            @error('meta_author')
+                                <span class="text-xs text-red-500 mt-1 block font-medium">{{ $message }}</span>
+                            @enderror
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">Meta Keywords</label>
+                        <input type="text" name="meta_keywords" value="{{ old('meta_keywords', $produk->meta_keywords) }}" class="w-full border border-gray-300 rounded-lg p-2.5 text-xs focus:outline-none focus:border-[#1BBC9A] bg-white" placeholder="Pisahkan dengan koma. Contoh: Jual Scaffolding Frame, Main Frame T190, Supplier Scaffolding Surabaya">
+                        @error('meta_keywords')
+                            <span class="text-xs text-red-500 mt-1 block font-medium">{{ $message }}</span>
+                        @enderror
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">Meta Description</label>
+                        <textarea name="meta_description" rows="2" class="w-full border border-gray-300 rounded-lg p-2.5 text-xs focus:outline-none focus:border-[#1BBC9A] bg-white" placeholder="Ringkasan spesifikasi singkat 150-160 karakter yang tampil di pencarian Google...">{{ old('meta_description', $produk->meta_description) }}</textarea>
+                        @error('meta_description')
+                            <span class="text-xs text-red-500 mt-1 block font-medium">{{ $message }}</span>
+                        @enderror
                     </div>
                 </div>
             </div>
@@ -326,22 +370,40 @@
     </div>
 </div>
 
-<!-- JAVASCRIPT LOGIC (SHOPEE FLOW CONTROLLER) -->
+<script src="https://cdn.ckeditor.com/ckeditor5/39.0.1/classic/ckeditor.js"></script>
 <script>
-    // Penampung Akumulatif File Gambar Galeri
+    // CKEDITOR DESKRIPSI PRODUK
+    ClassicEditor
+        .create(document.querySelector('#deskripsi_editor'), {
+            toolbar: {
+                items: [
+                    'bold', 'italic', 'underline',
+                    '|', 'bulletedList', 'numberedList',
+                    '|', 'undo', 'redo'
+                ]
+            }
+        })
+        .then(editor => {
+            const textarea = document.querySelector('#deskripsi_editor');
+            editor.model.document.on('change:data', () => { textarea.value = editor.getData(); });
+            const form = textarea.closest('form');
+            if (form) {
+                form.addEventListener('submit', () => { textarea.value = editor.getData(); });
+            }
+        })
+        .catch(error => { console.error(error); });
+
     const galleryDT = new DataTransfer();
     let deletedImageIds = [];
 
-    // 1. FUNGSI BUKA DIALOG PILIH FOTO GALERI
     function openGalleryPicker() {
         const galleryInput = document.getElementById('galleryInput');
         if (galleryInput) {
-            galleryInput.value = ''; // Reset nilai agar event 'change' selalu terpicu dengan stabil
+            galleryInput.value = '';
             galleryInput.click();
         }
     }
 
-    // 2. PREVIEW FOTO COVER UTAMA
     function previewCover(input) {
         const coverPreview = document.getElementById('coverPreview');
         const coverPlaceholder = document.getElementById('coverPlaceholder');
@@ -360,7 +422,6 @@
         }
     }
 
-    // 3. TANGGAPI SELEKSI FOTO GALERI BARU (AKUMULATIF BERTAHAP)
     function handleGalleryUpload(input) {
         const files = Array.from(input.files);
         if (!files.length) return;
@@ -380,14 +441,10 @@
             }
         });
 
-        // SINKRONKAN HASIL AKUMULASI KE INPUT FORM
         input.files = galleryDT.files;
-
-        // RENDER PREVIEW
         renderGalleryPreviews();
     }
 
-    // 4. RENDER PREVIEW FOTO GALERI BARU
     function renderGalleryPreviews() {
         const container = document.getElementById('galleryPreviews');
         if (!container) return;
@@ -413,7 +470,6 @@
         updatePhotoCounter();
     }
 
-    // 5. HAPUS FOTO GALERI LAMA DARI DATABASE
     function removeExistingImage(id) {
         deletedImageIds.push(id);
         document.getElementById('deletedImagesInput').value = JSON.stringify(deletedImageIds);
@@ -421,7 +477,6 @@
         updatePhotoCounter();
     }
 
-    // 6. HAPUS FOTO GALERI BARU SEBELUM SUBMIT
     function removeNewGalleryImage(index) {
         const newDT = new DataTransfer();
         Array.from(galleryDT.files).forEach((file, i) => {
@@ -437,7 +492,6 @@
         renderGalleryPreviews();
     }
 
-    // 7. HITUNG JUMLAH TOTAL FOTO (MAX 9)
     function updatePhotoCounter() {
         const existingCount = document.querySelectorAll('[id^="existing-img-"]').length;
         const coverInput = document.getElementById('coverInput');
@@ -459,7 +513,6 @@
         }
     }
 
-    // SINKRONISASI PASTIKAN TERIKAT SAAT FORM DITERUSKAN KE CONTROLLER
     document.addEventListener('DOMContentLoaded', function() {
         const form = document.querySelector('form');
         if (form) {
@@ -473,7 +526,6 @@
         updatePhotoCounter();
     });
 
-    // Karakter Counter Nama Produk
     const namaInput = document.getElementById('nama_produk');
     const charCount = document.getElementById('char-count');
     function updateCharCount() {
@@ -484,7 +536,6 @@
         updateCharCount();
     }
 
-    // Kontrol Tab Navigation
     const tabs = document.querySelectorAll('#form-tabs a');
     tabs.forEach(tab => {
         tab.addEventListener('click', function(e) {
@@ -496,7 +547,6 @@
         });
     });
 
-    // Switcher Variasi Single vs Varian
     const hasVariantCheckbox = document.getElementById('has_variant');
     const singleBlock = document.getElementById('single-product-block');
     const variantBlock = document.getElementById('variant-product-block');
@@ -544,7 +594,6 @@
         });
     }
 
-    // Tambah Baris Varian
     let variantIndex = {{ $hasVariant ? $produk->varians->count() : 0 }};
     const addVariantBtn = document.getElementById('add-variant-btn');
     if(addVariantBtn) {
@@ -606,7 +655,6 @@
         });
     }
 
-    // Kontrol Durasi PO
     const poNo = document.getElementById('po-no');
     const poYes = document.getElementById('po-yes');
     const poDurationBlock = document.getElementById('po-duration-block');
@@ -616,4 +664,11 @@
         poYes.addEventListener('change', function() { if(this.checked) poDurationBlock.classList.remove('hidden'); });
     }
 </script>
+
+<style>
+    .ck-editor__editable_inline { min-height: 200px; border-radius: 0 0 0.5rem 0.5rem !important; font-size: 0.875rem; }
+    .ck-toolbar { border-radius: 0.5rem 0.5rem 0 0 !important; background-color: #f8fafc !important; }
+    .ck-content ul { list-style-type: disc !important; padding-left: 1.5rem !important; }
+    .ck-content ol { list-style-type: decimal !important; padding-left: 1.5rem !important; }
+</style>
 @endsection

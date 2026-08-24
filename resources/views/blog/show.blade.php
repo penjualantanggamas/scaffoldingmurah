@@ -1,11 +1,51 @@
 @extends('layouts.frontend')
 
-@section('title', $artikel->judul . ' | Tangga Mas Blog')
+@section('title', ($artikel->meta_title ?: $artikel->judul) . ' | Tangga Mas Blog')
+
+@section('meta')
+    @php
+        $seoTitle       = $artikel->meta_title ?: $artikel->judul;
+        $seoDesc        = $artikel->meta_description ?: \Illuminate\Support\Str::limit(strip_tags($artikel->ringkasan ?: $artikel->konten), 160);
+        $seoKeywords    = $artikel->meta_keywords ?: 'Edukasi K3, Scaffolding, Tangga Mas, ' . $artikel->kategori;
+        $seoAuthor      = $artikel->meta_author ?: 'PT. Tangga Mas Jaya Makmur';
+        $currentUrl     = request()->url();
+        $imageUrl       = $artikel->gambar ? asset('images/blog/' . $artikel->gambar) : asset('images/logotm.png');
+    @endphp
+
+    <!-- Standard Meta Tags -->
+    <meta name="title" content="{{ $seoTitle }}">
+    <meta name="description" content="{{ $seoDesc }}">
+    <meta name="keywords" content="{{ $seoKeywords }}">
+    <meta name="author" content="{{ $seoAuthor }}">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="{{ $currentUrl }}">
+
+    <!-- Open Graph (WhatsApp, Facebook, LinkedIn) -->
+    <meta property="og:type" content="article">
+    <meta property="og:title" content="{{ $seoTitle }}">
+    <meta property="og:description" content="{{ $seoDesc }}">
+    <meta property="og:image" content="{{ $imageUrl }}">
+    <meta property="og:url" content="{{ $currentUrl }}">
+    <meta property="og:site_name" content="Tangga Mas Scaffolding">
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{{ $seoTitle }}">
+    <meta name="twitter:description" content="{{ $seoDesc }}">
+    <meta name="twitter:image" content="{{ $imageUrl }}">
+@endsection
 
 @section('content')
+@php
+    $currentUrl = request()->url();
+    $shareUrl = urlencode($currentUrl);
+    $shareTitle = urlencode($artikel->judul);
+@endphp
+
 <div class="bg-white min-h-screen py-8 md:py-12">
-    <div class="container mx-auto px-4 max-w-3xl">
+    <div class="container mx-auto px-4 max-w-5xl">
         
+        <!-- Breadcrumb -->
         <nav class="text-xs text-gray-400 mb-6 flex items-center gap-1">
             <a href="{{ url('/') }}" class="hover:text-brand-green">Home</a> / 
             <a href="{{ route('blog.index') }}" class="hover:text-brand-green">Blog</a> / 
@@ -36,19 +76,60 @@
         </div>
         @endif
 
-        <!-- Seksional Konten Utama: Menggunakan kelas pemeta artikel kustom -->
+        <!-- Seksional Konten Utama -->
         <div class="content-artikel text-gray-700 leading-relaxed border-b border-gray-100 pb-8">
             {!! $artikel->konten !!}
         </div>
 
-        <!-- ================= SEKSI FAQ ARTIKEL (DITAMPILKAN JIKA ADA DATA) ================= -->
+        <!-- ================= SEKSI BAGIKAN ARTIKEL ================= -->
+        <div class="py-6 border-b border-gray-100 flex flex-wrap items-center justify-between gap-4 bg-gray-50/60 p-4 md:p-5 rounded-2xl my-6">
+            <div class="flex items-center gap-2">
+                <i class="fa-solid fa-share-nodes text-[#1BBC9A] text-lg"></i>
+                <div>
+                    <h4 class="font-bold text-xs md:text-sm text-gray-800">Bagikan Artikel Ini:</h4>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-2 flex-wrap">
+                <!-- WhatsApp -->
+                <a href="https://api.whatsapp.com/send?text={{ $shareTitle }}%0A%0A{{ $shareUrl }}" 
+                   target="_blank" 
+                   rel="noopener noreferrer" 
+                   class="flex items-center gap-1.5 bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-bold px-3.5 py-2 rounded-xl transition-all shadow-sm cursor-pointer">
+                    <i class="fa-brands fa-whatsapp text-sm"></i> WhatsApp
+                </a>
+
+                <!-- Facebook -->
+                <a href="https://www.facebook.com/sharer/sharer.php?u={{ $shareUrl }}" 
+                   target="_blank" 
+                   rel="noopener noreferrer" 
+                   class="flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold px-3.5 py-2 rounded-xl transition-all shadow-sm cursor-pointer">
+                    <i class="fa-brands fa-facebook-f text-xs"></i> Facebook
+                </a>
+
+                <!-- Instagram (Copy Link untuk Bio/Story/DM) -->
+                <button type="button" 
+                        onclick="shareToInstagram()" 
+                        class="flex items-center gap-1.5 bg-gradient-to-r from-purple-500 via-pink-500 to-amber-500 hover:opacity-90 text-white text-xs font-bold px-3.5 py-2 rounded-xl transition-all shadow-sm cursor-pointer">
+                    <i class="fa-brands fa-instagram text-sm"></i> Instagram
+                </button>
+
+                <!-- Salin Tautan (Copy Link) -->
+                <button type="button" 
+                        onclick="copyArticleLink()" 
+                        class="flex items-center gap-1.5 bg-white border border-gray-200 hover:bg-gray-100 text-gray-700 text-xs font-bold px-3.5 py-2 rounded-xl transition-all shadow-sm cursor-pointer">
+                    <i class="fa-solid fa-link text-xs text-gray-400"></i> <span id="copyBtnText">Salin Link</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- ================= SEKSI FAQ ARTIKEL ================= -->
         @if(!empty($artikel->faqs) && is_array($artikel->faqs) && count($artikel->faqs) > 0)
-        <section class="mt-8 pt-6 border-b border-gray-100 pb-10">
+        <section class="mt-8 pt-2 border-b border-gray-100 pb-10">
             <div class="mb-5">
                 <h3 class="text-lg md:text-xl font-bold text-gray-900 flex items-center gap-2">
                     <i class="fa-solid fa-circle-question text-[#1BBC9A]"></i> FAQ
                 </h3>
-                <!-- <p class="text-xs text-gray-500 mt-1">Jawaban singkat atas pertanyaan umum seputar pembahasan di artikel ini.</p> -->
             </div>
 
             <div class="space-y-3">
@@ -72,7 +153,7 @@
         </section>
         @endif
 
-        @if($relatedArticles->count() > 0)
+        @if($relatedArticles && $relatedArticles->count() > 0)
         <section class="mt-12 pt-4">
             <h3 class="text-lg font-bold text-gray-900 mb-6">Artikel Edukasi Pilihan Lainnya</h3>
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-5">
@@ -98,10 +179,56 @@
     </div>
 </div>
 
+<!-- JAVASCRIPT SHARE CONTROL -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+    function copyArticleLink() {
+        const url = "{{ $currentUrl }}";
+        navigator.clipboard.writeText(url).then(() => {
+            const btnText = document.getElementById('copyBtnText');
+            if (btnText) btnText.textContent = 'Tersalin!';
+            
+            Swal.fire({
+                toast: true,
+                position: 'bottom-end',
+                icon: 'success',
+                title: 'Tautan artikel berhasil disalin!',
+                showConfirmButton: false,
+                timer: 2000
+            });
+
+            setTimeout(() => {
+                if (btnText) btnText.textContent = 'Salin Link';
+            }, 3000);
+        }).catch(err => {
+            console.error('Gagal menyalin link:', err);
+        });
+    }
+
+    function shareToInstagram() {
+        const url = "{{ $currentUrl }}";
+        navigator.clipboard.writeText(url).then(() => {
+            Swal.fire({
+                title: 'Link Artikel Tersalin!',
+                text: 'Tautan telah disalin ke clipboard. Anda dapat menempelkannya di Instagram Story, Bio, atau Pesan Langsung (DM).',
+                icon: 'info',
+                confirmButtonColor: '#1BBC9A',
+                confirmButtonText: 'Buka Instagram',
+                showCancelButton: true,
+                cancelButtonText: 'Tutup'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.open('https://www.instagram.com/', '_blank');
+                }
+            });
+        });
+    }
+</script>
+
 <!-- STYLE PENETRAL RESET TAILWIND KHUSUS AREA EDITOR -->
 <style>
     .content-artikel h1 {
-        font-size: 2.25rem; /* text-4xl equivalent */
+        font-size: 2.25rem;
         font-weight: 800;
         margin-top: 1.75rem;
         margin-bottom: 0.75rem;
@@ -109,7 +236,7 @@
         line-height: 1.25;
     }
     .content-artikel h2 {
-        font-size: 1.5rem; /* text-2xl equivalent */
+        font-size: 1.5rem;
         font-weight: 700;
         margin-top: 1.5rem;
         margin-bottom: 0.5rem;
@@ -117,7 +244,7 @@
         line-height: 1.35;
     }
     .content-artikel h3 {
-        font-size: 1.25rem; /* text-xl equivalent */
+        font-size: 1.25rem;
         font-weight: 700;
         margin-top: 1.25rem;
         margin-bottom: 0.5rem;
@@ -150,6 +277,38 @@
     }
     .content-artikel li {
         margin-bottom: 0.25rem;
+    }
+
+    /* ================= DUKUNGAN STYLING TABEL ARTIKEL ================= */
+    .content-artikel table {
+        width: 100% !important;
+        border-collapse: collapse !important;
+        margin-top: 1.25rem !important;
+        margin-bottom: 1.75rem !important;
+        font-size: 0.875rem !important;
+        line-height: 1.5 !important;
+        border: 1px solid #e5e7eb !important;
+    }
+    .content-artikel th {
+        background-color: #f3f4f6 !important;
+        color: #111827 !important;
+        font-weight: 700 !important;
+        padding: 0.75rem 1rem !important;
+        border: 1px solid #d1d5db !important;
+        text-align: left !important;
+    }
+    .content-artikel td {
+        padding: 0.75rem 1rem !important;
+        border: 1px solid #e5e7eb !important;
+        color: #374151 !important;
+        vertical-align: top !important;
+    }
+    .content-artikel tr:nth-child(even) {
+        background-color: #f9fafb !important;
+    }
+    .content-artikel figure.table {
+        overflow-x: auto !important;
+        margin-bottom: 1.5rem !important;
     }
 </style>
 @endsection

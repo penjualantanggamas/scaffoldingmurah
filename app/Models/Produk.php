@@ -27,7 +27,11 @@ class Produk extends Model
         'tinggi',
         'maks_pembelian',
         'is_preorder',
-        'waktu_preorder'
+        'waktu_preorder',
+        'meta_title',
+        'meta_keywords',
+        'meta_author',
+        'meta_description'
     ];
 
     // Relasi Varian
