@@ -15,7 +15,7 @@ return new class extends Migration
         $table->text('meta_description')->nullable();
     });
 }
-
+// tes
 public function down(): void
 {
     Schema::table('artikels', function (Blueprint $table) {
