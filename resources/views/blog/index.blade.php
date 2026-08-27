@@ -29,6 +29,9 @@
 
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 lg:gap-8 max-w-6xl mx-auto">
             @forelse($artikels as $item)
+            @php
+                $itemUrl = route('blog.show', ['prefix' => $item->prefix_url ?? 'jualscaffolding', 'slug' => $item->slug]);
+            @endphp
             <article class="bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 flex flex-col group">
                 <div class="aspect-[16/10] bg-gray-100 overflow-hidden relative">
                     @if($item->gambar)
@@ -48,13 +51,13 @@
                             <span><i class="fa-regular fa-eye mr-1"></i> {{ $item->views }}x dibaca</span>
                         </div>
                         <h2 class="font-bold text-gray-900 text-base md:text-lg mb-2 group-hover:text-brand-green transition-colors line-clamp-2">
-                            <a href="{{ route('blog.show', $item->slug) }}">{{ $item->judul }}</a>
+                            <a href="{{ $itemUrl }}">{{ $item->judul }}</a>
                         </h2>
                         <p class="text-xs text-gray-500 leading-relaxed line-clamp-3 mb-4">{{ $item->ringkasan }}</p>
                     </div>
 
                     <div class="pt-4 border-t border-gray-50 flex items-center justify-between">
-                        <a href="{{ route('blog.show', $item->slug) }}" class="text-xs font-bold text-brand-green hover:text-brand-green-dark flex items-center gap-1 transition-all">
+                        <a href="{{ $itemUrl }}" class="text-xs font-bold text-brand-green hover:text-brand-green-dark flex items-center gap-1 transition-all">
                             Baca Detail <i class="fa-solid fa-arrow-right text-[10px] group-hover:translate-x-0.5 transition-transform"></i>
                         </a>
                     </div>

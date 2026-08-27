@@ -6,9 +6,9 @@ use Illuminate\Database\Eloquent\Model;
 
 class Artikel extends Model
 {
-    // Mengizinkan kolom-kolom ini diisi secara massal saat Artikel::create()
     protected $fillable = [
-        'judul', 
+        'judul',
+        'prefix_url',
         'slug', 
         'kategori', 
         'ringkasan', 
@@ -25,4 +25,15 @@ class Artikel extends Model
     protected $casts = [
         'faqs' => 'array',
     ];
+
+    /**
+     * Accessor URL otomatis untuk Artikel
+     */
+    public function getUrlAttribute()
+    {
+        return route('blog.show', [
+            'prefix' => $this->prefix_url ?? 'jualscaffolding',
+            'slug'   => $this->slug,
+        ]);
+    }
 }

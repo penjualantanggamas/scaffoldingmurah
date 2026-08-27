@@ -46,10 +46,11 @@
                 </div>
             </div>
 
-            <!-- Box Total Tagihan -->
+            <!-- Box Total Tagihan (Dengan Catatan Kode Unik) -->
             <div class="bg-emerald-50/60 border border-emerald-200 rounded-xl p-4 text-center text-xs space-y-1">
-                <p class="text-gray-600 font-medium">Total Nominal Transfer:</p>
+                <p class="text-gray-600 font-medium">Total Nominal Transfer (Termasuk Kode Unik):</p>
                 <p class="text-2xl font-extrabold text-[#1BBC9A]">Rp {{ number_format($order->grand_total, 0, ',', '.') }}</p>
+                <p class="text-[10px] text-amber-700 font-semibold">*Pastikan mentransfer pas hingga 3 digit terakhir untuk kemudahan verifikasi.</p>
             </div>
 
             <!-- Detail Rekening Bank -->
@@ -73,7 +74,7 @@
                         <a href="{{ asset('uploads/bukti_transfer/' . $order->bukti_transfer) }}" target="_blank" class="inline-block">
                             <img src="{{ asset('uploads/bukti_transfer/' . $order->bukti_transfer) }}" class="h-32 object-cover rounded-lg border mx-auto shadow-sm hover:opacity-90 transition-opacity">
                         </a>
-                        <p class="text-[10px] text-gray-400">Klik gambar untuk melihat full size.</p>
+                        <p class="text-[10px] text-gray-400">Klik gambar untuk melihat ukuran penuh.</p>
                     </div>
                 @endif
 

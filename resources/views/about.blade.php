@@ -18,19 +18,17 @@
   <section class="container mx-auto px-4 py-12 md:py-16">
     <div class="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 items-center">
 
-      <!-- Image placeholder -->
       <div class="rounded-xl bg-brand-gray-bg border border-gray-200 aspect-[4/3] flex items-center justify-center order-1 md:order-none">
         <img src="{{ asset('images/banners/webp/mianbannerabout.webp') }}" class="w-full h-full object-cover rounded-xl"> 
       </div>
 
-      <!-- Text -->
       <div>
         <span class="inline-block text-xs font-semibold tracking-wide uppercase text-brand-green bg-brand-green/10 px-3 py-1 rounded-full mb-4">Profil Perusahaan</span>
         <h2 class="text-2xl md:text-3xl font-bold text-gray-900 mb-4">PT Tangga Mas Jaya Makmur</h2>
         <p class="text-gray-500 leading-relaxed mb-4">
           Tangga Mas Jaya Makmur adalah produsen perancah (scaffolding) dan bekisting formwork terbesar
           di Jawa Timur, melayani kebutuhan konstruksi berskala besar di seluruh Indonesia. Sejak awal
-          berdiri, kami berkomitmen menghadirkan produk baja berkualitas tinggi dengan standar keamanan
+          berdiri, kami berkomitmen menghadirkan produk scaffolding berkualitas tinggi dengan standar keamanan
           proyek konstruksi nasional.
         </p>
         <p class="text-gray-500 leading-relaxed">
@@ -46,7 +44,6 @@
   <section class="bg-brand-gray-bg py-12 md:py-16">
     <div class="container mx-auto px-4">
       <div class="grid grid-cols-2 md:grid-cols-4 gap-5 text-center">
-
         <div class="bg-white rounded-lg p-6">
           <p class="text-3xl md:text-4xl font-bold text-brand-green-dark mb-1">10+</p>
           <p class="text-sm text-gray-500">Tahun Pengalaman</p>
@@ -63,7 +60,6 @@
           <p class="text-3xl md:text-4xl font-bold text-brand-green-dark mb-1">1000+</p>
           <p class="text-sm text-gray-500">Klien Terpercaya</p>
         </div>
-
       </div>
     </div>
   </section>
@@ -80,11 +76,7 @@
       <div class="flex flex-wrap justify-center gap-4 md:gap-6 text-sm text-gray-600">
         <div class="flex items-center gap-2">
           <i class="fa-solid fa-check-circle text-brand-green"></i>
-          <span>SNI Certified</span>
-        </div>
-        <div class="flex items-center gap-2">
-          <i class="fa-solid fa-check-circle text-brand-green"></i>
-          <span>ISO 9001 Quality</span>
+          <span>JIS & BS Certified</span>
         </div>
         <div class="flex items-center gap-2">
           <i class="fa-solid fa-check-circle text-brand-green"></i>
@@ -92,7 +84,7 @@
         </div>
         <div class="flex items-center gap-2">
           <i class="fa-solid fa-check-circle text-brand-green"></i>
-          <span>Baja Grade Tinggi</span>
+          <span> Material Berkualitas</span>
         </div>
       </div>
     </div>
@@ -102,7 +94,6 @@
   <section class="bg-white py-12 md:py-16 border-t border-gray-100">
     <div class="container mx-auto px-4">
       
-      <!-- Header Konten -->
       <div class="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-4">
         <div>
           <span class="inline-block text-xs font-semibold tracking-wide uppercase text-brand-green bg-brand-green/10 px-3 py-1 rounded-full mb-3">Pusat Edukasi</span>
@@ -116,11 +107,10 @@
         </div>
       </div>
 
-      <!-- Grid Daftar Artikel (Seluruh Card Bisa Diklik) -->
+      <!-- Grid Daftar Artikel -->
       <div class="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
         @forelse($artikels as $item)
-        <a href="{{ route('blog.show', $item->slug) }}" class="bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 flex flex-col group cursor-pointer block">
-          <!-- Thumbnail Gambar -->
+        <a href="{{ $item->url }}" class="bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 flex flex-col group cursor-pointer block">
           <div class="aspect-[16/10] bg-gray-100 overflow-hidden relative">
             @if($item->gambar)
               <img src="{{ asset('images/blog/' . $item->gambar) }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" alt="{{ $item->judul }}">
@@ -132,7 +122,6 @@
             </span>
           </div>
 
-          <!-- Deskripsi & Info -->
           <div class="p-5 flex-1 flex flex-col justify-between">
             <div>
               <div class="flex items-center gap-3 text-[11px] text-gray-400 mb-2">
@@ -172,7 +161,6 @@
       </div>
 
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-
         <div class="bg-white rounded-lg p-6 text-center">
           <span class="flex items-center justify-center w-12 h-12 rounded-full bg-brand-green/10 text-brand-green-dark mx-auto mb-4">
             <i class="fa-solid fa-industry text-lg"></i>
@@ -204,7 +192,6 @@
           <h3 class="font-semibold text-gray-900 mb-1 text-sm">Dukungan Teknis</h3>
           <p class="text-gray-500 text-xs leading-relaxed">Tim berpengalaman siap membantu kebutuhan proyek Anda</p>
         </div>
-
       </div>
     </div>
   </section>

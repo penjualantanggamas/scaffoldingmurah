@@ -12,6 +12,7 @@ use App\Http\Controllers\AdminOrderController;
 use App\Http\Controllers\AdminShippingRateController;
 use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\Admin\StoreDecorationController;
+use App\Http\Controllers\VehicleController;
 
 /*
 |--------------------------------------------------------------------------
@@ -67,12 +68,30 @@ Route::get('/products/bekisting-system', [ProdukController::class, 'produkPerKat
 
 /*
 |--------------------------------------------------------------------------
-| 3. ROUTE FRONTEND ARTIKEL & EDUKASI K3
+| 3. ROUTE FRONTEND ARTIKEL & 301 REDIRECT SEO
 |--------------------------------------------------------------------------
 */
 
+// Index Katalog Blog
 Route::get('/blog', [ArtikelController::class, 'frontendIndex'])->name('blog.index');
-Route::get('/blog/detail/{slug}', [ArtikelController::class, 'frontendShow'])->name('blog.show');
+
+// ⚡ 301 PERMANENT REDIRECT (Link Lama /blog/detail/{slug} -> Link Baru /{prefix}/{slug})
+Route::get('/blog/detail/{slug}', function ($slug) {
+    $artikel = \App\Models\Artikel::where('slug', $slug)->first();
+
+    if ($artikel) {
+        $prefix = $artikel->prefix_url ?? 'jualscaffolding';
+        // Redirect HTTP 301 memberitahu Google bahwa lokasi halaman telah pindah permanen
+        return redirect()->to("/{$prefix}/{$slug}", 301);
+    }
+
+    return abort(404);
+});
+
+//  ROUTE DINAMIS FRONTEND ARTIKEL)
+Route::get('/{prefix}/{slug}', [ArtikelController::class, 'frontendShowCustom'])
+    ->where('prefix', '(jual-scaffolding|scaffolding-murah|info-scaffolding|artikel|tips-k3|edukasi|berita)')
+    ->name('blog.show');
 
 
 /*
@@ -128,6 +147,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::patch('/admin/shipping-rates/{id}', [AdminShippingRateController::class, 'update'])->name('admin.shipping.update');
     Route::patch('/admin/shipping-rates/{id}/toggle', [AdminShippingRateController::class, 'toggleStatus'])->name('admin.shipping.toggle');
     Route::delete('/admin/shipping-rates/{id}', [AdminShippingRateController::class, 'destroy'])->name('admin.shipping.destroy');
+
+    // Manajemen Master Armada
+    Route::get('/admin/vehicles', [VehicleController::class, 'index'])->name('admin.vehicles.index');
+    Route::post('/admin/vehicles', [VehicleController::class, 'store'])->name('admin.vehicles.store');
+    Route::patch('/admin/vehicles/{id}', [VehicleController::class, 'update'])->name('admin.vehicles.update');
+    Route::patch('/admin/vehicles/{id}/toggle', [VehicleController::class, 'toggleStatus'])->name('admin.vehicles.toggle');
+    Route::delete('/admin/vehicles/{id}', [VehicleController::class, 'destroy'])->name('admin.vehicles.destroy');
 
     // Pengaturan Mode Transaksi Admin (Toggle Switch Web vs WhatsApp)
     Route::get('/admin/settings/transaction', [SettingController::class, 'index'])->name('admin.settings.transaction');
@@ -201,6 +227,7 @@ Route::middleware('auth:customer')->group(function () {
     // Checkout Transaksi
     Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
     Route::post('/checkout', [CheckoutController::class, 'store'])->name('checkout.store');
+    Route::post('/checkout/calculate-shipping', [CheckoutController::class, 'calculateShipping'])->name('checkout.calculateShipping');
     Route::get('/checkout/success/{id}', [CheckoutController::class, 'success'])->name('checkout.success');
     Route::post('/checkout/cancel-buy-now', [CheckoutController::class, 'cancelBuyNow'])->name('checkout.cancelBuyNow');
 

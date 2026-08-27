@@ -58,6 +58,40 @@
                 </div>
             </div>
 
+            <!-- ================= SEKSI PENGATURAN PERMALINK & SEO URL ================= -->
+            <div class="p-4 bg-emerald-50/60 border border-emerald-200 rounded-xl space-y-4">
+                <div>
+                    <h3 class="text-xs font-bold text-gray-800 uppercase tracking-wider flex items-center gap-1.5 text-brand-green-dark">
+                    Pengaturan Permalink URL
+                    </h3>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- INPUT PREFIX URL -->
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 mb-1">Prefix / Sub-Folder URL <span class="text-red-500">*</span></label>
+                        <input type="text" name="prefix_url" value="{{ old('prefix_url', $artikel->prefix_url ?? 'jualscaffolding') }}" 
+                               placeholder="jualscaffolding" required
+                               class="w-full border border-gray-300 rounded-lg p-2.5 text-xs font-semibold focus:outline-none focus:border-[#1BBC9A] bg-white">
+                        <span class="text-[10px] text-gray-400 mt-1 block">*Contoh: jual-scaffolding, scaffolding-murah, info-scaffolding, tips-k3, berita, edukasi</span>
+                    </div>
+
+                    <!-- INPUT CUSTOM SLUG -->
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 mb-1">Slug SEO Judul <span class="text-red-500">*</span></label>
+                        <input type="text" name="slug" value="{{ old('slug', $artikel->slug) }}" 
+                               placeholder="produsen-scaffolding-terpercaya-jakarta" required
+                               class="w-full border border-gray-300 rounded-lg p-2.5 text-xs font-semibold focus:outline-none focus:border-[#1BBC9A] bg-white">
+                        <span class="text-[10px] text-gray-400 mt-1 block">*Kata kunci judul dipisah strip (-). Tanpa spasi.</span>
+                    </div>
+                </div>
+
+                <div class="bg-white p-2.5 rounded-lg border border-emerald-200 text-[11px] text-gray-600 font-mono">
+                    <span class="font-bold text-gray-400">Hasil URL:</span> 
+                    <span class="text-[#1BBC9A] font-bold">{{ url('/') }}/</span><span class="font-bold text-emerald-800">{{ old('prefix_url', $artikel->prefix_url ?? 'jualscaffolding') }}</span>/<span class="font-bold text-blue-700">{{ old('slug', $artikel->slug) }}</span>
+                </div>
+            </div>
+
             <div>
                 <label class="block text-sm font-semibold text-gray-700 mb-1">Ringkasan Singkat Konten <span class="text-red-500">*</span></label>
                 <textarea name="ringkasan" rows="2" class="w-full border @error('ringkasan') border-red-500 @else border-gray-300 @enderror rounded-lg p-2.5 text-sm focus:outline-none focus:border-brand-green" required>{{ old('ringkasan', $artikel->ringkasan) }}</textarea>

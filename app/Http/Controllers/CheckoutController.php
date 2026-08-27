@@ -9,6 +9,7 @@ use App\Models\Produk;
 use App\Models\Cart;
 use App\Models\ShippingRate;
 use App\Models\AppSetting;
+use App\Services\FleetCalculatorService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -26,12 +27,18 @@ class CheckoutController extends Controller
         $hasPreorder = false;
 
         if ($customerId) {
-            // 1. JIKA LOGIN: Ambil dari Database MySQL
-            $dbCarts = Cart::with('produk')->where('customer_id', $customerId)->get();
+            // 1. JIKA LOGIN: Ambil dari Database (Load relasi varians)
+            $dbCarts = Cart::with(['produk.varians'])->where('customer_id', $customerId)->get();
 
             foreach ($dbCarts as $c) {
                 $produk = $c->produk;
                 if (!$produk) continue;
+
+                // CARI DATA VARIAN TERPILIH (JIKA ADA)
+                $varianItem = null;
+                if (!empty($c->ukuran_varian) && $produk->varians) {
+                    $varianItem = $produk->varians->firstWhere('ukuran', $c->ukuran_varian);
+                }
 
                 $harga = $c->harga;
                 $jumlah = $c->jumlah;
@@ -41,6 +48,12 @@ class CheckoutController extends Controller
                 if (!empty($produk->is_preorder)) {
                     $hasPreorder = true;
                 }
+
+                // Prioritaskan Ambil Berat & Dimensi dari Varian, Jika Kosong Ambil dari Produk Utama
+                $berat   = $varianItem->berat ?? $produk->berat ?? 0;
+                $panjang = $varianItem->panjang ?? $produk->panjang ?? 0;
+                $lebar   = $varianItem->lebar ?? $produk->lebar ?? 0;
+                $tinggi  = $varianItem->tinggi ?? $produk->tinggi ?? 0;
 
                 $cartItems[] = [
                     'cart_id'        => $c->id,
@@ -54,14 +67,24 @@ class CheckoutController extends Controller
                     'gambar'         => $produk->gambar ?? $produk->foto,
                     'is_preorder'    => $produk->is_preorder ?? false,
                     'waktu_preorder' => $produk->waktu_preorder ?? null,
+                    'berat'          => $berat,
+                    'panjang'        => $panjang,
+                    'lebar'          => $lebar,
+                    'tinggi'         => $tinggi,
                 ];
             }
         } else {
             // 2. JIKA GUEST: Ambil dari Session
             $cart = session('cart', []);
             foreach ($cart as $key => $item) {
-                $produk = Produk::find($item['produk_id'] ?? $key);
+                $produk = Produk::with('varians')->find($item['produk_id'] ?? $key);
                 if (!$produk) continue;
+
+                $ukuranVarian = $item['ukuran_varian'] ?? $item['ukuran'] ?? null;
+                $varianItem = null;
+                if (!empty($ukuranVarian) && $produk->varians) {
+                    $varianItem = $produk->varians->firstWhere('ukuran', $ukuranVarian);
+                }
 
                 $harga = $item['harga'] ?? $produk->harga;
                 $jumlah = $item['quantity'] ?? $item['jumlah'] ?? 1;
@@ -72,11 +95,16 @@ class CheckoutController extends Controller
                     $hasPreorder = true;
                 }
 
+                $berat   = $varianItem->berat ?? $produk->berat ?? 0;
+                $panjang = $varianItem->panjang ?? $produk->panjang ?? 0;
+                $lebar   = $varianItem->lebar ?? $produk->lebar ?? 0;
+                $tinggi  = $varianItem->tinggi ?? $produk->tinggi ?? 0;
+
                 $cartItems[] = [
                     'cart_id'        => $key,
                     'produk_id'      => $produk->id,
                     'nama_produk'    => $produk->nama_produk,
-                    'ukuran_varian'  => $item['ukuran_varian'] ?? $item['ukuran'] ?? null,
+                    'ukuran_varian'  => $ukuranVarian,
                     'harga'          => $harga,
                     'harga_satuan'   => $harga,
                     'jumlah'         => $jumlah,
@@ -84,6 +112,10 @@ class CheckoutController extends Controller
                     'gambar'         => $item['gambar'] ?? $produk->gambar,
                     'is_preorder'    => $produk->is_preorder ?? false,
                     'waktu_preorder' => $produk->waktu_preorder ?? null,
+                    'berat'          => $berat,
+                    'panjang'        => $panjang,
+                    'lebar'          => $lebar,
+                    'tinggi'         => $tinggi,
                 ];
             }
         }
@@ -96,13 +128,40 @@ class CheckoutController extends Controller
     }
 
     /**
+     * Helper privat untuk mengkalkulasi total berat (kg) & kubikasi (m3)
+     */
+    private function calculateTotalWeightAndVolume(array $cartItems): array
+    {
+        $totalBeratKg = 0;
+        $totalVolumeM3 = 0;
+
+        foreach ($cartItems as $item) {
+            $qty = (int) ($item['jumlah'] ?? 1);
+            $beratGram = (float) ($item['berat'] ?? 0);
+            $panjangCm = (float) ($item['panjang'] ?? 0);
+            $lebarCm   = (float) ($item['lebar'] ?? 0);
+            $tinggiCm  = (float) ($item['tinggi'] ?? 0);
+
+            // Total Berat (Kg)
+            $totalBeratKg += ($beratGram / 1000) * $qty;
+
+            // Total Volume (m3): (P x L x T) / 1.000.000
+            $volumeM3 = ($panjangCm * $lebarCm * $tinggiCm) / 1000000;
+            $totalVolumeM3 += ($volumeM3 * $qty);
+        }
+
+        return [
+            'total_berat_kg' => $totalBeratKg,
+            'total_volume_m3'=> $totalVolumeM3,
+        ];
+    }
+
+    /**
      * 1. Menampilkan Halaman Checkout Pesanan (Hanya Produk Yang Dicentang)
      */
-    public function index(Request $request)
+    public function index(Request $request, FleetCalculatorService $fleetCalculator)
     {
-        // -----------------------------------------------------------------------
-        // CEK MODE TRANSAKSI (WEBSITE VS WHATSAPP MAINTENANCE)
-        // -----------------------------------------------------------------------
+        // CEK MODE TRANSAKSI
         $modeTransaksi = AppSetting::getValue('mode_transaksi', 'web');
         if ($modeTransaksi !== 'web') {
             $waAdmin = AppSetting::getValue('whatsapp_admin', '6281234567890');
@@ -123,23 +182,7 @@ class CheckoutController extends Controller
 
         $selectedAddress = $addresses->where('is_utama', true)->first() ?? $addresses->first();
 
-        // 2. Cek Tarif Ongkir Armada
-        $armadaFee = null;
-        if ($selectedAddress && !empty($selectedAddress->kota)) {
-            $userKota = strtoupper(trim($selectedAddress->kota));
-            $armadaRate = ShippingRate::where('is_aktif', true)
-                ->where(function ($q) use ($userKota) {
-                    $q->where('kota', $userKota)
-                    ->orWhereRaw('LOWER(kota) LIKE ?', ['%' . strtolower($userKota) . '%']);
-                })
-                ->first();
-
-            if ($armadaRate) {
-                $armadaFee = (float) $armadaRate->biaya_pengiriman;
-            }
-        }
-
-        // 3. Ambil Keranjang
+        // 2. Ambil Keranjang
         $cartData = $this->getCartItemsData($customer->id);
         $allCartItems = $cartData['cartItems'];
 
@@ -172,6 +215,24 @@ class CheckoutController extends Controller
             }
         }
 
+        // 3. Kalkulasi Otomatis Armada Gudang Berdasarkan Berat & Volume
+        $armadaFee = null;
+        $fleetDetails = null;
+
+        if ($selectedAddress && !empty($selectedAddress->kota)) {
+            $metrics = $this->calculateTotalWeightAndVolume($cartItems);
+            $calcResult = $fleetCalculator->calculate(
+                $metrics['total_berat_kg'],
+                $metrics['total_volume_m3'],
+                $selectedAddress->kota
+            );
+
+            if ($calcResult['success']) {
+                $armadaFee = $calcResult['total_cost'];
+                $fleetDetails = $calcResult;
+            }
+        }
+
         // 4. GENERATE KODE UNIK VERIFIKASI (3 Digit Random: 100 - 999)
         $kodeUnik = rand(100, 999);
 
@@ -183,18 +244,71 @@ class CheckoutController extends Controller
             'subtotal', 
             'hasPreorder',
             'armadaFee',
+            'fleetDetails',
             'kodeUnik'
         ));
     }
 
     /**
+     * API / AJAX Endpoint: Hitung Ongkir Armada Saat Pilihan Alamat / Kota Berubah
+     */
+    public function calculateShipping(Request $request, FleetCalculatorService $fleetCalculator)
+    {
+        $request->validate([
+            'address_id' => 'required|exists:customer_addresses,id',
+            'cart_ids'   => 'required|array',
+        ]);
+
+        $customer = Auth::guard('customer')->user();
+        $address = CustomerAddress::where('id', $request->address_id)
+            ->where('customer_id', $customer->id)
+            ->firstOrFail();
+
+        $cartData = $this->getCartItemsData($customer->id);
+        $purchasedIds = array_map('strval', $request->cart_ids);
+
+        $selectedItems = array_filter($cartData['cartItems'], function ($item) use ($purchasedIds) {
+            return in_array((string) $item['cart_id'], $purchasedIds);
+        });
+
+        if (empty($selectedItems)) {
+            return response()->json([
+                'status'  => 'error',
+                'message' => 'Tidak ada item keranjang terpilih.'
+            ], 400);
+        }
+
+        $metrics = $this->calculateTotalWeightAndVolume($selectedItems);
+        $result = $fleetCalculator->calculate(
+            $metrics['total_berat_kg'],
+            $metrics['total_volume_m3'],
+            $address->kota
+        );
+
+        if (!$result['success']) {
+            return response()->json([
+                'status'  => 'error',
+                'message' => $result['message']
+            ], 422);
+        }
+
+        return response()->json([
+            'status'         => 'success',
+            'kota_tujuan'    => strtoupper($address->kota),
+            'total_berat_kg' => round($metrics['total_berat_kg'], 2),
+            'total_volume_m3'=> round($metrics['total_volume_m3'], 3),
+            'total_ongkir'   => $result['total_cost'],
+            'is_multi_truck' => $result['is_split'],
+            'rincian_armada' => $result['fleet'],
+        ]);
+    }
+
+    /**
      * 2. Memproses Pembuatan Pesanan Baru
      */
-    public function store(Request $request)
+    public function store(Request $request, FleetCalculatorService $fleetCalculator)
     {
-        // -----------------------------------------------------------------------
-        // CEK MODE TRANSAKSI (WEBSITE VS WHATSAPP MAINTENANCE)
-        // -----------------------------------------------------------------------
+        // CEK MODE TRANSAKSI
         $modeTransaksi = AppSetting::getValue('mode_transaksi', 'web');
         if ($modeTransaksi !== 'web') {
             $waAdmin = AppSetting::getValue('whatsapp_admin', '6281234567890');
@@ -216,23 +330,6 @@ class CheckoutController extends Controller
             ->where('customer_id', $customer->id)
             ->firstOrFail();
 
-        // Validasi Biaya Pengiriman
-        $biayaPengiriman = 0;
-        if ($request->metode_pengiriman === 'armada_gudang') {
-            $userKota = strtoupper(trim($address->kota));
-            $armadaRate = ShippingRate::where('is_aktif', true)
-                ->where(function ($q) use ($userKota) {
-                    $q->where('kota', $userKota)
-                    ->orWhereRaw('LOWER(kota) LIKE ?', ['%' . strtolower($userKota) . '%']);
-                })->first();
-
-            if (!$armadaRate) {
-                return back()->with('error', 'Metode pengiriman Armada Gudang tidak menjangkau kota Anda.');
-            }
-
-            $biayaPengiriman = (float) $armadaRate->biaya_pengiriman;
-        }
-
         $cartData = $this->getCartItemsData($customer->id);
         $allCartItems = $cartData['cartItems'];
 
@@ -245,9 +342,26 @@ class CheckoutController extends Controller
             return redirect()->route('cart.index')->with('error', 'Tidak ada produk yang diproses.');
         }
 
+        // Validasi Biaya Pengiriman via FleetCalculatorService
+        $biayaPengiriman = 0;
+        if ($request->metode_pengiriman === 'armada_gudang') {
+            $metrics = $this->calculateTotalWeightAndVolume($itemsData);
+            $calcResult = $fleetCalculator->calculate(
+                $metrics['total_berat_kg'],
+                $metrics['total_volume_m3'],
+                $address->kota
+            );
+
+            if (!$calcResult['success']) {
+                return back()->with('error', $calcResult['message']);
+            }
+
+            $biayaPengiriman = (float) $calcResult['total_cost'];
+        }
+
         $subtotal = array_sum(array_column($itemsData, 'subtotal'));
         
-        // AMBIL KODE UNIK DARI FORM CHECKOUT (Jika tidak ada, buat acak baru)
+        // AMBIL KODE UNIK DARI FORM CHECKOUT
         $kodeUnik = (int) $request->input('kode_unik', rand(100, 999));
 
         // GRAND TOTAL = Subtotal + Biaya Pengiriman + Kode Unik
@@ -316,7 +430,7 @@ class CheckoutController extends Controller
     }
 
     /**
-     * 3. Membatalkan Pembelian 'Beli Sekarang' (Menghapus Item Temporer dari Cart)
+     * 3. Membatalkan Pembelian 'Beli Sekarang'
      */
     public function cancelBuyNow(Request $request)
     {
@@ -384,7 +498,7 @@ class CheckoutController extends Controller
     }
 
     /**
-     * 6. Menampilkan Daftar Pesanan Saya milik Customer (Disembunyikan jika Expired)
+     * 6. Menampilkan Daftar Pesanan Saya milik Customer
      */
     public function myOrders(Request $request)
     {
@@ -402,9 +516,6 @@ class CheckoutController extends Controller
             ->where('customer_id', $customerId)
             ->latest();
 
-        // -----------------------------------------------------------------------
-        // LOGIKA UTAMA: SEMBUNYIKAN PESANAN UNPAID YANG SUDAH EXPIRED
-        // -----------------------------------------------------------------------
         $query->where(function ($q) {
             $q->whereNotIn('status_pembayaran', ['menunggu_pembayaran', 'unpaid', 'menunggu'])
               ->orWhere(function ($subQ) {
@@ -416,30 +527,24 @@ class CheckoutController extends Controller
               });
         });
 
-        // FILTER TAB STATUS
         if ($status && $status !== 'all') {
             switch ($status) {
                 case 'unpaid':
                     $query->whereIn('status_pembayaran', ['menunggu_pembayaran', 'unpaid', 'menunggu']);
                     break;
-
                 case 'verifikasi':
                     $query->whereIn('status_pembayaran', ['menunggu_konfirmasi_admin', 'verifikasi']);
                     break;
-
                 case 'processing':
                     $query->whereIn('status_pesanan', ['diproses', 'sedang_dikemas', 'processing'])
                           ->whereNotIn('status_pembayaran', ['menunggu_pembayaran', 'menunggu_konfirmasi_admin']);
                     break;
-
                 case 'shipped':
                     $query->whereIn('status_pesanan', ['dikirim', 'shipped']);
                     break;
-
                 case 'completed':
                     $query->whereIn('status_pesanan', ['selesai', 'completed']);
                     break;
-
                 case 'cancelled':
                     $query->where(function ($q) {
                         $q->whereIn('status_pesanan', ['dibatalkan', 'cancelled', 'batal'])
@@ -455,7 +560,7 @@ class CheckoutController extends Controller
     }
 
     /**
-     * 7. Menampilkan Detail Satu Pesanan (Proteksi Akses Jika Expired)
+     * 7. Menampilkan Detail Satu Pesanan
      */
     public function showOrder($id)
     {
@@ -466,7 +571,6 @@ class CheckoutController extends Controller
             ->where('id', $id)
             ->firstOrFail();
 
-        // Cek jika pesanan belum dibayar dan sudah melewati batas waktu (Expired)
         $isUnpaid = in_array($order->status_pembayaran, ['menunggu_pembayaran', 'unpaid', 'menunggu']);
         if ($isUnpaid && !empty($order->expired_at) && \Carbon\Carbon::parse($order->expired_at)->isPast()) {
             return redirect()->route('customer.orders.index')

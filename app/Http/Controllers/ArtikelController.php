@@ -25,9 +25,14 @@ class ArtikelController extends Controller
         return view('blog.index', compact('artikels'));
     }
 
-    public function frontendShow($slug)
+    /**
+     * Menampilkan detail artikel berdasarkan Prefix URL & Slug Dinamis
+     */
+    public function frontendShowCustom($prefix, $slug)
     {
-        $artikel = Artikel::where('slug', $slug)->firstOrFail();
+        $artikel = Artikel::where('prefix_url', $prefix)
+            ->where('slug', $slug)
+            ->firstOrFail();
         
         $artikel->increment('views');
 
@@ -55,6 +60,8 @@ class ArtikelController extends Controller
     {
         $request->validate([
             'judul'            => 'required|string|max:255',
+            'prefix_url'       => 'required|string|max:100',
+            'slug'             => 'nullable|string|max:255|unique:artikels,slug',
             'kategori'         => 'required|string',
             'ringkasan'        => 'required|string|max:500',
             'konten'           => 'required|string',
@@ -69,17 +76,24 @@ class ArtikelController extends Controller
             'meta_author'      => 'nullable|string|max:255',
             'meta_description' => 'nullable|string',
         ], [
-            'judul.required'     => 'Judul artikel wajib diisi.',
-            'ringkasan.required' => 'Ringkasan singkat wajib diisi.',
-            'konten.required'    => 'Isi konten artikel lengkap wajib diisi.',
-            'gambar.required'    => 'Banner utama artikel wajib diunggah.',
-            'gambar.image'       => 'File banner harus berupa gambar.',
-            'gambar.mimes'       => 'Format banner harus JPEG, PNG, JPG, WEBP, atau SVG.',
-            'gambar.max'         => 'Ukuran banner terlalu besar! Maksimal 10 MB.',
+            'judul.required'      => 'Judul artikel wajib diisi.',
+            'prefix_url.required' => 'Prefix URL wajib diisi.',
+            'slug.unique'         => 'Slug URL sudah digunakan artikel lain.',
+            'ringkasan.required'  => 'Ringkasan singkat wajib diisi.',
+            'konten.required'     => 'Isi konten artikel lengkap wajib diisi.',
+            'gambar.required'     => 'Banner utama artikel wajib diunggah.',
+            'gambar.image'        => 'File banner harus berupa gambar.',
+            'gambar.mimes'        => 'Format banner harus JPEG, PNG, JPG, WEBP, atau SVG.',
+            'gambar.max'          => 'Ukuran banner terlalu besar! Maksimal 10 MB.',
         ]);
 
         $data = $request->except('faqs');
-        $data['slug'] = Str::slug($request->judul) . '-' . rand(100, 999);
+
+        // Normalisasi Prefix URL & Slug SEO
+        $data['prefix_url'] = Str::slug($request->prefix_url);
+        $data['slug']       = $request->filled('slug') 
+            ? Str::slug($request->slug) 
+            : Str::slug($request->judul);
 
         // Filter simpan FAQ yang tidak kosong saja
         $formattedFaqs = [];
@@ -118,6 +132,8 @@ class ArtikelController extends Controller
 
         $request->validate([
             'judul'            => 'required|string|max:255',
+            'prefix_url'       => 'required|string|max:100',
+            'slug'             => 'required|string|max:255|unique:artikels,slug,' . $id,
             'kategori'         => 'required|string',
             'ringkasan'        => 'required|string|max:500',
             'konten'           => 'required|string',
@@ -132,15 +148,22 @@ class ArtikelController extends Controller
             'meta_author'      => 'nullable|string|max:255',
             'meta_description' => 'nullable|string',
         ], [
-            'judul.required'     => 'Judul artikel wajib diisi.',
-            'ringkasan.required' => 'Ringkasan singkat wajib diisi.',
-            'konten.required'    => 'Isi konten artikel lengkap wajib diisi.',
-            'gambar.image'       => 'File banner harus berupa gambar.',
-            'gambar.mimes'       => 'Format banner harus JPEG, PNG, JPG, WEBP, atau SVG.',
-            'gambar.max'         => 'Ukuran banner terlalu besar! Maksimal 10 MB.',
+            'judul.required'      => 'Judul artikel wajib diisi.',
+            'prefix_url.required' => 'Prefix URL wajib diisi.',
+            'slug.required'       => 'Slug URL wajib diisi.',
+            'slug.unique'         => 'Slug URL sudah digunakan oleh artikel lain.',
+            'ringkasan.required'  => 'Ringkasan singkat wajib diisi.',
+            'konten.required'     => 'Isi konten artikel lengkap wajib diisi.',
+            'gambar.image'        => 'File banner harus berupa gambar.',
+            'gambar.mimes'        => 'Format banner harus JPEG, PNG, JPG, WEBP, atau SVG.',
+            'gambar.max'          => 'Ukuran banner terlalu besar! Maksimal 10 MB.',
         ]);
 
         $data = $request->except('faqs');
+
+        // Normalisasi Prefix URL & Slug SEO saat Update
+        $data['prefix_url'] = Str::slug($request->prefix_url);
+        $data['slug']       = Str::slug($request->slug);
 
         // Filter simpan FAQ yang tidak kosong saja
         $formattedFaqs = [];

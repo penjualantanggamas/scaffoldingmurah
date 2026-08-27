@@ -158,7 +158,7 @@
             <h3 class="text-lg font-bold text-gray-900 mb-6">Artikel Edukasi Pilihan Lainnya</h3>
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-5">
                 @foreach($relatedArticles as $sub)
-                <a href="{{ route('blog.show', $sub->slug) }}" class="group block bg-gray-50 rounded-xl border border-transparent p-3 hover:bg-white hover:border-gray-100 hover:shadow-sm transition-all duration-200">
+                <a href="{{ route('blog.show', ['prefix' => $sub->prefix_url ?? 'jualscaffolding', 'slug' => $sub->slug]) }}" class="group block bg-gray-50 rounded-xl border border-transparent p-3 hover:bg-white hover:border-gray-100 hover:shadow-sm transition-all duration-200">
                     <div class="aspect-[16/10] bg-gray-200 rounded-lg overflow-hidden mb-3">
                         @if($sub->gambar)
                             <img src="{{ asset('images/blog/' . $sub->gambar) }}" class="w-full h-full object-cover group-hover:scale-102 transition-transform">
@@ -225,90 +225,22 @@
     }
 </script>
 
-<!-- STYLE PENETRAL RESET TAILWIND KHUSUS AREA EDITOR -->
 <style>
-    .content-artikel h1 {
-        font-size: 2.25rem;
-        font-weight: 800;
-        margin-top: 1.75rem;
-        margin-bottom: 0.75rem;
-        color: #111827;
-        line-height: 1.25;
-    }
-    .content-artikel h2 {
-        font-size: 1.5rem;
-        font-weight: 700;
-        margin-top: 1.5rem;
-        margin-bottom: 0.5rem;
-        color: #1f2937;
-        line-height: 1.35;
-    }
-    .content-artikel h3 {
-        font-size: 1.25rem;
-        font-weight: 700;
-        margin-top: 1.25rem;
-        margin-bottom: 0.5rem;
-        color: #374151;
-    }
-    .content-artikel p {
-        margin-bottom: 1.25rem;
-        font-size: 1rem;
-        line-height: 1.75;
-    }
-    .content-artikel strong {
-        font-weight: 700;
-        color: #111827;
-    }
-    .content-artikel em {
-        font-style: italic;
-    }
-    .content-artikel u {
-        text-decoration: underline;
-    }
-    .content-artikel ul {
-        list-style-type: disc;
-        padding-left: 1.5rem;
-        margin-bottom: 1.25rem;
-    }
-    .content-artikel ol {
-        list-style-type: decimal;
-        padding-left: 1.5rem;
-        margin-bottom: 1.25rem;
-    }
-    .content-artikel li {
-        margin-bottom: 0.25rem;
-    }
+    .content-artikel h1 { font-size: 2.25rem; font-weight: 800; margin-top: 1.75rem; margin-bottom: 0.75rem; color: #111827; line-height: 1.25; }
+    .content-artikel h2 { font-size: 1.5rem; font-weight: 700; margin-top: 1.5rem; margin-bottom: 0.5rem; color: #1f2937; line-height: 1.35; }
+    .content-artikel h3 { font-size: 1.25rem; font-weight: 700; margin-top: 1.25rem; margin-bottom: 0.5rem; color: #374151; }
+    .content-artikel p { margin-bottom: 1.25rem; font-size: 1rem; line-height: 1.75; }
+    .content-artikel strong { font-weight: 700; color: #111827; }
+    .content-artikel em { font-style: italic; }
+    .content-artikel u { text-decoration: underline; }
+    .content-artikel ul { list-style-type: disc; padding-left: 1.5rem; margin-bottom: 1.25rem; }
+    .content-artikel ol { list-style-type: decimal; padding-left: 1.5rem; margin-bottom: 1.25rem; }
+    .content-artikel li { margin-bottom: 0.25rem; }
 
-    /* ================= DUKUNGAN STYLING TABEL ARTIKEL ================= */
-    .content-artikel table {
-        width: 100% !important;
-        border-collapse: collapse !important;
-        margin-top: 1.25rem !important;
-        margin-bottom: 1.75rem !important;
-        font-size: 0.875rem !important;
-        line-height: 1.5 !important;
-        border: 1px solid #e5e7eb !important;
-    }
-    .content-artikel th {
-        background-color: #f3f4f6 !important;
-        color: #111827 !important;
-        font-weight: 700 !important;
-        padding: 0.75rem 1rem !important;
-        border: 1px solid #d1d5db !important;
-        text-align: left !important;
-    }
-    .content-artikel td {
-        padding: 0.75rem 1rem !important;
-        border: 1px solid #e5e7eb !important;
-        color: #374151 !important;
-        vertical-align: top !important;
-    }
-    .content-artikel tr:nth-child(even) {
-        background-color: #f9fafb !important;
-    }
-    .content-artikel figure.table {
-        overflow-x: auto !important;
-        margin-bottom: 1.5rem !important;
-    }
+    .content-artikel table { width: 100% !important; border-collapse: collapse !important; margin-top: 1.25rem !important; margin-bottom: 1.75rem !important; font-size: 0.875rem !important; line-height: 1.5 !important; border: 1px solid #e5e7eb !important; }
+    .content-artikel th { background-color: #f3f4f6 !important; color: #111827 !important; font-weight: 700 !important; padding: 0.75rem 1rem !important; border: 1px solid #d1d5db !important; text-align: left !important; }
+    .content-artikel td { padding: 0.75rem 1rem !important; border: 1px solid #e5e7eb !important; color: #374151 !important; vertical-align: top !important; }
+    .content-artikel tr:nth-child(even) { background-color: #f9fafb !important; }
+    .content-artikel figure.table { overflow-x: auto !important; margin-bottom: 1.5rem !important; }
 </style>
 @endsection

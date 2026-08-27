@@ -60,7 +60,7 @@
                     </div>
 
                     @if($selectedAddress)
-                        <input type="hidden" name="customer_address_id" value="{{ $selectedAddress->id }}">
+                        <input type="hidden" name="customer_address_id" id="customer_address_id" value="{{ $selectedAddress->id }}">
                         
                         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs text-gray-700 bg-gray-50/70 p-3.5 rounded-lg border border-gray-200">
                             <div class="space-y-1">
@@ -75,7 +75,7 @@
                                     <strong class="text-gray-800">[{{ $selectedAddress->label_alamat }}]</strong> 
                                     {{ $selectedAddress->detail_jalan }}, 
                                     Kel. {{ $selectedAddress->kelurahan }}, Kec. {{ $selectedAddress->kecamatan }}, 
-                                    {{ $selectedAddress->kota }}, {{ $selectedAddress->provinsi }} - {{ $selectedAddress->kode_pos }}
+                                    <span id="address_kota_name">{{ $selectedAddress->kota }}</span>, {{ $selectedAddress->provinsi }} - {{ $selectedAddress->kode_pos }}
                                 </p>
                             </div>
                         </div>
@@ -168,29 +168,58 @@
                     <!-- Opsi Pengiriman -->
                     <div class="space-y-2">
                         <label class="text-xs font-bold text-gray-700 block">Opsi Pengiriman Kargo / Armada:</label>
-                        <div class="space-y-2">
+                        <div class="space-y-2" id="shipping_options_container">
                             
                             <!-- OPSI 1: ARMADA GUDANG -->
                             @if($armadaFee !== null)
-                                <label class="flex items-center justify-between p-3 bg-white border-2 border-[#1BBC9A] rounded-lg cursor-pointer transition-all">
-                                    <div class="flex items-center gap-2.5">
-                                        <input type="radio" name="metode_pengiriman" value="armada_gudang" checked onchange="updateTotalCost({{ $armadaFee }})" class="text-[#1BBC9A] focus:ring-[#1BBC9A]">
-                                        <div class="text-xs">
-                                            <span class="font-bold text-gray-800 block">Armada Gudang Tangga Mas</span>
-                                            <span class="text-gray-500 text-[11px]">Pengiriman cepat langsung oleh tim armada gudang</span>
+                                <label class="flex flex-col p-3 bg-white border-2 border-[#1BBC9A] rounded-xl cursor-pointer transition-all space-y-2 shadow-sm">
+                                    <div class="flex items-center justify-between">
+                                        <div class="flex items-center gap-2.5">
+                                            <input type="radio" name="metode_pengiriman" value="armada_gudang" checked onchange="updateTotalCost({{ $armadaFee }})" class="text-[#1BBC9A] focus:ring-[#1BBC9A]">
+                                            <div class="text-xs">
+                                                <span class="font-bold text-gray-800 block">Armada Gudang Tangga Mas</span>
+                                                <span class="text-gray-500 text-[11px]">Dikalkulasi presisi berdasarkan muatan (kg & volume)</span>
+                                            </div>
                                         </div>
+                                        <span class="text-xs font-extrabold text-[#1BBC9A]" id="armada_fee_text">
+                                            Rp {{ number_format($armadaFee, 0, ',', '.') }}
+                                        </span>
                                     </div>
-                                    <span class="text-xs font-extrabold text-[#1BBC9A]">
-                                        Rp {{ number_format($armadaFee, 0, ',', '.') }}
-                                    </span>
+
+                                    <!-- DETAIL BREAKDOWN MUATAN & ARMADA TERPILIH -->
+                                    @if(isset($fleetDetails) && $fleetDetails['success'])
+                                        <div class="bg-emerald-50/70 p-2.5 rounded-lg border border-emerald-100 text-[11px] space-y-1.5 mt-1">
+                                            <div class="flex items-center justify-between text-gray-700">
+                                                <span class="font-semibold text-gray-600">Total Muatan Pesanan:</span>
+                                                <span class="font-mono text-gray-900 font-bold">
+                                                    {{ number_format($fleetDetails['total_weight'], 1) }} kg / {{ number_format($fleetDetails['total_volume'], 2) }} m³
+                                                </span>
+                                            </div>
+                                            <div class="flex items-center justify-between">
+                                                <span class="font-semibold text-gray-600">Alokasi Armada:</span>
+                                                <div class="flex flex-wrap gap-1 justify-end">
+                                                    @foreach($fleetDetails['fleet'] as $f)
+                                                        <span class="bg-white border border-emerald-300 text-[#0C5646] px-2 py-0.5 rounded font-bold text-[10px] shadow-2xs">
+                                                            {{ $f['qty'] }}x {{ $f['vehicle_name'] }}
+                                                        </span>
+                                                    @endforeach
+                                                </div>
+                                            </div>
+                                            @if(!empty($fleetDetails['is_split']))
+                                                <div class="text-[10px] text-amber-700 font-bold flex items-center gap-1 pt-0.5">
+                                                    <i class="fa-solid fa-truck-shapes"></i> Multi-Armada (Split Load Aktif)
+                                                </div>
+                                            @endif
+                                        </div>
+                                    @endif
                                 </label>
                             @else
-                                <div class="flex items-center justify-between p-3 bg-gray-100 border border-gray-200 rounded-lg opacity-60 cursor-not-allowed">
+                                <div class="flex items-center justify-between p-3 bg-gray-100 border border-gray-200 rounded-xl opacity-60 cursor-not-allowed">
                                     <div class="flex items-center gap-2.5">
                                         <input type="radio" name="metode_pengiriman" value="armada_gudang" disabled class="text-gray-400">
                                         <div class="text-xs">
                                             <span class="font-bold text-gray-500 block">Armada Gudang Tangga Mas</span>
-                                            <span class="text-[10px] text-rose-500 font-bold">Wilayah ({{ $selectedAddress->kota ?? 'Alamat Anda' }}) di luar jangkauan</span>
+                                            <span class="text-[10px] text-rose-500 font-bold">Wilayah ({{ $selectedAddress->kota ?? 'Alamat Anda' }}) belum terjangkau</span>
                                         </div>
                                     </div>
                                     <span class="text-[10px] bg-rose-100 text-rose-700 font-bold px-2 py-0.5 rounded">Tidak Tersedia</span>
@@ -198,7 +227,7 @@
                             @endif
 
                             <!-- OPSI 2: EKSPEDISI KARGO -->
-                            <label class="flex items-start gap-2.5 p-3 bg-white border border-gray-200 rounded-lg cursor-pointer hover:border-[#1BBC9A] transition-all">
+                            <label class="flex items-start gap-2.5 p-3 bg-white border border-gray-200 rounded-xl cursor-pointer hover:border-[#1BBC9A] transition-all">
                                 <input type="radio" name="metode_pengiriman" value="ekspedisi" {{ $armadaFee === null ? 'checked' : '' }} onchange="updateTotalCost(0)" class="mt-0.5 text-[#1BBC9A] focus:ring-[#1BBC9A]">
                                 <div class="text-xs">
                                     <span class="font-bold text-gray-800 block">Kirim via Ekspedisi Kargo</span>
@@ -207,7 +236,7 @@
                             </label>
 
                             <!-- OPSI 3: AMBIL SENDIRI DI GUDANG -->
-                            <label class="flex items-start gap-2.5 p-3 bg-white border border-gray-200 rounded-lg cursor-pointer hover:border-[#1BBC9A] transition-all">
+                            <label class="flex items-start gap-2.5 p-3 bg-white border border-gray-200 rounded-xl cursor-pointer hover:border-[#1BBC9A] transition-all">
                                 <input type="radio" name="metode_pengiriman" value="ambil_sendiri" onchange="updateTotalCost(0)" class="mt-0.5 text-[#1BBC9A] focus:ring-[#1BBC9A]">
                                 <div class="text-xs">
                                     <span class="font-bold text-gray-800 block">Ambil Sendiri di Gudang (Rp 0)</span>
@@ -254,7 +283,7 @@
                     </div>
                 </div>
 
-                <!-- Table Rincian Biaya Akhir (Suntikan Kode Unik) -->
+                <!-- Table Rincian Biaya Akhir -->
                 @php
                     $initialOngkir = $armadaFee !== null ? $armadaFee : 0;
                     $initialGrandTotal = $subtotal + $initialOngkir + $kodeUnik;
@@ -278,17 +307,6 @@
                             +Rp {{ number_format($kodeUnik, 0, ',', '.') }}
                         </span>
                     </div>
-
-                    <!-- BARIS KODE UNIK VERIFIKASI -->
-                    <!-- <div class="flex justify-between items-center text-amber-700 bg-amber-50/80 p-2 rounded-lg border border-amber-200/80">
-                        <span class="font-bold flex items-center gap-1">
-                            Kode Unik Verifikasi 
-                            <i class="fa-solid fa-circle-info text-amber-500" title="3 digit angka acak untuk mempermudah verifikasi uang masuk secara otomatis"></i>
-                        </span>
-                        <span class="font-extrabold bg-amber-200/80 text-rose-700 px-2 py-0.5 rounded border border-amber-300">
-                            +Rp {{ number_format($kodeUnik, 0, ',', '.') }}
-                        </span>
-                    </div> -->
 
                     <div class="flex justify-between items-baseline pt-3 border-t border-dashed border-gray-200">
                         <span class="text-sm font-bold text-gray-800">Total Pembayaran</span>
@@ -320,8 +338,10 @@
 <script>
     let subtotalProduk = {{ $subtotal }};
     let kodeUnikVerifikasi = {{ $kodeUnik }};
+    let currentShippingFee = {{ $initialOngkir }};
 
     function updateTotalCost(shippingFee) {
+        currentShippingFee = shippingFee;
         let grandTotal = subtotalProduk + shippingFee + kodeUnikVerifikasi;
         
         let formattedOngkir = new Intl.NumberFormat('id-ID', { 

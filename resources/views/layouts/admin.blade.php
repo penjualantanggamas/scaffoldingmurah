@@ -71,7 +71,6 @@
                 </div>
                 <div class="hidden md:block">
                     <span class="text-xs font-bold text-gray-800 block leading-tight">{{ Auth::user()->name ?? 'Admin Tangga Mas' }}</span>
-                    <!-- <span class="text-[10px] text-emerald-600 font-medium">Administrator</span> -->
                 </div>
             </div>
 
@@ -108,14 +107,19 @@
                 </nav>
             </div>
 
-            <!-- KELOMPOK 2: PESANAN & OPERASIONAL -->
+            <!-- KELOMPOK 2: PESANAN & LOGISTIK ARMADA -->
             <div>
-                <span class="text-[11px] font-bold text-gray-400 uppercase tracking-wider block px-3 mb-2">Pesanan</span>
+                <span class="text-[11px] font-bold text-gray-400 uppercase tracking-wider block px-3 mb-2">Pesanan & Logistik</span>
                 <nav class="space-y-1">
                     <a href="{{ route('admin.orders.index') }}" 
                        class="flex items-center gap-3 px-3 py-2 rounded-lg text-xs font-medium transition-all {{ Request::is('admin/orders*') ? 'bg-emerald-50 text-[#1BBC9A] font-bold border-r-4 border-[#1BBC9A]' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' }}">
                         <i class="fa-solid fa-boxes-packing w-4 text-center text-sm"></i>
                         <span>Pesanan Masuk</span>
+                    </a>
+                    <a href="{{ route('admin.vehicles.index') }}" 
+                       class="flex items-center gap-3 px-3 py-2 rounded-lg text-xs font-medium transition-all {{ Request::is('admin/vehicles*') ? 'bg-emerald-50 text-[#1BBC9A] font-bold border-r-4 border-[#1BBC9A]' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' }}">
+                        <i class="fa-solid fa-truck-front w-4 text-center text-sm"></i>
+                        <span>Master Data Armada</span>
                     </a>
                     <a href="{{ route('admin.shipping.index') }}" 
                        class="flex items-center gap-3 px-3 py-2 rounded-lg text-xs font-medium transition-all {{ Request::is('admin/shipping-rates*') ? 'bg-emerald-50 text-[#1BBC9A] font-bold border-r-4 border-[#1BBC9A]' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' }}">
@@ -182,15 +186,10 @@
             </div>
 
         </div>
-
-        <!-- Footer Sidebar Info -->
-        <!-- <div class="p-3.5 bg-gray-50 border-t border-gray-200 text-center">
-            <span class="text-[10px] text-gray-400 block font-medium">Tangga Mas Admin Panel</span>
-        </div> -->
     </aside>
 
     <!-- ========================================================================= -->
-    <!-- 3. AREA KONTEN UTAMA (BEBAS BENTROK KARENA TERPISAH) -->
+    <!-- 3. AREA KONTEN UTAMA -->
     <!-- ========================================================================= -->
     <main class="pt-16 lg:pl-64 min-h-screen">
         <div class="p-4 md:p-6 lg:p-8">

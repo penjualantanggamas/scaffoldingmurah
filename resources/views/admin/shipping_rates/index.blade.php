@@ -10,7 +10,7 @@
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-gray-200 pb-4">
             <div>
                 <h1 class="text-xl sm:text-2xl font-bold text-gray-900 tracking-tight">Tarif & Jangkauan Armada Gudang</h1>
-                <p class="text-xs text-gray-500 mt-0.5">Kelola wilayah yang dapat dijangkau oleh armada pengiriman Tangga Mas beserta tarif ongkirnya.</p>
+                <p class="text-xs text-gray-500 mt-0.5">Kelola wilayah yang dapat dijangkau oleh armada pengiriman Tangga Mas beserta tarif ongkir per jenis kendaraan.</p>
             </div>
             <a href="{{ route('admin.dashboard') }}" class="text-xs font-semibold text-brand-green hover:underline flex items-center gap-1 self-start sm:self-auto">
                 <i class="fa-solid fa-arrow-left"></i> Kembali ke Dashboard
@@ -34,10 +34,10 @@
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
             
-            <!-- FORM TAMBAH WILAYAH JANGKAUAN DENGAN API -->
+            <!-- FORM TAMBAH WILAYAH JANGKAUAN & ARMADA -->
             <div class="bg-white p-5 rounded-2xl border border-gray-200 shadow-sm space-y-4 sticky top-20">
                 <h2 class="text-sm font-bold text-gray-800 border-b border-gray-100 pb-3 flex items-center gap-2">
-                    <i class="fa-solid fa-plus-circle text-brand-green"></i> Tambah Wilayah Jangkauan
+                    <i class="fa-solid fa-plus-circle text-brand-green"></i> Tambah Tarif Wilayah & Armada
                 </h2>
 
                 <form action="{{ route('admin.shipping.store') }}" method="POST" class="space-y-3">
@@ -62,18 +62,32 @@
                         <span class="text-[10px] text-gray-400 mt-1 block leading-tight">*Otomatis tersinkronisasi dengan API Wilayah Indonesia</span>
                     </div>
 
+                    <!-- DROPDOWN JENIS ARMADA -->
+                    <div>
+                        <label class="block text-xs font-bold text-gray-700 mb-1">Jenis Armada</label>
+                        <select name="vehicle_id" required 
+                                class="w-full px-3 py-2 bg-white border border-gray-200 rounded-xl text-xs font-semibold focus:outline-none focus:border-brand-green">
+                            <option value="">Pilih Jenis Armada...</option>
+                            @foreach($vehicles as $vehicle)
+                                <option value="{{ $vehicle->id }}" {{ old('vehicle_id') == $vehicle->id ? 'selected' : '' }}>
+                                    {{ $vehicle->nama_armada }} (Max: {{ number_format($vehicle->max_berat_kg, 0, ',', '.') }} kg / {{ $vehicle->max_volume_m3 }} m³)
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
+
                     <!-- INPUT TARIF ONGKIR -->
                     <div>
                         <label class="block text-xs font-bold text-gray-700 mb-1">Tarif Ongkir (Rp)</label>
                         <div class="relative flex items-center">
                             <span class="absolute left-3 text-xs font-bold text-gray-400">Rp</span>
-                            <input type="number" name="biaya_pengiriman" placeholder="50000" min="0" step="1000" required 
+                            <input type="number" name="biaya_pengiriman" placeholder="150000" min="0" step="1000" required 
                                    class="w-full pl-9 pr-3 py-2 bg-gray-50 border border-gray-200 rounded-xl text-xs font-bold text-gray-800 focus:outline-none focus:border-brand-green">
                         </div>
                     </div>
 
                     <button type="submit" class="w-full bg-brand-green hover:bg-brand-green-dark text-white font-bold text-xs py-2.5 rounded-xl shadow transition-all flex items-center justify-center gap-1.5 cursor-pointer">
-                        <i class="fa-solid fa-floppy-disk"></i> Simpan Wilayah Baru
+                        <i class="fa-solid fa-floppy-disk"></i> Simpan Tarif Wilayah
                     </button>
                 </form>
             </div>
@@ -82,7 +96,7 @@
             <div class="lg:col-span-2 bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
                 <div class="p-4 border-b border-gray-100 flex items-center justify-between bg-white">
                     <h2 class="text-sm font-bold text-gray-800 flex items-center gap-2">
-                        <i class="fa-solid fa-truck-ramp-box text-gray-400"></i> Daftar Jangkauan ({{ $shippingRates->count() }})
+                        <i class="fa-solid fa-truck-ramp-box text-gray-400"></i> Daftar Tarif Armada ({{ $shippingRates->count() }})
                     </h2>
                 </div>
 
@@ -91,6 +105,7 @@
                         <thead class="bg-gray-50 border-b border-gray-100 font-bold uppercase text-[10px] text-gray-400">
                             <tr>
                                 <th class="p-3.5">Kota / Kabupaten</th>
+                                <th class="p-3.5">Jenis Armada</th>
                                 <th class="p-3.5">Provinsi</th>
                                 <th class="p-3.5">Tarif Ongkir</th>
                                 <th class="p-3.5">Status</th>
@@ -101,6 +116,11 @@
                             @forelse($shippingRates as $rate)
                                 <tr class="hover:bg-gray-50/70 transition-colors">
                                     <td class="p-3.5 font-bold text-gray-900">{{ $rate->kota }}</td>
+                                    <td class="p-3.5">
+                                        <span class="px-2.5 py-1 bg-blue-50 text-blue-700 border border-blue-100 rounded-lg text-[10px] font-bold inline-flex items-center gap-1">
+                                            <i class="fa-solid fa-truck-flatbed text-[9px]"></i> {{ $rate->vehicle->nama_armada ?? '-' }}
+                                        </span>
+                                    </td>
                                     <td class="p-3.5 text-gray-500">{{ $rate->provinsi }}</td>
                                     <td class="p-3.5 font-extrabold text-brand-price">
                                         Rp {{ number_format($rate->biaya_pengiriman, 0, ',', '.') }}
@@ -117,7 +137,7 @@
                                     </td>
                                     <td class="p-3.5 text-right space-x-1">
                                         <!-- Tombol Edit Modal -->
-                                        <button type="button" onclick="openEditModal({{ $rate->id }}, '{{ $rate->provinsi }}', '{{ $rate->kota }}', {{ (int)$rate->biaya_pengiriman }})" 
+                                        <button type="button" onclick="openEditModal({{ $rate->id }}, '{{ $rate->provinsi }}', '{{ $rate->kota }}', {{ $rate->vehicle_id ?? 'null' }}, {{ (int)$rate->biaya_pengiriman }})" 
                                                 class="text-amber-600 hover:text-amber-800 font-bold text-xs p-1.5 rounded hover:bg-amber-50 transition-colors" title="Edit Tarif">
                                             <i class="fa-solid fa-pen-to-square"></i>
                                         </button>
@@ -134,9 +154,9 @@
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="5" class="p-8 text-center text-gray-400 font-medium">
+                                    <td colspan="6" class="p-8 text-center text-gray-400 font-medium">
                                         <i class="fa-solid fa-map-location-dot text-2xl mb-2 block text-gray-300"></i>
-                                        Belum ada data wilayah jangkauan Armada Gudang.
+                                        Belum ada data tarif armada gudang.
                                     </td>
                                 </tr>
                             @endforelse
@@ -157,7 +177,7 @@
         
         <div class="flex items-center justify-between border-b border-gray-100 pb-3">
             <h3 class="text-sm font-bold text-gray-900 flex items-center gap-2">
-                <i class="fa-solid fa-pen-to-square text-brand-green"></i> Edit Tarif Wilayah
+                <i class="fa-solid fa-pen-to-square text-brand-green"></i> Edit Tarif Wilayah & Armada
             </h3>
             <button type="button" onclick="closeEditModal()" class="text-gray-400 hover:text-gray-600 text-sm p-1">
                 <i class="fa-solid fa-xmark"></i>
@@ -178,6 +198,19 @@
                 <label class="block text-xs font-bold text-gray-700 mb-1">Nama Kota / Kabupaten</label>
                 <input type="text" id="edit_kota" name="kota" readonly required 
                        class="w-full px-3 py-2 bg-gray-100 border border-gray-200 rounded-xl text-xs font-semibold text-gray-500 cursor-not-allowed">
+            </div>
+
+            <div>
+                <label class="block text-xs font-bold text-gray-700 mb-1">Jenis Armada</label>
+                <select id="edit_vehicle_id" name="vehicle_id" required 
+                        class="w-full px-3 py-2 bg-white border border-gray-200 rounded-xl text-xs font-semibold focus:outline-none focus:border-brand-green">
+                    <option value="">Pilih Jenis Armada...</option>
+                    @foreach($vehicles as $vehicle)
+                        <option value="{{ $vehicle->id }}">
+                            {{ $vehicle->nama_armada }} (Max: {{ number_format($vehicle->max_berat_kg, 0, ',', '.') }} kg / {{ $vehicle->max_volume_m3 }} m³)
+                        </option>
+                    @endforeach
+                </select>
             </div>
 
             <div>
@@ -275,13 +308,14 @@ document.addEventListener("DOMContentLoaded", function() {
   });
 });
 
-function openEditModal(id, provinsi, kota, biaya) {
+function openEditModal(id, provinsi, kota, vehicleId, biaya) {
     const modal = document.getElementById('editRateModal');
     const form = document.getElementById('editRateForm');
     
     form.action = `/admin/shipping-rates/${id}`;
     document.getElementById('edit_provinsi').value = provinsi;
     document.getElementById('edit_kota').value = kota;
+    document.getElementById('edit_vehicle_id').value = vehicleId || '';
     document.getElementById('edit_biaya').value = biaya;
 
     modal.classList.remove('hidden');
