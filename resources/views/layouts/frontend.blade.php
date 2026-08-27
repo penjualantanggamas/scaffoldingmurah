@@ -69,8 +69,25 @@ tailwind.config = {
   }
 </style>
 
-<!-- SCRIPT GOOGLE ANALYTICS & EVENT HELPER TANGGA MAS -->
+<!-- SCRIPT GOOGLE ANALYTICS 4 (GA4) & INTEGRASI INDIVIDUAL USER ID -->
+@php
+    $customerId = Auth::guard('customer')->check() ? Auth::guard('customer')->id() : null;
+@endphp
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-27BCQV8102"></script>
 <script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  // Inisialisasi GA4 dengan pelacakan User ID Customer (Jika Sedang Login)
+  gtag('config', 'G-27BCQV8102', {
+    'send_page_view': true,
+    @if($customerId)
+      'user_id': 'CUST-{{ $customerId }}'
+    @endif
+  });
+
   window.trackGAEvent = function(eventName, eventParams = {}) {
     if (typeof gtag === 'function') {
       gtag('event', eventName, eventParams);
@@ -82,16 +99,6 @@ tailwind.config = {
   function trackGAEvent(eventName, eventParams = {}) {
     window.trackGAEvent(eventName, eventParams);
   }
-</script>
-
-<!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-27BCQV8102"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'G-27BCQV8102');
 </script>
 
 </head>
