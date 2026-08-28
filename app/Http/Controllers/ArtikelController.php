@@ -56,6 +56,14 @@ class ArtikelController extends Controller
         return view('admin.artikel.create');
     }
 
+    /**
+     * Menangani panggilan rute admin/artikel/{id} bawaan Route::resource
+     */
+    public function show($id)
+    {
+        return redirect()->route('artikel.edit', $id);
+    }
+
     public function store(Request $request)
     {
         $request->validate([
@@ -155,7 +163,7 @@ class ArtikelController extends Controller
             'ringkasan.required'  => 'Ringkasan singkat wajib diisi.',
             'konten.required'     => 'Isi konten artikel lengkap wajib diisi.',
             'gambar.image'        => 'File banner harus berupa gambar.',
-            'gambar.mimes'        => 'Format banner harus JPEG, PNG, JPG, WEBP, atau SVG.',
+            'gambar.mimes'        => 'Format banner meksimal JPG, PNG, WEBP, SVG.',
             'gambar.max'          => 'Ukuran banner terlalu besar! Maksimal 10 MB.',
         ]);
 

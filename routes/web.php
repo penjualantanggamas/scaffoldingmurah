@@ -13,6 +13,7 @@ use App\Http\Controllers\AdminShippingRateController;
 use App\Http\Controllers\Admin\SettingController;
 use App\Http\Controllers\Admin\StoreDecorationController;
 use App\Http\Controllers\VehicleController;
+use App\Http\Controllers\UploadController;
 
 /*
 |--------------------------------------------------------------------------
@@ -211,6 +212,7 @@ Route::post('/customer/logout', [CustomerAuthController::class, 'logout'])->name
 
 // RUTE PUBLIK DAFTAR PESANAN SAYA (Dapat dibuka oleh Guest/Customer belum login)
 Route::get('/customer/orders', [CheckoutController::class, 'myOrders'])->name('customer.orders.index');
+Route::post('/upload-image', [UploadController::class, 'store'])->name('image.upload');
 
 // Rute Terproteksi Khusus Customer (Wajib Login)
 Route::middleware('auth:customer')->group(function () {

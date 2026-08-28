@@ -200,12 +200,52 @@
 
 <script src="https://cdn.ckeditor.com/ckeditor5/39.0.1/classic/ckeditor.js"></script>
 <script>
+    class MyUploadAdapter {
+        constructor(loader) {
+            this.loader = loader;
+        }
+
+        upload() {
+            return this.loader.file.then(file => new Promise((resolve, reject) => {
+                const data = new FormData();
+                data.append('upload', file);
+                data.append('_token', '{{ csrf_token() }}');
+
+                fetch('{{ route("image.upload") }}', {
+                    method: 'POST',
+                    body: data
+                })
+                .then(response => response.json())
+                .then(result => {
+                    if (result.error) {
+                        return reject(result.error.message || 'Gagal mengunggah gambar.');
+                    }
+                    resolve({
+                        default: result.url
+                    });
+                })
+                .catch(error => {
+                    reject('Gagal terhubung ke server.');
+                });
+            }));
+        }
+
+        abort() {}
+    }
+
+    function CustomUploadAdapterPlugin(editor) {
+        editor.plugins.get('FileRepository').createUploadAdapter = (loader) => {
+            return new MyUploadAdapter(loader);
+        };
+    }
+
     ClassicEditor
         .create(document.querySelector('#editor'), {
+            extraPlugins: [CustomUploadAdapterPlugin],
             toolbar: {
                 items: [
                     'heading', '|', 'bold', 'italic', 'underline', 'link',
-                    '|', 'bulletedList', 'numberedList', '|', 'insertTable',
+                    '|', 'bulletedList', 'numberedList', '|', 'insertTable', 'imageUpload',
                     '|', 'undo', 'redo'
                 ]
             },
@@ -293,6 +333,15 @@
     .ck-content h2 { font-size: 1.5em !important; font-weight: bold !important; }
     .ck-content h3 { font-size: 1.25em !important; font-weight: bold !important; }
     .ck-content a { color: #1BBC9A !important; text-decoration: underline !important; }
+
+    /* Styling Tampilan Gambar di Dalam Editor */
+    .ck-content img {
+        max-width: 100% !important;
+        height: auto !important;
+        border-radius: 0.5rem !important;
+        margin: 1rem 0 !important;
+        display: block !important;
+    }
 
     .ck-content table {
         width: 100% !important;
